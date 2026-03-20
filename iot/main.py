@@ -3,6 +3,7 @@ from sensors.dht22 import read_dht22
 from sensors.light import read_light
 from sensors.air import read_air
 from db.connection import get_connection
+from actuators.led import control_led
 
 conn = get_connection()
 cursor = conn.cursor()
@@ -31,6 +32,7 @@ while True:
       (lux,)
     )
     conn.commit()
+    control_led(lux) # LED 제어 추가
   else:
     print("조도 읽기 실패, 건너뜀")
 
@@ -45,5 +47,7 @@ while True:
     conn.commit()
   else:
     print('대기질 읽기 실패, 건너뜀')
+
+  # 모션감지
 
   time.sleep(2.0)
