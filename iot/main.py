@@ -2,8 +2,10 @@ import time
 from sensors.dht22 import read_dht22
 from sensors.light import read_light
 from sensors.air import read_air
-from db.connection import get_connection
+from sensors.motion import read_motion
 from actuators.led import control_led
+from actuators.buzzer import buzz_on, buzz_off
+from db.connection import get_connection
 
 conn = get_connection()
 cursor = conn.cursor()
@@ -49,5 +51,11 @@ while True:
     print('대기질 읽기 실패, 건너뜀')
 
   # 모션감지
+  if read_motion():
+    print('모션 감지! -> 부저 울림')
+    buzz_on(440)
+  else:
+    print('모션 없음')
+    buzz_off()
 
   time.sleep(2.0)
