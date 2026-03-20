@@ -13,10 +13,9 @@ IoT 센서를 활용해 가축 환경을 실시간 모니터링하고, LED, 팬,
 - 조도 센서
 - 대기질 센서
 - 모션 감지 센서
-- 무게 센서
 
 ### 액추에이터 제어
-- LED, 선풍기, 부저, 물펌프, 모터 드라이버
+- LED, 선풍기, 부저, 모터 드라이버
 - 환경 조건에 따라 자동 제어
 
 ### 데이터 관리
@@ -28,7 +27,7 @@ IoT 센서를 활용해 가축 환경을 실시간 모니터링하고, LED, 팬,
 
 ## 🛠 개발 환경
 
-- Backend: Spring Boot, Java 17
+- Backend: Spring Boot, Java 17, Python3
 - Frontend: React (Vite), JavaScript / TypeScript
 - Database: MariaDB
 - IDE: IntelliJ IDEA
