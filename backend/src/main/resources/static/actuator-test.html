@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartFarm 액츄에이터 테스트 (Spring Boot 경유)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f0f4f8; padding: 24px; }
+    h1 { color: #2d6a4f; margin-bottom: 6px; }
+    .subtitle { color: #868e96; font-size: 0.85rem; margin-bottom: 20px; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 820px; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card h2 { color: #40916c; margin-bottom: 12px; font-size: 0.95rem; }
+
+    .badge {
+      display: inline-block; padding: 4px 12px;
+      border-radius: 20px; font-weight: bold; font-size: 0.85rem;
+    }
+    .badge.auto   { background: #d8f3dc; color: #2d6a4f; }
+    .badge.manual { background: #ffe8cc; color: #e76f00; }
+    .badge.on     { background: #fff3bf; color: #e67700; }
+    .badge.off    { background: #e9ecef; color: #495057; }
+    .badge.error  { background: #ffe3e3; color: #c92a2a; }
+
+    button {
+      padding: 8px 18px; border: none; border-radius: 8px;
+      cursor: pointer; font-size: 0.9rem; margin: 4px;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.8; }
+    .btn-auto   { background: #52b788; color: white; }
+    .btn-manual { background: #f4a261; color: white; }
+    .btn-on     { background: #ffd43b; color: #333; }
+    .btn-off    { background: #868e96; color: white; }
+
+    input[type=range] { width: 100%; margin: 8px 0; accent-color: #52b788; }
+
+    .sensor-row {
+      display: flex; justify-content: space-between;
+      padding: 5px 0; border-bottom: 1px solid #f1f3f5;
+      font-size: 0.9rem;
+    }
+    .sensor-row:last-child { border-bottom: none; }
+    .label { color: #868e96; }
+    .value { font-weight: bold; color: #212529; }
+
+    #log {
+      background: #212529; color: #69db7c;
+      border-radius: 8px; padding: 12px;
+      font-family: monospace; font-size: 0.78rem;
+      height: 140px; overflow-y: auto;
+    }
+
+    .route-info {
+      background: #e7f5ff; border-left: 4px solid #4dabf7;
+      padding: 10px 14px; border-radius: 6px;
+      font-size: 0.82rem; color: #1864ab; margin-bottom: 16px;
+      max-width: 820px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌱 SmartFarm 액츄에이터 테스트</h1>
+<p class="subtitle">Spring Boot (localhost:8080) → FastAPI (라즈베리파이) → GPIO 전체 흐름 테스트</p>
+
+<div class="route-info">
+  📡 요청 경로: <strong>이 페이지</strong> → <strong>localhost:8080/api/actuator/...</strong> → <strong>라즈베리파이:8000</strong> → <strong>GPIO</strong>
+  <br>※ application.properties 의 <code>raspberry.pi.url</code> 값이 올바른지 확인하세요.
+</div>
+
+<!-- Spring Boot URL (기본 localhost:8080) -->
+<div style="margin-bottom:16px;">
+  <label>Spring Boot 주소: </label>
+  <input id="springUrl" type="text" value="http://localhost:8080"
+         style="padding:6px; border-radius:6px; border:1px solid #ced4da; width:200px;">
+  <button onclick="fetchStatus()" style="background:#4dabf7;color:white;">🔗 연결 테스트</button>
+</div>
+
+<div class="grid">
+
+  <!-- 모드 제어 -->
+  <div class="card">
+    <h2>⚙️ 모드 설정</h2>
+    <p>현재 모드: <span id="modeText" class="badge auto">확인 중...</span></p>
+    <br>
+    <button class="btn-auto"   onclick="setMode('auto')">🔄 AUTO (자동)</button>
+    <button class="btn-manual" onclick="setMode('manual')">🖐 MANUAL (수동)</button>
+    <p style="margin-top:10px; font-size:0.78rem; color:#868e96;">
+      ※ MANUAL 모드에서만 아래 LED·부저 제어가 가능합니다
+    </p>
+  </div>
+
+  <!-- 센서 현황 -->
+  <div class="card">
+    <h2>📡 센서 현황 <span style="font-size:0.75rem;color:#adb5bd;">(2초 자동 갱신)</span></h2>
+    <div class="sensor-row"><span class="label">🌡 온도</span>    <span class="value" id="s-temp">-</span></div>
+    <div class="sensor-row"><span class="label">💧 습도</span>    <span class="value" id="s-hum">-</span></div>
+    <div class="sensor-row"><span class="label">☀️ 조도</span>    <span class="value" id="s-lux">-</span></div>
+    <div class="sensor-row"><span class="label">💨 대기질</span>  <span class="value" id="s-air">-</span></div>
+    <div class="sensor-row"><span class="label">🚶 모션 감지</span><span class="value" id="s-motion">-</span></div>
+  </div>
+
+  <!-- LED 제어 -->
+  <div class="card">
+    <h2>💡 LED 제어</h2>
+    <p>상태: <span id="ledStatus" class="badge off">-</span></p>
+    <br>
+    <label>밝기: <strong><span id="brightnessVal">100</span>%</strong></label>
+    <input type="range" id="brightness" min="0" max="100" value="100"
+           oninput="document.getElementById('brightnessVal').textContent=this.value">
+    <br>
+    <button class="btn-on"  onclick="ledOn()">💡 LED ON</button>
+    <button class="btn-off" onclick="ledOff()">🌑 LED OFF</button>
+  </div>
+
+  <!-- 부저 제어 -->
+  <div class="card">
+    <h2>🔔 부저 제어</h2>
+    <p>상태: <span id="buzzerStatus" class="badge off">-</span></p>
+    <br>
+    <label>주파수: <strong><span id="freqVal">440</span>Hz</strong></label>
+    <input type="range" id="freq" min="200" max="1000" value="440" step="10"
+           oninput="document.getElementById('freqVal').textContent=this.value">
+    <br>
+    <button class="btn-on"  onclick="buzzerOn()">🔔 부저 ON</button>
+    <button class="btn-off" onclick="buzzerOff()">🔕 부저 OFF</button>
+  </div>
+
+</div>
+
+<!-- 응답 로그 -->
+<div class="card" style="max-width:820px; margin-top:16px;">
+  <h2>📋 응답 로그 (Spring Boot → FastAPI 응답)</h2>
+  <div id="log"></div>
+</div>
+
+<script>
+  // Spring Boot 주소 (localhost:8080)
+  const getBase = () =>
+    document.getElementById('springUrl').value.replace(/\/$/, '') + '/api/actuator';
+
+  function log(msg) {
+    const d = document.getElementById('log');
+    const t = new Date().toLocaleTimeString();
+    d.innerHTML += `[${t}] ${msg}\n`;
+    d.scrollTop = d.scrollHeight;
+  }
+
+  async function api(method, path, params = {}) {
+    try {
+      // GET는 쿼리 파라미터, POST도 쿼리 파라미터로 전달 (Controller @RequestParam)
+      const query = Object.keys(params).length
+        ? '?' + new URLSearchParams(params).toString()
+        : '';
+
+      const res = await fetch(getBase() + path + query, { method });
+      const data = await res.json();
+      log(`${method} /api/actuator${path}${query}  →  ${JSON.stringify(data)}`);
+      return data;
+    } catch (e) {
+      log(`❌ 오류: ${e.message}`);
+    }
+  }
+
+  // 모드 전환
+  async function setMode(mode) {
+    await api('POST', '/mode', { mode });
+    fetchStatus();
+  }
+
+  // LED
+  async function ledOn() {
+    const brightness = document.getElementById('brightness').value / 100;
+    await api('POST', '/led/on', { brightness });
+    fetchStatus();
+  }
+  async function ledOff() {
+    await api('POST', '/led/off');
+    fetchStatus();
+  }
+
+  // 부저
+  async function buzzerOn() {
+    const freq = document.getElementById('freq').value;
+    await api('POST', '/buzzer/on', { freq });
+    fetchStatus();
+  }
+  async function buzzerOff() {
+    await api('POST', '/buzzer/off');
+    fetchStatus();
+  }
+
+  // 전체 상태 조회 + UI 업데이트
+  async function fetchStatus() {
+    const data = await api('GET', '/status');
+    if (!data) return;
+
+    // 모드
+    const modeEl = document.getElementById('modeText');
+    if (data.mode) {
+      modeEl.textContent = data.mode === 'auto' ? '🔄 AUTO' : '🖐 MANUAL';
+      modeEl.className   = `badge ${data.mode}`;
+    }
+
+    // LED
+    if (data.led) {
+      const ledEl = document.getElementById('ledStatus');
+      ledEl.textContent = data.led.is_on
+        ? `ON (${Math.round(data.led.brightness * 100)}%)`
+        : 'OFF';
+      ledEl.className = `badge ${data.led.is_on ? 'on' : 'off'}`;
+    }
+
+    // 부저
+    if (data.buzzer) {
+      const buzEl = document.getElementById('buzzerStatus');
+      buzEl.textContent = data.buzzer.is_on
+        ? `ON (${data.buzzer.freq}Hz)`
+        : 'OFF';
+      buzEl.className = `badge ${data.buzzer.is_on ? 'on' : 'off'}`;
+    }
+
+    // 센서
+    if (data.sensor) {
+      const s = data.sensor;
+      document.getElementById('s-temp').textContent   = s.temperature ? `${s.temperature}°C` : '-';
+      document.getElementById('s-hum').textContent    = s.humidity    ? `${s.humidity}%`      : '-';
+      document.getElementById('s-lux').textContent    = s.lux         ? `${s.lux} lux`        : '-';
+      document.getElementById('s-air').textContent    = s.air_raw     ? `${s.air_raw}`        : '-';
+      document.getElementById('s-motion').textContent = s.motion      ? '🔴 감지됨'           : '⚪ 없음';
+    }
+
+    // 라즈베리파이 연결 오류 감지
+    if (data.error) {
+      const modeEl = document.getElementById('modeText');
+      modeEl.textContent = '연결 실패';
+      modeEl.className = 'badge error';
+    }
+  }
+
+  // 2초마다 자동 갱신
+  setInterval(fetchStatus, 2000);
+  fetchStatus();
+</script>
+</body>
+</html>

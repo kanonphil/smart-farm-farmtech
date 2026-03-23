@@ -5,6 +5,7 @@ from sensors.air import read_air
 from sensors.motion import read_motion
 from actuators.led import control_led
 from actuators.buzzer import buzz_on, buzz_off
+from actuators.fan import control_fan
 from db.connection import get_connection
 
 conn = get_connection()
@@ -58,4 +59,7 @@ while True:
     print('모션 없음')
     buzz_off()
 
+  #
+  control_fan(temp, humidity, ppm)
+  
   time.sleep(2.0)
