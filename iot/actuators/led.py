@@ -1,6 +1,6 @@
 from gpiozero import PWMLED
 
-LED_PIN = 18 # GPIO 핀 번호 입력 예정
+LED_PIN = 18 # GPIO 핀 번호
 
 _led = PWMLED(LED_PIN)
 
