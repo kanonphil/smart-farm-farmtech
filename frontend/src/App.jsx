@@ -1,8 +1,15 @@
+import { Route, Routes } from "react-router-dom"
+import BasicLayout from "./components/layout/BasicLayout"
+
 function App() {
 
   return (
     <>
-      <div>Test</div>
+      <Routes>
+        <Route path='/' element={<BasicLayout/>}>
+          
+        </Route>
+      </Routes>
     </>
   )
 }

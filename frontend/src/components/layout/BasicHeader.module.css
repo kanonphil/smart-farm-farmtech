@@ -1,0 +1,72 @@
+.login_div > ul{
+  display: flex;
+  gap: 1rem;
+  justify-content: right;
+  color: #888;
+}
+
+.logo_div{
+  text-align: center;
+}
+
+.logo_div > img{
+  width: 250px;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu ul{
+  display: flex;
+}
+
+.menu li{
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bolder;
+  padding: 20px 40px;
+  position: relative;
+}
+
+.menu li::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;        
+  height: 3px;
+  background: red;
+  transition: width 0.3s ease;  
+}
+
+.menu li:hover::after {
+  width: 100%;     
+}
+
+.search_div {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 6px 14px;
+  gap: 8px;
+}
+
+.search {
+  height: 30px;
+  width: 250px;
+  border: none;
+  outline: none;
+}
+
+.search_div svg {
+  cursor: pointer;
+  color: #888;
+}
+
+.search_div svg:hover{
+  color: black;
+}
