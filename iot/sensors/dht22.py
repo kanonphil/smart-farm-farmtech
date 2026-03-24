@@ -1,9 +1,12 @@
+import board
 import adafruit_dht
 from gpio_config import GPIOConfig
 
 class DHT22Sensor:
+  
   def __init__(self):
-    self._dht_device = adafruit_dht.DHT22(GPIOConfig.DHT22_PIN, use_pulseio=False)
+    pin = getattr(board, f"D{GPIOConfig.DHT22_PIN}")
+    self._dht_device = adafruit_dht.DHT22(pin, use_pulseio=False)
 
   def read(self):
     try:
