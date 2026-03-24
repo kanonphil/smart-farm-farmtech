@@ -1,6 +1,12 @@
 from gpiozero import MotionSensor
+from gpio_config import GPIOConfig
 
-_pir = MotionSensor(17)
+class PIRSensor:
+  def __init__(self):
+    self._pir = MotionSensor(GPIOConfig.MOTION_PIN)
 
-def read_motion():
-  return _pir.motion_detected
+  def read(self):
+    return self._pir.motion_detected
+  
+  def cleanup(self):
+    self._pir.close()
