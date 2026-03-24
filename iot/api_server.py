@@ -10,14 +10,13 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from sensors.dht22 import read_dht22
-from sensors.light import read_light
-from sensors.air import read_air
-from sensors.motion import read_motion
-# from actuators.led import control_led
-# from actuators.buzzer import buzz_on, buzz_off
+from sensors.dht22 import DHT22Sensor
+from sensors.light import LightSensor
+from sensors.air import AirSensor
+from sensors.motion import PIRSensor
+from actuators.led import LEDController
+from actuators.buzzer import BuzzerController
 from db.connection import get_connection
-from gpiozero import PWMLED, TonalBuzzer
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,8 +40,12 @@ app.add_middleware(
 )
 
 # GPIO 핀 (기존 actuators 파일과 동일한 핀 번호 사용)
-_led = PWMLED(18)
-_buzzer = TonalBuzzer(23)
+_led = LEDController()
+_buzzer = BuzzerController()
+dht22 = DHT22Sensor()
+light = LightSensor()
+air = AirSensor()
+pir_sensor = PIRSensor()
 
 # 공유 상태 (센서 루프 <-> API 핸들러)
 state = {
@@ -71,18 +74,18 @@ def _auto_led(lux):
     brightness, is_on = 1.0, True
   else:
     brightness = round(1 - ((lux - 3000) / 7000), 2)
-    _led.value = brightness
+    _led.set_brightness(brightness)
     is_on = True
   with lock:
     state["led"] = {"is_on": is_on, "brightness": brightness}
 
 def _auto_buzzer(motion):
   if motion:
-    _buzzer.play(440)
+    _buzzer.buzz_on(440)
     with lock:
       state["buzzer"] = {"is_on": True, "freq": 440}
   else:
-    _buzzer.stop()
+    _buzzer.buzz_off()
     with lock:
       state["buzzer"] = {"is_on": False, "freq": 440}
 
@@ -90,10 +93,10 @@ def _auto_buzzer(motion):
 def sensor_loop():
   while True:
     try:
-      temp, hum = read_dht22()
-      lux = read_light()
-      raw, ppm = read_air()
-      motion = read_motion()
+      temp, hum = dht22.read()
+      lux = light.read()
+      raw, ppm = air.read()
+      motion = pir_sensor.read()
 
       with lock:
         state["sensor"].update({
@@ -156,7 +159,7 @@ def set_mode(req: ModeRequest):
     state["mode"] = req.mode
   if req.mode == "auto":
     _led.off()
-    _buzzer.stop()
+    _buzzer.buzz_off()
     with lock:
       state["led"] = {"is_on": False, "brightness": 0.0}
       state["buzzer"] = {"is_on": False, "freq": 440}
@@ -169,7 +172,7 @@ def led_on(req: LedRequest):
     if state["mode"] != "manual":
       return {"error": "manual 모드에서만 제어 가능"}
   b = max(0.0, min(1.0, req.brightness))
-  _led.value = b
+  _led.set_brightness(b)
   with lock:
     state["led"] = {"is_on": True, "brightness": b}
   return {"result": "ok", "brightness": b}
@@ -191,7 +194,7 @@ def buzzer_on(req: BuzzerRequest):
   with lock:
     if state["mode"] != "manual":
       return {"error": "manual 모드에서만 제어 가능"}
-  _buzzer.play(req.freq)
+  _buzzer.buzz_on(req.freq)
   with lock:
     state["buzzer"] = {"is_on": True, "freq": req.freq}
   return {"result": "ok", "freq": req.freq}
@@ -201,7 +204,7 @@ def buzzer_off():
   with lock:
     if state["mode"] != "manual":
       return {"error": "manual 모드에서만 제어 가능"}
-  _buzzer.stop()
+  _buzzer.buzz_off()
   with lock:
     state["buzzer"] = {"is_on": False, "freq": 440}
   return {"result": "ok"}

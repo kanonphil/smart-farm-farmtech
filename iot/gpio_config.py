@@ -13,3 +13,5 @@ class GPIOConfig:
   # 액츄에이터 핀
   LED_PIN = 18  # PWM LED
   BUZZER_PIN = 23  # 부저
+  FAN_IA_PIN = 5 
+  FAN_IB_PIN = 6
