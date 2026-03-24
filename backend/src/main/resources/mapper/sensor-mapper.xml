@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.sensor.mapper.SensorMapper">
+    <resultMap id="sensor" type="com.farmtech.smartfarm.sensor.dto.SensorDTO">
+        <result column="RAW_VALUE"    property="rawValue"/>
+        <result column="TEMPERATURE"  property="temperature"/>
+        <result column="HUMIDITY"     property="humidity"/>
+        <result column="LIGHT_VALUE"  property="lightValue"/>
+        <result column="RECORDED_AT"  property="recordedAt"/>
+    </resultMap>
+
+<!--  대기질 조회 쿼리  -->
+    <select id="getAir" resultMap="sensor">
+        SELECT RAW_VALUE
+        FROM SENSOR_AIR
+        ORDER BY RECORDED_AT DESC
+        LIMIT 1
+    </select>
+
+<!--  온도, 습도, 시간 조회 쿼리  -->
+    <select id="getDht" resultMap="sensor">
+        SELECT TEMPERATURE, HUMIDITY, RECORDED_AT
+        FROM SENSOR_DHT22
+        ORDER BY RECORDED_AT DESC
+        LIMIT 10
+    </select>
+
+<!--  조도 조회 쿼리  -->
+    <select id="getLight" resultMap="sensor">
+        SELECT LIGHT_VALUE
+        FROM SENSOR_LIGHT
+        ORDER BY RECORDED_AT DESC
+        LIMIT 1
+    </select>
+</mapper>
