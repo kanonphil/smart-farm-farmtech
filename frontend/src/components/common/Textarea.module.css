@@ -1,0 +1,102 @@
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.required {
+  color: #ff6b6b;
+  margin-left: 0.25rem;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+.textarea:hover {
+  border-color: #505050;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.textarea:disabled {
+  background-color: #1a1a1a;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.textareaError {
+  border-color: #ff6b6b;
+}
+
+.textareaError:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  min-height: 1.2rem;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+}
+
+.count {
+  color: #808080;
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+/* 라이트모드 대응 */
+[data-theme='light'] .textarea {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border-color: #d0d0d0;
+}
+
+[data-theme='light'] .label {
+  color: #1a1a1a;
+}
+
+[data-theme='light'] .textarea:hover {
+  border-color: #b0b0b0;
+}
+
+[data-theme='light'] .textarea:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+[data-theme='light'] .textarea:disabled {
+  background-color: #f5f5f5;
+}
+
+[data-theme='light'] .count {
+  color: #606060;
+}

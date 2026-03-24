@@ -1,0 +1,200 @@
+.button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Size 스타일 */
+.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.medium {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+.large {
+  padding: 1rem 2rem;
+  font-size: 1.05rem;
+}
+
+/* Primary 버튼 (파란색 - 중복확인, 검색 등) */
+.primary {
+  background-color: #4a9eff;
+  color: #ffffff;
+}
+
+.primary:hover:not(.disabled) {
+  background-color: #3d8be8;
+}
+
+.primary:active:not(.disabled) {
+  background-color: #2e7ad4;
+  transform: scale(0.98);
+}
+
+/* Secondary 버튼 (회색 - 취소, 뒤로가기 등) */
+.secondary {
+  background-color: #6b7280;
+  color: #ffffff;
+}
+
+.secondary:hover:not(.disabled) {
+  background-color: #5a6370;
+}
+
+.secondary:active:not(.disabled) {
+  background-color: #4b5563;
+  transform: scale(0.98);
+}
+
+/* Dark 버튼 (검은색 - 회원가입, Submit 등) */
+.dark {
+  background-color: #e0e0e0;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.dark:hover:not(.disabled) {
+  background-color: #f5f5f5;
+}
+
+.dark:active:not(.disabled) {
+  background-color: #d0d0d0;
+  transform: scale(0.98);
+}
+
+/* Danger 버튼 (빨간색 - 삭제 등) */
+.danger {
+  background-color: #ff6b6b;
+  color: #ffffff;
+}
+
+.danger:hover:not(.disabled) {
+  background-color: #fa5252;
+}
+
+.danger:active:not(.disabled) {
+  background-color: #e03e3e;
+  transform: scale(0.98);
+}
+
+/* Success 버튼 (녹색 - 완료, 승인 등) */
+.success {
+  background-color: #51cf66;
+  color: #ffffff;
+}
+
+.success:hover:not(.disabled) {
+  background-color: #40c057;
+}
+
+.success:active:not(.disabled) {
+  background-color: #37b24d;
+  transform: scale(0.98);
+}
+
+/* Outline 버튼 */
+.outline {
+  background-color: transparent;
+  color: #4a9eff;
+  border: 1px solid #4a9eff;
+}
+
+.outline:hover:not(.disabled) {
+  background-color: rgba(74, 158, 255, 0.1);
+}
+
+.outline:active:not(.disabled) {
+  background-color: rgba(74, 158, 255, 0.2);
+  transform: scale(0.98);
+}
+
+/* Full Width */
+.fullWidth {
+  width: 100%;
+}
+
+/* Disabled */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Icon 버튼 (화살표 등) */
+.icon {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: inherit;
+}
+
+.icon:hover:not(.disabled) {
+  background-color: #f0f0f0;
+}
+
+.icon:active:not(.disabled) {
+  background-color: #e0e0e0;
+  transform: scale(0.98);
+}
+
+/* 다크모드 */
+[data-theme='dark'] .icon {
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .icon:hover:not(.disabled) {
+  background-color: #2a2a2a;
+}
+
+/* 라이트모드 대응 */
+[data-theme='light'] .dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+[data-theme='light'] .dark:hover:not(.disabled) {
+  background-color: #2a2a2a;
+}
+
+[data-theme='light'] .dark:active:not(.disabled) {
+  background-color: #0a0a0a;
+}
+
+[data-theme='light'] .secondary {
+  background-color: #e0e0e0;
+  color: #1a1a1a;
+}
+
+[data-theme='light'] .secondary:hover:not(.disabled) {
+  background-color: #d0d0d0;
+}
+
+[data-theme='light'] .secondary:active:not(.disabled) {
+  background-color: #c0c0c0;
+}
+
+[data-theme='light'] .outline {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+[data-theme='light'] .outline:hover:not(.disabled) {
+  background-color: rgba(37, 99, 235, 0.1);
+}
