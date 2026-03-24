@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom"
 import BasicLayout from "./components/layout/BasicLayout"
+import Join from "./pages/member/Join"
 
 function App() {
 
@@ -7,7 +8,7 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={<BasicLayout/>}>
-          
+          <Route path='join' element={ <Join /> }/>
         </Route>
       </Routes>
     </>
