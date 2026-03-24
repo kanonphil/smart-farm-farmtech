@@ -19,6 +19,21 @@ led = LEDController()
 buzzer = BuzzerController()
 fan = FanController()
 
+# 모션 감지 (2초에서 제외. 감지되면 바로 작동)
+def on_motion():
+  print('모션 감지! -> 부저 울림')
+  buzzer.buzz_on(440)
+
+def on_no_motion():
+  print('모션 없음')
+  buzzer.buzz_off()
+
+pir.on_motion(on_motion)
+pir.on_no_motion(on_no_motion)
+
+# pir.on_motion(lambda: buzzer.buzz_on(440))
+# pir.on_no_motion(lambda: buzzer.buzz_off())
+
 print("스마트축사 센서 수집 시작 (Ctrl+C로 종료)")
 
 try:
@@ -61,12 +76,12 @@ try:
       print('대기질 읽기 실패, 건너뜀')
 
     # 모션감지(적외선)
-    if pir.read():
-      print('모션 감지! -> 부저 울림')
-      buzzer.buzz_on(440)
-    else:
-      print('모션 없음')
-      buzzer.buzz_off()
+    # if pir.read():
+    #   print('모션 감지! -> 부저 울림')
+    #   buzzer.buzz_on(440)
+    # else:
+    #   print('모션 없음')
+    #   buzzer.buzz_off()
 
     # 팬 작동
     fan.control_fan(temp, humidity, ppm)
