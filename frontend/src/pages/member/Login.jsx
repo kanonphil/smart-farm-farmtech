@@ -28,6 +28,23 @@ const Login = () => {
   // 정규식 사용
   const emailRegEx = /^[A-Za-z0-9]([-_.]?[A-Za-z0-9])*@[A-Za-z0-9]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{2,50}$/
 
+  // 필드별 유효성 검사 함수
+  const validateField = (field, value) => {
+    switch (field) {
+      case 'memEmail':
+        if (!value) return ''
+        if (!emailRegEx.test(value)) return '올바른 이메일 형식이 아닙니다'
+        return ''
+    
+      case 'memPw':
+        if (!value) return 'PW를 입력하세요'
+        return ''
+
+      default:
+        return ''
+    }
+  }
+
   // 로그인 처리
   const handleSubmit = (e) => {
     e.preventDefault()
