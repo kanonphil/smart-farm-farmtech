@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom"
 import BasicLayout from "./components/layout/BasicLayout"
 import Join from "./pages/member/Join"
 import Login from './pages/member/Login'
+import Dashboard from "./pages/manager/Dashboard"
 
 function App() {
   return (
@@ -10,6 +11,9 @@ function App() {
         <Route path='/' element={<BasicLayout/>}>
           <Route path='join' element={ <Join /> }/>
           <Route path='login' element={<Login />} />
+        </Route>
+
+        <Route path='/manager' element={<Dashboard/>}>
         </Route>
       </Routes>
     </>
