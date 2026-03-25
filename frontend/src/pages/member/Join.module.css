@@ -1,0 +1,13 @@
+.container{
+  margin: 50px 300px;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: rgb(252, 249, 245,0.5);
+}
+.tel_div{
+  display: flex;
+}
+.signUp_btn{
+  text-align: center;
+  margin: 20px;
+}
