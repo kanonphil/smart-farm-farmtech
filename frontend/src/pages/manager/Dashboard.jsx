@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getSensor } from '../../api/mamagerApi'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import TemperatureAreaChart from './TemperatureAreaChart';
+import HumidityPieChart from './HumidityPieChart';
 
 const Dashboard = () => {
   // 조회한 센서 data 저장 state 변수
@@ -12,73 +13,34 @@ const Dashboard = () => {
     setSensorData(response.data)
   }
 
-  const chartData = sensorData?.dht?.map((item) => ({
+  // 온도 차트 데이터
+  const temperatureChartData = sensorData?.dht?.map((item) => ({
     time : item.recordedAt.slice(11,19), // "00:00:00"
     temperature : item.temperature,
-    humidity : item.humidity
   })).reverse() ?? []
 
-  console.log(sensorData)
+  // 습도 차트 데이터
+  const humidityChartData = [
+    { name : '현재습도', value : sensorData?.dht?.[0]?.humidity ?? 0},
+    { name : '', value : 100 - (sensorData?.dht?.[0]?.humidity ?? 0)}
+  ]
+
 
   // 마운트 시 실행 함수
-  useEffect(()=>{getSensorData()}, [])
+  useEffect(()=>{
+    getSensorData()
+    //3초에 한번씩 데이터 조회
+    const interval = setInterval(getSensorData, 3000)
+    // 페이지 벗어날 때 interval 정리 (메모리 누수 방지)
+    return () => clearInterval(interval)
+  }, [])
   return (
     <div>
       <div>
-        <AreaChart
-          width={700}
-          height={400}
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
-        >
-          <defs>
-            <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset='5%' stopColor='#00BCD4' stopOpacity={0.4}/>
-              <stop offset='95%' stopColor='#00BCD4' stopOpacity={0.05}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#e0e0e0"
-            vertical={true}
-          />
-          <XAxis 
-            dataKey="time" 
-            tick={{ fontSize : 12 }}
-            tickMargin={10}
-          />
-          <YAxis
-            domain={[
-              (dataMin) => dataMin - 0.5,
-              (dataMax) => dataMax + 0.5,
-            ]}
-            unit="°C"
-            tick={{ fontSize : 12 }}
-            tickMargin={10}
-          />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor : '#fff',
-              border : '1px solid #00BCD4',
-              borderRadius : '8px',
-              fontSize : '13px'
-            }}
-            formatter={(value) => [`${value}°C`, '온도']} 
-          />
-          <Legend align='center'/>
-          <Area
-            type="monotone"
-            dataKey="temperature"
-            name=" 온도"
-            stroke="#00BCD4"
-            fill="url(#tempGradient)"
-            dot={{ r: 3, fill: '#00BCD4', strokeWidth: 0 }}
-            activeDot={{ r: 6, fill: '#00BCD4' }}
-          />
-        </AreaChart>
+        <TemperatureAreaChart data={temperatureChartData}/>
       </div>
       <div>
-        
+        <HumidityPieChart data={humidityChartData}/>
       </div>
     </div>
   )
