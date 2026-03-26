@@ -27,17 +27,17 @@ class FanController:
     reasons = []
 
     if temp is not None and temp >= self.TEMP_HIGH:
-      reasons.append(f"온도 {temp}°C")
+      reasons.append("dht")
 
     if humidity is not None and humidity >= self.HUMIDITY_HIGH:
-      reasons.append(f"습도 {humidity}%")
+      reasons.append("dht")
 
     if air_ppm is not None and air_ppm >= self.AIR_PPM_BAD:
-      reasons.append(f"대기질 {air_ppm}ppm")
+      reasons.append("air")
 
     if reasons:
       self.fan_on(1.0)
-      print(f"팬 자동 ON -> 원인: {', '.join(reasons)}")
+      print(f"팬 자동 ON -> 원인: {', '.join(set(reasons))}")
     else:
       self.fan_off()
 
