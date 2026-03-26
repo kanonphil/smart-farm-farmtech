@@ -1,14 +1,19 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Input from '../common/Input'
 import Button from '../common/Button'
+import styles from './ActuatorCard.module.css'
 
 const LedCard = ({ isOn, onOn, onOff, disabled }) => {
   const [brightness, setBrightness] = useState(1.0)
 
   return (
-    <div>
-      <h3>LED</h3>
-      <p>상태: {isOn ? 'ON' : 'OFF'}</p>
+    <div className={styles.card}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>LED</h3>
+        <span className={`${styles.badge} ${isOn ? styles.badgeOn : styles.badgeOff}`}>
+          {isOn ? 'ON' : 'OFF'}
+        </span>
+      </div>
 
       <Input 
         type='range'
@@ -17,16 +22,22 @@ const LedCard = ({ isOn, onOn, onOff, disabled }) => {
         max='1'
         step='0.1'
         value={brightness}
-        onChange={(e) => setBrightness(parseFloat(e.target.value))}
+        onChange={(e) => {
+          const val = parseFloat(e.target.value)
+          setBrightness(val)
+          if (isOn && !disabled) onOn(val)
+        }}
         disabled={disabled}
       />
 
-      <Button onClick={() => onOn(brightness)} disabled={disabled || isOn}>
-        ON
-      </Button>
-      <Button onClick={onOff} disabled={disabled || isOn} variant='secondary'>
-        OFF
-      </Button>
+      <div className={styles.controls}>
+        <Button onClick={() => onOn(brightness)} disabled={disabled || isOn}>
+          ON
+        </Button>
+        <Button onClick={onOff} disabled={disabled || !isOn} variant='danger'>
+          OFF
+        </Button>
+      </div>
     </div>
   )
 }

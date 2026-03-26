@@ -1,0 +1,59 @@
+.container {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.modeSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.modeLabel {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.modeBadge {
+  font-weight: 700;
+  font-size: 0.9rem;
+  align-self: center;
+  line-height: 1;
+}
+
+.modeAuto   { color: #4a9eff; }
+.modeManual { color: #51cf66; }
+
+.modeButtons {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0;
+}
+
+.sensorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.actuatorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}

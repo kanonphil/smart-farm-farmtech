@@ -17,6 +17,7 @@ const Input = forwardRef(({
   button,
   onButtonClick,
   className = '',
+  labelStyle,
   ...props
 }, ref) => {
   // file 타입은 value 제어 불가 -> onChange만 전달
@@ -27,7 +28,7 @@ const Input = forwardRef(({
   return (
     <div className={`${styles.formGroup} ${className}`}>
       {label && (
-        <label htmlFor={name} className={styles.label}>
+        <label htmlFor={name} className={styles.label} style={labelStyle}>
           {label}
           {required && <span className={styles.required}>*</span>}
         </label>
