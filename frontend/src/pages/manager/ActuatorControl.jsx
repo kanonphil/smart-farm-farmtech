@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { buzzerOff, buzzerOn, fanOff, fanOn, getStatus, ledOff, ledOn, setMode } from '../../api/iotApi'
 import PageTitle from '../../components/common/PageTitle'
 import SensorCard from '../../components/actuatorControl/SensorCard'
@@ -6,6 +6,7 @@ import Button from '../../components/common/Button'
 import ActuatorCard from '../../components/actuatorControl/ActuatorCard'
 import FanCard from '../../components/actuatorControl/FanCard'
 import LedCard from '../../components/actuatorControl/LedCard'
+import styles from './ActuatorControl.module.css'
 
 const ActuatorControl = () => {
   // 라즈베리파이에서 받아온 전체 데이터 저장
@@ -45,33 +46,38 @@ const ActuatorControl = () => {
   if (loading) return <div>Loading...</div>
   
   return (
-    <div>
+    <div className={styles.container}>
       <PageTitle title='Actuator Control' />
       {/* 지금은 데이터가 어떻게 오는지 확인용으로 raw 출력 */}
       {/* <pre>{JSON.stringify(status, null, 2)}</pre> */}
 
       {/* 모드 전환 */}
-      <div>
-        <span>현재 모드: {status.mode.toUpperCase()}</span>
-        <Button
-          onClick={() => handleAction(() => setMode('auto'))}
-          variant='primary'
-          disabled={!isManual}
-        >
-          AUTO
-        </Button>
-        <Button
-          onClick={() => handleAction(() => setMode('manual'))}
-          variant='secondary'
-          disabled={isManual}
-        >
-          MANUAL
-        </Button>
+      <div className={styles.modeSection}>
+        <span className={styles.modeLabel}>현재 모드:</span>
+        <span className={`${styles.modeBadge} ${isManual ? styles.modeManual : styles.modeAuto}`}>
+          {status.mode.toUpperCase()}
+        </span>
+        <div className={styles.modeButtons}>
+          <Button
+            onClick={() => handleAction(() => setMode('auto'))}
+            variant='primary'
+            disabled={!isManual}
+          >
+            AUTO
+          </Button>
+          <Button
+            onClick={() => handleAction(() => setMode('manual'))}
+            variant='secondary'
+            disabled={isManual}
+          >
+            MANUAL
+          </Button>
+        </div>
       </div>
 
       {/* 센서 현황 */}
-      <h2>센서 현황</h2>
-      <div>
+      <h2 className={styles.sectionTitle}>센서 현황</h2>
+      <div className={styles.sensorGrid}>
         <SensorCard label='온도' value={status.sensor.temperature} unit='℃' />
         <SensorCard label='습도' value={status.sensor.humidity} unit='%' />
         <SensorCard label='조도' value={status.sensor.lux} unit='lux' />
@@ -80,17 +86,17 @@ const ActuatorControl = () => {
       </div>
 
       {/* 액츄에이터 제어 */}
-      <h2>액츄에이터 제어</h2>
-      <div>
+      <h2 className={styles.sectionTitle}>액츄에이터 제어</h2>
+      <div className={styles.actuatorGrid}>
         <LedCard 
-          isOn={status.led.on}
+          isOn={status.led.is_on}
           onOn={(brightness) => handleAction(() => ledOn(brightness))}
           onOff={() => handleAction(ledOff)}
           disabled={!isManual}
         />
         <ActuatorCard 
           label='부저'
-          isOn={status.buzzer.on}
+          isOn={status.buzzer.is_on}
           onOn={() => handleAction(buzzerOn)}
           onOff={() => handleAction(buzzerOff)}
           disabled={!isManual}

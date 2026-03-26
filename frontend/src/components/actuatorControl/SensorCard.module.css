@@ -1,0 +1,27 @@
+.card {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+}
+
+.label {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem 0;
+}
+
+.value {
+  color: #e0e0e0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detected { 
+  color: #ff6b6b; 
+}
