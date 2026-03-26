@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Form from '../../components/common/Form'
 import TelInput from '../../components/common/TelInput'
 import Input from '../../components/common/Input'
@@ -7,7 +7,13 @@ import Button from '../../components/common/Button'
 import AddressInput from '../../components/common/AddressInput'
 import styles from './Join.module.css'
 import { useNavigate } from 'react-router-dom'
+import { checkEmailDuplicate, regMember } from '../../api/member/memberApi'
 
+/**
+ * 화살표함수 바깥에 쓰는 이유 : state가 변할 때마다 함수 전체가 다시 리렌더링됨
+ * -> 바깥에 두면 페이지가 처음 로드될 때 딱 한번만 만들어지고 재사용된다.
+ * -> 가독성을 고려해서.
+ */
 // 생년월일 옵션
 const currentYear = new Date().getFullYear()
 const years  = Array.from({ length: 100 }, (_, i) => currentYear - i)
@@ -17,8 +23,21 @@ const days   = Array.from({ length: 31  }, (_, i) => i + 1)
 // 이메일 형식 정규식
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-const Join1 = () => {
+const Join = () => {
   const nav = useNavigate()
+
+  useEffect(() => {
+    //스크립트가 로드돼 있는지 확인
+    const isScriptExist = document.getElementById('daum-postcode-script');
+
+    if(!isScriptExist){
+      const script = document.createElement('script');
+      script.id = 'daum.postcode-script'
+      script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+      script.async = true;
+      document.body.appendChild(script) ;
+    }
+  })
 
   const [form, setForm] = useState({
     memName: '',
@@ -86,7 +105,7 @@ const Join1 = () => {
   }
 
   // 이메일 중복확인 버튼
-  const handleEmailCheck = () => {
+  const handleEmailCheck = async() => {
     if (!form.memEmail) {
       setErrors(prev => ({ ...prev, memEmail: '이메일을 입력해주세요' }))
       return
@@ -95,10 +114,20 @@ const Join1 = () => {
       setErrors(prev => ({ ...prev, memEmail: '올바른 이메일 형식이 아닙니다' }))
       return
     }
-    // 실제로는 서버 통신 필요 (현재는 사용 가능으로 처리)
-    setIsEmailChecked(true)
-    setIsValid(prev => ({ ...prev, memEmail: true }))
-    setErrors(prev => ({ ...prev, memEmail: '' }))
+
+    //[중요] axios 응답 객체 내부의 진짜 데이터(.data)가 true인지 확인
+    //true면 중복!
+    const response = await checkEmailDuplicate(form.memEmail);
+    if(response.data){
+      alert("이미 사용 중인 이메일입니다.");
+      setIsEmailChecked(false);
+      setIsValid(prev => ({ ...prev, memEmail: false }));
+    }else{
+      alert("사용 가능한 이메일입니다!")
+      setIsEmailChecked(true)
+      setErrors(prev => ({ ...prev, memEmail: '' }))
+      setIsValid(prev => ({...prev,memEmail: true }))
+    }
   }
 
   // 생년월일 변경 핸들러
@@ -117,23 +146,30 @@ const Join1 = () => {
   }
 
   // 주소 Input 클릭 → 다음 우편번호 API
-  const handleAddrClick = () => {
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        let fullAddress = data.address
-        let extra = ''
-        if (data.addressType === 'R') {
-          if (data.bname) extra += data.bname
-          if (data.buildingName) extra += (extra ? ', ' : '') + data.buildingName
-          if (extra) fullAddress += ` (${extra})`
+ const handleAddrClick = () => {
+    // window.daum 존재 여부 확인 후 실행
+    if (window.daum && window.daum.Postcode) {
+      new window.daum.Postcode({
+        oncomplete: (data) => {
+          let fullAddress = data.address
+          let extra = ''
+          if (data.addressType === 'R') {
+            if (data.bname) extra += data.bname
+            if (data.buildingName) extra += (extra ? ', ' : '') + data.buildingName
+            if (extra) fullAddress += ` (${extra})`
+          }
+          setForm(prev => ({ ...prev, addr: fullAddress }))
+          setErrors(prev => ({ ...prev, addr: '' }))
+          
+          // 상세주소 input에 포커스 (name='addr-detail'로 되어있으므로 수정)
+          setTimeout(() => {
+            document.querySelector('input[name="addr-detail"]')?.focus()
+          }, 100)
         }
-        setForm(prev => ({ ...prev, addr: fullAddress }))
-        setErrors(prev => ({ ...prev, addr: '' }))
-        setTimeout(() => {
-          document.querySelector('input[name="addr-detail"]')?.focus()
-        }, 100)
-      }
-    }).open()
+      }).open()
+    } else {
+      alert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+    }
   }
 
   // 상세주소 변경 핸들러
@@ -142,7 +178,8 @@ const Join1 = () => {
   }
 
   // 제출 핸들러
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
+    // 1. 유효성 검사
     e.preventDefault()
     const checks = {
       memName:    form.memName.trim() === ''                            ? '이름을 입력해주세요'           : '',
@@ -164,7 +201,32 @@ const Join1 = () => {
       memPw:      checks.memPw      === '',
       memPwCheck: checks.memPwCheck === ''
     })
-    if (Object.values(checks).some(msg => msg !== '')) return
+    //에러가 하나라도 있으면 중단
+    if (Object.values(checks).some(msg => msg !== '')) {
+      alert("입력 항목을 다시 확인해주세요.")
+      return;
+    }
+    const joinData = {
+      memberName: form.memName,
+      memberEmail: form.memEmail,
+      memberPw: form.memPw,
+      memberPhone: `${form.tel1}-${form.tel2}-${form.tel3}`, // 전화번호 합치기
+      memberBirth: `${form.birthYear}-${String(form.birthMonth).padStart(2,'0')}-${String(form.birthDay).padStart(2,'0')}`,
+      memberAddr: form.addr,
+      memberAddrDetail : form.addrDetail
+    };
+    try {
+      const response = await regMember(joinData);
+      console.log("서버 응답 데이터:", response.data);
+      if (response.status >= 200 && response.status < 300) { // response 존재 여부 확인 추가
+      alert("회원가입을 축하합니다. 로그인 페이지로 이동합니다.");
+      nav('/login'); }
+    } catch (error) {
+    // 서버에서 보낸 에러 메시지가 있다면 띄워줌
+      const errorMsg = error.response?.data?.message || "서버 통신 중 오류가 발생했습니다.";
+      alert("회원가입 실패: " + errorMsg);
+    }
+
     console.log('회원가입 데이터:', {
       memName:  form.memName,
       memEmail: form.memEmail,
@@ -175,6 +237,7 @@ const Join1 = () => {
     })
   }
 
+  console.log(form);
   return (
     <div className={styles.page} data-theme='light'>
       <Form title='회원가입' onSubmit={handleSubmit} noValidate>
@@ -308,7 +371,11 @@ const Join1 = () => {
         </div>
 
         {/* 제출 버튼 */}
-        <Button type='submit' fullWidth className={styles.submitBtn}>
+        <Button 
+          type='submit' 
+          fullWidth 
+          className={styles.submitBtn}
+          >
           제출
         </Button>
         <Button type='button' fullWidth className={styles.linkBtn} onClick={() => nav(-1)}>
@@ -320,4 +387,4 @@ const Join1 = () => {
   )
 }
 
-export default Join1
+export default Join

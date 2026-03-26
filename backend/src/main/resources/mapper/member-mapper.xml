@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 해당 파일에 모든 쿼리문을 작성 -->
-<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
 <mapper namespace="com.farmtech.smartfarm.member.mapper.MemberMapper">
 
     <resultMap id="memberResultMap" type="com.farmtech.smartfarm.member.dto.MemberDTO">
@@ -15,15 +13,30 @@
         <result column="MEMBER_ADDR_DETAIL" property="memberAddrDetail" />
     </resultMap>
 
-<!--    <insert id="insertMember">-->
-<!--        INSERT INTO MEMBER(-->
-<!--          MEMBER_EMAIL-->
-<!--          ,MEMBER_PASSWORD-->
-<!--          ,MEMBER_NAME-->
-<!--          ,MEMBER_PHONE-->
-<!--          ,MEMBER_BIRTH-->
-<!--          ,-->
-<!--        ) VALUES (-->
-<!--        )-->
-<!--    </insert>-->
+    <insert id="insertMember">
+        INSERT INTO MEMBER (
+        MEMBER_EMAIL,
+        MEMBER_PASSWORD,
+        MEMBER_NAME,
+        MEMBER_PHONE,
+        MEMBER_BIRTH,
+        MEMBER_ADDR,
+        MEMBER_ADDR_DETAIL
+        ) VALUES (
+        #{memberEmail},
+        #{memberPw},
+        #{memberName},
+        #{memberPhone},
+        #{memberBirth},
+        #{memberAddr},
+        #{memberAddrDetail}
+        )
+    </insert>
+
+    <select id="checkEmailDuplicate" resultType="int">
+        SELECT COUNT(*)
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{memberEmail}
+    </select>
+
 </mapper>
