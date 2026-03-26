@@ -2,6 +2,7 @@ from sensors.spi_bus import read_channel
 from gpio_config import GPIOConfig
 
 class AirSensor:
+  
   def __init__(self):
     self._channel = GPIOConfig.AIR_CH
 

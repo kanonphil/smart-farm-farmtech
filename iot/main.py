@@ -19,7 +19,6 @@ led = LEDController()
 buzzer = BuzzerController()
 fan = FanController()
 
-# 모션 감지 (2초에서 제외. 감지되면 바로 작동)
 def on_motion():
   print('모션 감지! -> 부저 울림')
   buzzer.buzz_on(440)

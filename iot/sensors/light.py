@@ -2,6 +2,7 @@ from sensors.spi_bus import read_channel
 from gpio_config import GPIOConfig
 
 class LightSensor:
+  
   def __init__(self):
     self._channel = GPIOConfig.LIGHT_CH
 

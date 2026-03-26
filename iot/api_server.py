@@ -16,6 +16,7 @@ from sensors.air import AirSensor
 from sensors.motion import PIRSensor
 from actuators.led import LEDController
 from actuators.buzzer import BuzzerController
+from actuators.fan import FanController
 from db.connection import get_connection
 
 @asynccontextmanager
@@ -42,6 +43,7 @@ app.add_middleware(
 # GPIO 핀 (기존 actuators 파일과 동일한 핀 번호 사용)
 _led = LEDController()
 _buzzer = BuzzerController()
+_fan = FanController()
 dht22 = DHT22Sensor()
 light = LightSensor()
 air = AirSensor()
@@ -52,6 +54,7 @@ state = {
   "mode": "auto",    # "auto" | "manual"
   "led": {"is_on": False, "brightness": 0.0},
   "buzzer": {"is_on": False, "freq": 440},
+  "fan": {"is_on": False, "speed": 0.0},
   "sensor": {
     "temperature": None, "humidity": None,
     "lux": None, "air_raw": None, "air_ppm": None, "motion": False
@@ -61,6 +64,9 @@ lock = threading.Lock()
 
 conn = get_connection()
 cursor = conn.cursor()
+
+pir_sensor.on_motion(lambda: _buzzer.buzz_on(440))
+pir_sensor.on_no_motion(lambda: _buzzer.buzz_off())
 
 # ── AUTO 모드 액츄에이터 로직 (기존 main.py 동일) ──────────
 def _auto_led(lux):
@@ -88,6 +94,27 @@ def _auto_buzzer(motion):
     _buzzer.buzz_off()
     with lock:
       state["buzzer"] = {"is_on": False, "freq": 440}
+
+def _auto_fan(temp, humidity, air_ppm):
+  _fan.control_fan(temp, humidity, air_ppm)
+  is_on = _fan.is_on if hasattr(_fan, 'is_on') else False
+  with lock:
+    state["fan"] = {"is_on": is_on, "speed": 0.0}
+
+def _motion_callback():
+  with lock:
+    if state["mode"] == "auto":
+      _buzzer.buzz_on(440)
+      state["buzzer"] = {"is_on": True, "freq": 440}
+
+def _no_motion_callback():
+  with lock:
+    if state["mode"] == "auto":
+      _buzzer.buzz_off()
+      state["buzzer"] = {"is_on": False, "freq": 440}
+
+pir_sensor.on_motion(_motion_callback)
+pir_sensor.on_no_motion(_no_motion_callback)
 
 # ── 백그라운드 센서 루프 (기존 main.py 루프를 스레드로) ─────
 def sensor_loop():
@@ -129,6 +156,7 @@ def sensor_loop():
       if current_mode == "auto":
         _auto_led(lux)
         _auto_buzzer(motion)
+        # _auto_fan(temp, hum, ppm)  # 나중에 다시 켜기
       # MANUAL 모드면 API 요청으로만 제어
 
     except Exception as e:
@@ -145,6 +173,9 @@ class LedRequest(BaseModel):
 class BuzzerRequest(BaseModel):
   freq: int = 440
 
+class FanRequest(BaseModel):
+  speed: float = 1.0  # 0.0 - 1.0
+
 # ── 모드 API ────────────────────────────────────────────────
 @app.get("/mode")
 def get_mode():
@@ -160,9 +191,11 @@ def set_mode(req: ModeRequest):
   if req.mode == "auto":
     _led.off()
     _buzzer.buzz_off()
+    _fan.fan_off()
     with lock:
       state["led"] = {"is_on": False, "brightness": 0.0}
       state["buzzer"] = {"is_on": False, "freq": 440}
+      state["fan"] = {"is_on": False, "speed": 0.0}
   return {"mode": req.mode}
 
 # ── LED API (manual 전용) ────────────────────────────────────
@@ -209,6 +242,27 @@ def buzzer_off():
     state["buzzer"] = {"is_on": False, "freq": 440}
   return {"result": "ok"}
 
+# ── 팬 API (manual 전용) ─────────────────────────────────────
+@app.post("/fan/on")
+def fan_on(req: FanRequest):
+  with lock:
+    if state["mode"] != "manual":
+      return {"error": "manual 모드에서만 제어 가능"}
+  s = max(0.0, min(1.0, req.speed))
+  _fan.fan_on(s)
+  with lock:
+    state["fan"] = {"is_on": True, "speed": s}
+  return {"result": "ok", "speed": s}
+
+@app.post("/fan/off")
+def fan_on():
+  with lock:
+    if state["mode"] != "manual":
+      return {"error": "manual 모드에서만 제어 가능"}
+  _fan.fan_off()
+  with lock:
+    state["fan"] = {"is_on": False, "speed": 0.0}
+  return {"result": "ok"}
 
 # ── 전체 상태 조회 ────────────────────────────────────────────
 @app.get("/status")
