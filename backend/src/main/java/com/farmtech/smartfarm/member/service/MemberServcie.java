@@ -23,4 +23,9 @@ public class MemberServcie {
 
         return count > 0;
     }
+
+    //로그인 회원 정보 조회 기능
+    public MemberDTO getLoginInfo(String memEmail){
+        return memberMapper.getLoginInfo(memEmail);
+    }
 }
