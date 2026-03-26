@@ -65,9 +65,6 @@ lock = threading.Lock()
 conn = get_connection()
 cursor = conn.cursor()
 
-pir_sensor.on_motion(lambda: _buzzer.buzz_on(440))
-pir_sensor.on_no_motion(lambda: _buzzer.buzz_off())
-
 # ── AUTO 모드 액츄에이터 로직 (기존 main.py 동일) ──────────
 def _auto_led(lux):
   if lux is None:
@@ -95,11 +92,11 @@ def _auto_buzzer(motion):
     with lock:
       state["buzzer"] = {"is_on": False, "freq": 440}
 
-def _auto_fan(temp, humidity, air_ppm):
-  _fan.control_fan(temp, humidity, air_ppm)
-  is_on = _fan.is_on if hasattr(_fan, 'is_on') else False
-  with lock:
-    state["fan"] = {"is_on": is_on, "speed": 0.0}
+# def _auto_fan(temp, humidity, air_ppm):
+#   _fan.control_fan(temp, humidity, air_ppm)
+#   is_on = _fan.is_on if hasattr(_fan, 'is_on') else False
+#   with lock:
+#     state["fan"] = {"is_on": is_on, "speed": 0.0}
 
 def _motion_callback():
   with lock:
@@ -131,33 +128,47 @@ def sensor_loop():
           "lux": lux, "air_raw": raw,
           "air_ppm": ppm, "motion": motion
         })
+        current_mode = state['mode']
+
+      # 자동제어 먼저
+      fan_triggers = set()
+      led_on = False
+      buzzer_on = False
+
+      if current_mode == "auto":
+        _auto_led(lux)
+        _auto_buzzer(motion)
+        fan_triggers = _fan.control_fan(temp, hum, ppm)  # 원인 반환
+        with lock:
+          state['fan'] = {'is_on': bool(fan_triggers), 'speed': 1.0 if fan_triggers else 0}
+        # MANUAL 모드면 API 요청으로만 제어
+
+      with lock:
+        led_on = state['led']['is_on']
+        buzzer_on = state['buzzer']['is_on']
 
       # DB 저장
       if temp is not None and hum is not None:
         cursor.execute(
-          "INSERT INTO SENSOR_DHT22 (TEMPERATURE, HUMIDITY) VALUES (%s, %s)",
-          (temp, hum)
+          "INSERT INTO SENSOR_DHT22 (TEMPERATURE, HUMIDITY, FAN_ON) VALUES (%s, %s, %s)",
+          (temp, hum, 1 if 'dht' in fan_triggers else 0)
         )
       if lux is not None:
         cursor.execute(
-          "INSERT INTO SENSOR_LIGHT (LIGHT_VALUE) VALUES (%s)",
-          (lux,)
+          "INSERT INTO SENSOR_LIGHT (LIGHT_VALUE, LED_ON) VALUES (%s, %s)",
+          (lux, 1 if led_on else 0)
         )
       if raw is not None and raw > 0:
         cursor.execute(
-          "INSERT INTO SENSOR_AIR (RAW_VALUE) VALUES (%s)",
-          (raw,)
+          "INSERT INTO SENSOR_AIR (RAW_VALUE, FAN_ON) VALUES (%s, %s)",
+          (raw, 1 if 'air' in fan_triggers else 0)
+        )
+      if motion:
+        cursor.execute(
+          "INSERT INTO SENSOR_MOTION (BUZZER_ON) VALUES (%s)",
+          (1 if buzzer_on else 0,)
         )
       conn.commit()
-
-      # AUTO 모드일 때만 자동 제어
-      with lock:
-        current_mode = state["mode"]
-      if current_mode == "auto":
-        _auto_led(lux)
-        _auto_buzzer(motion)
-        # _auto_fan(temp, hum, ppm)  # 나중에 다시 켜기
-      # MANUAL 모드면 API 요청으로만 제어
 
     except Exception as e:
       print(f"[오류] {e}")
@@ -255,7 +266,7 @@ def fan_on(req: FanRequest):
   return {"result": "ok", "speed": s}
 
 @app.post("/fan/off")
-def fan_on():
+def fan_off():
   with lock:
     if state["mode"] != "manual":
       return {"error": "manual 모드에서만 제어 가능"}

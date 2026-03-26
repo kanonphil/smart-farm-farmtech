@@ -41,6 +41,8 @@ class FanController:
     else:
       self.fan_off()
 
+    return set(reasons)
+
   def cleanup(self):
     self._fan_ia.close()
     self._fan_ib.close()
