@@ -137,7 +137,7 @@ def sensor_loop():
 
       if current_mode == "auto":
         _auto_led(lux)
-        _auto_buzzer(motion)
+        # _auto_buzzer(motion)
         fan_triggers = _fan.control_fan(temp, hum, ppm)  # 원인 반환
         with lock:
           state['fan'] = {'is_on': bool(fan_triggers), 'speed': 1.0 if fan_triggers else 0}
