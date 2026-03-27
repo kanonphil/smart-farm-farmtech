@@ -3,6 +3,48 @@
 
 <!-- 해당 파일에 모든 쿼리문을 작성 -->
 <!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
-<mapper namespace="mapper">
-	
+<mapper namespace="com.farmtech.smartfarm.threshold.mapper.ThresholdMapper">
+    <resultMap id="preset" type="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
+        <result column="ID"          property="id"/>
+        <result column="NAME"        property="name"/>
+        <result column="TEMP_HIGH"   property="tempHigh"/>
+        <result column="HUM_HIGH"    property="humHigh"/>
+        <result column="AIR_PPM_BAD" property="airPpmBad"/>
+        <result column="LUX_HIGH"    property="luxHigh"/>
+        <result column="LUX_LOW"     property="luxLow"/>
+        <result column="IS_ACTIVE"   property="isActive"/>
+        <result column="CREATED_AT"  property="createdAt"/>
+    </resultMap>
+
+    <select id="getAllPresets" resultMap="preset">
+        SELECT * FROM THRESHOLD_PRESET ORDER BY CREATED_AT DESC
+    </select>
+
+    <select id="getActivePreset" resultMap="preset">
+        SELECT * FROM THRESHOLD_PRESET WHERE IS_ACTIVE = 1 LIMIT 1
+    </select>
+
+    <insert id="insertPreset" parameterType="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
+        INSERT INTO THRESHOLD_PRESET (NAME, TEMP_HIGH, HUM_HIGH, AIR_PPM_BAD, LUX_HIGH, LUX_LOW)
+        VALUES (#{name}, #{tempHigh}, #{humHigh}, #{airPpmBad}, #{luxHigh}, #{luxLow})
+    </insert>
+
+    <update id="updatePreset" parameterType="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
+        UPDATE THRESHOLD_PRESET
+        SET NAME=#{name}, TEMP_HIGH=#{tempHigh}, HUM_HIGH=#{humHigh},
+            AIR_PPM_BAD=#{airPpmBad}, LUX_HIGH=#{luxHigh}, LUX_LOW=#{luxLow}
+        WHERE ID=#{id}
+    </update>
+
+    <delete id="deletePreset">
+        DELETE FROM THRESHOLD_PRESET WHERE ID=#{id}
+    </delete>
+
+    <update id="deactivateAll">
+        UPDATE THRESHOLD_PRESET SET IS_ACTIVE = 0
+    </update>
+
+    <update id="activatePreset">
+        UPDATE THRESHOLD_PRESET SET IS_ACTIVE = 1 WHERE ID=#{id}
+    </update>
 </mapper>

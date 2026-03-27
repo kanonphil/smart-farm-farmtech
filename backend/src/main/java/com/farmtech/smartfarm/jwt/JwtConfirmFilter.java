@@ -44,13 +44,14 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
         String token = authorization.split(" ")[1];
 
         //필터 진행 후 다음 코드 이어서 진행하는 코드
-        filterChain.doFilter(request, response);
+        // filterChain.doFilter(request, response);
         boolean isExpired = jwtUtil.isExpired(token);
 
         //토큰 만료기간이 지났으면
         if(isExpired){
             log.info("토큰 만료");
-            filterChain.doFilter(request, response);
+            // filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
