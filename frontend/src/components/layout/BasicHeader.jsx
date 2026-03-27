@@ -2,7 +2,6 @@ import React from 'react'
 import styles from './BasicHeader.module.css'
 import logo from '../../assets/logo.png'
 import { RiSearchLine } from "react-icons/ri";
-import { jwtDecode } from 'jwt-decode';
 import { Link, useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/tokenUtils';
 

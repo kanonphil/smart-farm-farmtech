@@ -96,9 +96,7 @@ const Login = () => {
           return;
         }
         // 아닐경우 메인페이지 이동
-        else{
-          nav('/')
-        }
+        nav('/')
       }
     }catch{
       alert('이메일 또는 비밀번호를 확인해주세요.')
