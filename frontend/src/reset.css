@@ -51,5 +51,12 @@ table {
   box-sizing: border-box;
 }
 
+/* 링크 디자인 제거 */
+a {
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
 
 

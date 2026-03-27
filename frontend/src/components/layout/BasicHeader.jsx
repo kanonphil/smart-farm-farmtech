@@ -2,17 +2,45 @@ import React from 'react'
 import styles from './BasicHeader.module.css'
 import logo from '../../assets/logo.png'
 import { RiSearchLine } from "react-icons/ri";
+import { jwtDecode } from 'jwt-decode';
+import { Link, useNavigate } from 'react-router-dom';
+import { decodeToken } from '../../utils/tokenUtils';
 
 const BasicHeader = () => {
+  const nav = useNavigate();
+
+  const decoded = decodeToken(localStorage.getItem('token'))
+  console.log(decoded)
+
+  //로그아웃 함수
+  const logout = () => {
+    localStorage.removeItem('token')
+    alert('로그아웃 되었습니다')
+    nav('/')
+  }
+  
+
   return (
     <div>
       <div className={styles.login_div}>
-        <ul>
-          <li>...님 반갑습니다.</li>
-          <li>회원가입</li>
-          <li>로그인</li>
-          <li>로그아웃</li>
-        </ul>
+        {decoded ? 
+          <div>
+            <ul>
+              <li style={{cursor : 'default', fontWeight : 'bolder'}}>{decoded.sub}님 반갑습니다.</li>
+              <li>마이페이지</li>
+              <li
+                onClick={()=>logout()}
+              >로그아웃</li>
+            </ul>
+          </div>
+        :
+          <div>
+            <ul>
+              <li><Link to='/login'>로그인</Link></li>
+              <li><Link to='/join'>회원가입</Link></li>
+            </ul>
+          </div>
+        }
       </div>
       <div className={styles.logo_div}>
         <img src={logo}/>

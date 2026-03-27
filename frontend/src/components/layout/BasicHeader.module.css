@@ -1,8 +1,9 @@
-.login_div > ul{
+.login_div ul{
   display: flex;
   gap: 1rem;
   justify-content: right;
   color: #888;
+  cursor: pointer;
 }
 
 .logo_div{

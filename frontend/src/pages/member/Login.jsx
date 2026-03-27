@@ -5,10 +5,11 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import { goLogin } from '../../api/member/memberApi'
 import { useNavigate } from 'react-router-dom'
+import { decodeToken } from '../../utils/tokenUtils'
 
 const Login = () => {
   const nav = useNavigate();
-  
+
   const [loginData, setLoginData] = useState({
     memberEmail: '',
     memberPw: ''
@@ -26,6 +27,10 @@ const Login = () => {
     setLoginData({
       ...loginData,
       [field]: value
+    })
+    setErrors({
+      ...errors,
+      [field] : ''
     })
   }
 
@@ -77,20 +82,26 @@ const Login = () => {
       setErrors(newErrors)
       return
     }
-
-    const response = await goLogin(loginData)
-
-    if(response.status === 200){
+    try{
+      const response = await goLogin(loginData)
       console.log(response)
-
-      localStorage.setItem('token', response.headers.authorization)
-
-      alert('로그인 성공')
-
-      nav('/')
-    }
-    else{
-      alert('로그인 실패')
+      if(response.status === 200){
+        localStorage.setItem('token', response.headers.authorization)
+        alert('로그인 성공')
+        // 토큰 복호화하여 저장
+        const decoded = decodeToken(response.headers.authorization)
+        // 매니저일경우 매니저페이지로 이동
+        if(decoded.role === 'ROLE_MANAGER'){
+          nav('/manager')
+          return;
+        }
+        // 아닐경우 메인페이지 이동
+        else{
+          nav('/')
+        }
+      }
+    }catch{
+      alert('이메일 또는 비밀번호를 확인해주세요.')
     }
   }
   
