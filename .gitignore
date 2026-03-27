@@ -24,6 +24,8 @@ bin/
 !**/src/test/**/build/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+# secret key
+application-secret.properties
 
 ### IntelliJ IDEA ###
 .idea/

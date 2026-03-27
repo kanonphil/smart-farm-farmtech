@@ -11,4 +11,7 @@ public interface MemberMapper {
 
     //이메일 중복 체크
     int checkEmailDuplicate(String memberEmail);
+
+    //로그인 회원 정보 조회 메서드
+    MemberDTO getLoginInfo(String memberEmail);
 }

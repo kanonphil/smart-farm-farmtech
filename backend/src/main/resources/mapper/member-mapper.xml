@@ -4,6 +4,7 @@
 <mapper namespace="com.farmtech.smartfarm.member.mapper.MemberMapper">
 
     <resultMap id="memberResultMap" type="com.farmtech.smartfarm.member.dto.MemberDTO">
+        <id     column="MEMBER_ID"          property="memberId"/>
         <result column="MEMBER_EMAIL"       property="memberEmail" />
         <result column="MEMBER_PASSWORD"    property="memberPw" />
         <result column="MEMBER_NAME"        property="memberName" />
@@ -11,6 +12,9 @@
         <result column="MEMBER_BIRTH"       property="memberBirth" />
         <result column="MEMBER_ADDR"        property="memberAddr" />
         <result column="MEMBER_ADDR_DETAIL" property="memberAddrDetail" />
+        <result column="MEMBER_ROLE"        property="memberRole"/>
+        <result column="MEMBER_STATUS"      property="memberStatus"/>
+        <result column="MEMBER_CREATED_AT"  property="memberCreatedAt"/>
     </resultMap>
 
     <insert id="insertMember">
@@ -37,6 +41,15 @@
         SELECT COUNT(*)
         FROM MEMBER
         WHERE MEMBER_EMAIL = #{memberEmail}
+    </select>
+
+<!--  로그인 회원 정보 조회 쿼리  -->
+    <select id="getLoginInfo" resultMap="memberResultMap">
+        SELECT MEMBER_EMAIL
+            , MEMBER_PASSWORD
+            , MEMBER_ROLE
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{memEmail}
     </select>
 
 </mapper>
