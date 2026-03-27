@@ -3,15 +3,20 @@ package com.farmtech.smartfarm.threshold.service;
 import com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO;
 import com.farmtech.smartfarm.threshold.mapper.ThresholdMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ThresholdService {
   private final ThresholdMapper thresholdMapper;
+  private final RestTemplate restTemplate = new RestTemplate();
+  private final String IOT_URL = "http://192.168.30.235:8000";
 
   // 전체 프리셋 목록 반환
   public List<ThresholdPresetDTO> getAllPreset() {
@@ -44,5 +49,13 @@ public class ThresholdService {
   public void activatePreset(int id) {
     thresholdMapper.deactivateAll();
     thresholdMapper.activatePreset(id);
+  }
+
+  public void notifyIoTServer() {
+    try {
+      restTemplate.postForObject(IOT_URL + "/threshold/reload", null, String.class);
+    } catch (Exception e) {
+      log.warn("IoT 서버 임계값 갱신 알림 실패: {}", e.getMessage());
+    }
   }
 }

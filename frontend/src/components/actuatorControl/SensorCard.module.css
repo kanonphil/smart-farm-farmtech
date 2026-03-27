@@ -1,13 +1,13 @@
 .card {
-  background: #2a2a2a;
-  border: 1px solid #404040;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1.25rem 1rem;
   text-align: center;
 }
 
 .label {
-  color: #9ca3af;
+  color: #64748b;
   font-size: 0.8rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -16,12 +16,12 @@
 }
 
 .value {
-  color: #e0e0e0;
+  color: #1e293b;
   font-size: 1.3rem;
   font-weight: 700;
   margin: 0;
 }
 
-.detected { 
-  color: #ff6b6b; 
+.detected {
+  color: #ef4444;
 }

@@ -88,8 +88,9 @@ const ActuatorControl = () => {
       {/* 액츄에이터 제어 */}
       <h2 className={styles.sectionTitle}>액츄에이터 제어</h2>
       <div className={styles.actuatorGrid}>
-        <LedCard 
+        <LedCard
           isOn={status.led.is_on}
+          brightness={status.led.brightness}
           onOn={(brightness) => handleAction(() => ledOn(brightness))}
           onOff={() => handleAction(ledOff)}
           disabled={!isManual}
@@ -101,8 +102,9 @@ const ActuatorControl = () => {
           onOff={() => handleAction(buzzerOff)}
           disabled={!isManual}
         />
-        <FanCard 
+        <FanCard
           isOn={status.fan.is_on}
+          speed={status.fan.speed}
           onOn={(speed) => handleAction(() => fanOn(speed))}
           onOff={() => handleAction(fanOff)}
           disabled={!isManual}
