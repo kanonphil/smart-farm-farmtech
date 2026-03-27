@@ -89,6 +89,7 @@ public class ThresholdController {
   public ResponseEntity<?> activatePreset(@PathVariable int id) {
     try {
       thresholdService.activatePreset(id);
+      thresholdService.notifyIoTServer();
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (Exception e) {
       log.error("프리셋 활성화 실패", e);
