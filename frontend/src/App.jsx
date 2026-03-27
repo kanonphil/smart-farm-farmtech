@@ -4,6 +4,7 @@ import Join from "./pages/member/Join"
 import Login from './pages/member/Login'
 import Dashboard from "./pages/manager/Dashboard"
 import ActuatorControl from "./pages/manager/ActuatorControl"
+import ManagerLayout from "./components/layout/ManagerLayout"
 
 function App() {
   return (
@@ -14,11 +15,11 @@ function App() {
           <Route path='login' element={<Login />} />
         </Route>
 
-        <Route path='/manager' element={<Dashboard/>}>
+        <Route path="/manager" element={<ManagerLayout />}>
+          <Route path='dashboard' element={<Dashboard/>} />
+          <Route path='actuator' element={<ActuatorControl />} />
         </Route>
-
-        {/* 임시 페이지 */}
-        <Route path='/manager/actuator' element={<ActuatorControl />} />
+        
       </Routes>
     </>
   )
