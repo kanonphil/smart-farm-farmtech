@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberServcie {
+public class MemberService {
     private final MemberMapper memberMapper;
 
     //회원가입 등록

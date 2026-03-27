@@ -2,7 +2,7 @@ package com.farmtech.smartfarm.member.controller;
 
 
 import com.farmtech.smartfarm.member.dto.MemberDTO;
-import com.farmtech.smartfarm.member.service.MemberServcie;
+import com.farmtech.smartfarm.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberServcie memberServcie;
+    private final MemberService memberService;
 
     //회원가입 등록 API
     @PostMapping
     public ResponseEntity<?> insertMember(@RequestBody MemberDTO memberDTO){
         try {
-            memberServcie.insertMember(memberDTO);
+            memberService.insertMember(memberDTO);
             return ResponseEntity.status(HttpStatus.OK).build();
         }catch (Exception e){
             log.error("회원가입 등록 API 오류",e);
@@ -35,7 +35,7 @@ public class MemberController {
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam("memEmail") String email){
         try {
-            boolean isDuplicate = memberServcie.isEmailDuplicate(email);
+            boolean isDuplicate = memberService.isEmailDuplicate(email);
             return ResponseEntity.status(HttpStatus.OK).body(isDuplicate);
         }catch (Exception e){
             log.error("이메일 중복 체크 중 서버 오류 발생",e);

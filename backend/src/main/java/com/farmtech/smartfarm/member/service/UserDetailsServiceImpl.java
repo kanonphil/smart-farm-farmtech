@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final MemberServcie memberServcie;
+    private final MemberService memberService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername 메서드 실행");
-        MemberDTO dto = memberServcie.getLoginInfo(username);
+        MemberDTO dto = memberService.getLoginInfo(username);
 
         if (dto == null){
             log.info("일치하는 아이디 없음");
