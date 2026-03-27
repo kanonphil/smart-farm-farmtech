@@ -4,6 +4,7 @@ import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -11,9 +12,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberMapper memberMapper;
+    private final PasswordEncoder passwordEncoder;
 
     //회원가입 등록
     public void insertMember(MemberDTO memberDTO){
+        String encodePw = passwordEncoder.encode(memberDTO.getMemberPw());
+        memberDTO.setMemberPw(encodePw);
         memberMapper.insertMember(memberDTO);
     }
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { axiosInstance } from "../axiosInstance";
 
 //회원가입 등록 API
 export const regMember = async(regForm) => {
@@ -22,4 +23,14 @@ export const checkEmailDuplicate = async(email) =>{
     }catch(e){
         console.log("회원가입 - 이메일 중복 체크 오류",e)
     }
+}
+
+/**
+ * 로그인 API
+ * @param {*} loginData 
+ * @returns 
+ */
+export const goLogin = async (loginData) => {
+    const response = await axiosInstance.post('/members/login', loginData)
+    return response
 }

@@ -43,8 +43,8 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
         //요청 헤더에서 받아온 토큰 정보에서 Bearer 키워드를 제거
         String token = authorization.split(" ")[1];
 
-//        //필터 진행 후 다음 코드 이어서 진행하는 코드
-//        filterChain.doFilter(request, response);
+        //필터 진행 후 다음 코드 이어서 진행하는 코드
+        filterChain.doFilter(request, response);
         boolean isExpired = jwtUtil.isExpired(token);
 
         //토큰 만료기간이 지났으면
