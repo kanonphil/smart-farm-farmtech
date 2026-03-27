@@ -4,7 +4,7 @@ import Form from '../../components/common/Form'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import { useNavigate } from 'react-router-dom'
-import { goLogin } from '../../api/member/memberApi'
+import { confirmPw } from '../../api/member/memberApi'
 import { decodeToken } from '../../utils/tokenUtils'
 
 const PasswordConfirm = () => {
@@ -42,9 +42,13 @@ const PasswordConfirm = () => {
     }
     console.log(loginData)
     try{
-      const response = await goLogin(loginData)
-      if(response.status === 200){
+      const response = await confirmPw(loginData)
+      if(response.data === true){
         alert('성공')
+        nav('/mypage')
+      }
+      else{
+        alert('비밀번호를 확인해주세요.')  
       }
     }catch(e){
       alert('비밀번호를 확인해주세요.')
