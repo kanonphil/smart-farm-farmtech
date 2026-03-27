@@ -7,7 +7,6 @@ import ActuatorControl from "./pages/manager/ActuatorControl"
 import ManagerLayout from "./components/layout/ManagerLayout"
 import ThresholdPreset from "./pages/manager/ThresholdPreset"
 import ProductRegister from "./pages/manager/ProductRegister"
-import AlertHistory from "./pages/manager/AlertHistory"
 
 function App() {
   return (
