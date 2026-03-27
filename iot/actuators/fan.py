@@ -2,9 +2,9 @@ from gpiozero import PWMOutputDevice, OutputDevice
 from gpio_config import GPIOConfig
 
 class FanController:
-  TEMP_HIGH = 30.0
-  HUMIDITY_HIGH = 70.0
-  AIR_PPM_BAD = 500
+  # TEMP_HIGH = 30.0
+  # HUMIDITY_HIGH = 70.0
+  # AIR_PPM_BAD = 500
   
   def __init__(self):
     self._fan_ia = PWMOutputDevice(GPIOConfig.FAN_IA_PIN)
@@ -20,19 +20,19 @@ class FanController:
     """팬 끄기"""
     self._fan_ia.off()
     self._fan_ib.off()
-    print("팬 OFF")
+    # print("팬 OFF")
 
-  def control_fan(self, temp, humidity, air_ppm):
+  def control_fan(self, temp, humidity, air_ppm, temp_high, hum_high, air_ppm_bad):
     """센서 값에 따라 팬 자동 제어"""
     reasons = []
 
-    if temp is not None and temp >= self.TEMP_HIGH:
-      reasons.append("dht")
+    if temp is not None and temp >= temp_high:
+      reasons.append("temperature")
 
-    if humidity is not None and humidity >= self.HUMIDITY_HIGH:
-      reasons.append("dht")
+    if humidity is not None and humidity >= hum_high:
+      reasons.append("humidity")
 
-    if air_ppm is not None and air_ppm >= self.AIR_PPM_BAD:
+    if air_ppm is not None and air_ppm >= air_ppm_bad:
       reasons.append("air")
 
     if reasons:

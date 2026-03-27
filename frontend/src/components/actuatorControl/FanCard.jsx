@@ -1,10 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Input from '../common/Input'
 import Button from '../common/Button'
 import styles from './ActuatorCard.module.css'
 
-const FanCard = ({ isOn, onOn, onOff, disabled }) => {
-  const [speed, setSpeed] = useState(1.0)
+const FanCard = ({ isOn, speed: speedProp, onOn, onOff, disabled }) => {
+  const [speed, setSpeed] = useState(speedProp ?? 1.0)
+
+  useEffect(() => {
+    if (speedProp != null) setSpeed(speedProp)
+  }, [speedProp])
   
   return (
     <div className={styles.card}>
@@ -19,7 +23,7 @@ const FanCard = ({ isOn, onOn, onOff, disabled }) => {
         type='range'
         name='fanSpeed'
         label={`속도: ${Math.round(speed * 100)}%`}
-        // labelStyle={{ color: '#000000' }}
+        labelStyle={{ color: '#4f4f4f' }}
         min='0.1'
         max='1'
         step='0.1'
