@@ -49,9 +49,44 @@ light = LightSensor()
 air = AirSensor()
 pir_sensor = PIRSensor()
 
-# 공유 상태 (센서 루프 <-> API 핸들러)
+# ── 임계값 로드 ───────────────────────────────────────────────
+
+# DB 기본값 (프리셋 로드 실패 시 풀백용)
+DEFAULT_THRESHOLD = {
+  "temp_high": 30.0,
+  "hum_high": 70.0,
+  "air_ppm_bad": 500,
+  "lux_high": 10000,
+  "lux_low": 3000,
+}
+
+def load_threshold(cursor):
+  """DB에서 현재 활성화 된 프리셋을 읽어 반환. 실패 시 기본값 반환"""
+  try:
+    cursor.execute(
+      "SELECT TEMP_HIGH, HUM_HIGH, AIR_PPM_BAD, LUX_HIGH, LUX_LOW "
+      "FROM THRESHOLD_PRESET WHERE IS_ACTIVE = 1 LIMIT 1"
+    )
+    row = cursor.fetchone()
+    if row:
+      return {
+        "temp_high":   row[0],
+        "hum_high":    row[1],
+        "air_ppm_bad": row[2],
+        "lux_high":    row[3],
+        "lux_low":     row[4],
+      }
+    print("[경고] 활성화된 프리셋 없음 -> 기본값 사용")
+    return DEFAULT_THRESHOLD
+  except Exception as e:
+    print(f"[오류] 임계값 로드 실패: {e} -> 기본값 사용")
+    return DEFAULT_THRESHOLD
+
+# ── 공유 상태 ─────────────────────────────────────────────────
+
 state = {
   "mode": "auto",    # "auto" | "manual"
+  "threshold": DEFAULT_THRESHOLD,
   "led": {"is_on": False, "brightness": 0.0},
   "buzzer": {"is_on": False, "freq": 440},
   "fan": {"is_on": False, "speed": 0.0},
@@ -62,41 +97,35 @@ state = {
 }
 lock = threading.Lock()
 
-conn = get_connection()
-cursor = conn.cursor()
+# ── 알림 저장 ─────────────────────────────────────────────────
 
-# ── AUTO 모드 액츄에이터 로직 (기존 main.py 동일) ──────────
-def _auto_led(lux):
+def save_alert(cursor, sensor_type, value, threshold):
+  """임계값 초과 시 ALERT_LOG에 저장"""
+  try:
+    cursor.execute(
+      "INSERT INTO ALERT_LOG (SENSOR_TYPE, VALUE, THRESHOLD) VALUES (%s, %s, %s)",
+      (sensor_type, value, threshold)
+    )
+  except Exception as e:
+    print(f"[오류] 알림 저장 실패: {e}")
+
+# ── AUTO 모드 LED 제어 ────────────────────────────────────────
+def _auto_led(lux, lux_high, lux_low):
   if lux is None:
     return
-  if lux >= 10000:
+  if lux >= lux_high:
     _led.off()
     brightness, is_on = 0.0, False
-  elif lux <= 3000:
+  elif lux <= lux_low:
     _led.on()
     brightness, is_on = 1.0, True
   else:
-    brightness = round(1 - ((lux - 3000) / 7000), 2)
+    ratio = (lux - lux_low) / (lux_high - lux_low)
+    brightness = round(max(0.0, min(1.0, 1 - ratio)), 2)
     _led.set_brightness(brightness)
     is_on = True
   with lock:
     state["led"] = {"is_on": is_on, "brightness": brightness}
-
-def _auto_buzzer(motion):
-  if motion:
-    _buzzer.buzz_on(440)
-    with lock:
-      state["buzzer"] = {"is_on": True, "freq": 440}
-  else:
-    _buzzer.buzz_off()
-    with lock:
-      state["buzzer"] = {"is_on": False, "freq": 440}
-
-# def _auto_fan(temp, humidity, air_ppm):
-#   _fan.control_fan(temp, humidity, air_ppm)
-#   is_on = _fan.is_on if hasattr(_fan, 'is_on') else False
-#   with lock:
-#     state["fan"] = {"is_on": is_on, "speed": 0.0}
 
 def _motion_callback():
   with lock:
@@ -113,10 +142,26 @@ def _no_motion_callback():
 pir_sensor.on_motion(_motion_callback)
 pir_sensor.on_no_motion(_no_motion_callback)
 
-# ── 백그라운드 센서 루프 (기존 main.py 루프를 스레드로) ─────
+# ── 백그라운드 센서 루프 ──────────────────────────────────────
+
 def sensor_loop():
+  conn = get_connection()
+  cursor = conn.cursor()
+
+  with lock:
+    state["threshold"] = load_threshold(cursor)  # 최초 로드
+
+  reload_counter = 0            # 임계값 갱신 주기 카운터
+  
   while True:
     try:
+      # 30회(약 60초)마다 DB에서 임계값 재로드
+      if reload_counter >= 30:
+        with lock:
+          state["threshold"] = load_threshold(cursor)
+        reload_counter = 0
+      reload_counter += 1
+      
       temp, hum = dht22.read()
       lux = light.read()
       raw, ppm = air.read()
@@ -128,30 +173,43 @@ def sensor_loop():
           "lux": lux, "air_raw": raw,
           "air_ppm": ppm, "motion": motion
         })
+        threshold = state["threshold"]
         current_mode = state['mode']
 
       # 자동제어 먼저
       fan_triggers = set()
-      led_on = False
-      buzzer_on = False
 
       if current_mode == "auto":
-        _auto_led(lux)
-        # _auto_buzzer(motion)
-        fan_triggers = _fan.control_fan(temp, hum, ppm)  # 원인 반환
+        # LED 자동 제어
+        _auto_led(lux, threshold["lux_high"], threshold["lux_low"])
+        
+        # 팬 자동 제어 (초과된 센서 종류 반환)
+        fan_triggers = _fan.control_fan(
+          temp, hum, ppm,
+          threshold["temp_high"],
+          threshold["hum_high"],
+          threshold["air_ppm_bad"]
+        )
         with lock:
           state['fan'] = {'is_on': bool(fan_triggers), 'speed': 1.0 if fan_triggers else 0}
-        # MANUAL 모드면 API 요청으로만 제어
+
+        # 임계값 초과 시 알림 저장
+        if temp is not None and temp >= threshold["temp_high"]:
+          save_alert(cursor, "temperature", temp, threshold["temp_high"])
+        if hum is not None and hum >= threshold["hum_high"]:
+          save_alert(cursor, "humidity", hum, threshold["hum_high"])
+        if ppm is not None and ppm >= threshold["air_ppm_bad"]:
+          save_alert(cursor, "air", ppm, threshold["air_ppm_bad"])
 
       with lock:
         led_on = state['led']['is_on']
         buzzer_on = state['buzzer']['is_on']
 
-      # DB 저장
+      # DB 센서 데이터 저장
       if temp is not None and hum is not None:
         cursor.execute(
           "INSERT INTO SENSOR_DHT22 (TEMPERATURE, HUMIDITY, FAN_ON) VALUES (%s, %s, %s)",
-          (temp, hum, 1 if 'dht' in fan_triggers else 0)
+          (temp, hum, 1 if 'temperature' in fan_triggers or 'humidity' in fan_triggers else 0)
         )
       if lux is not None:
         cursor.execute(
@@ -280,3 +338,14 @@ def fan_off():
 def get_status():
   with lock:
     return dict(state)
+
+# ── 임계값 즉시 반영 ──────────────────────────────────────────
+@app.post("/threshold/reload")
+def reload_threshold():
+  conn   = get_connection()
+  cursor = conn.cursor()
+  new_threshold = load_threshold(cursor)
+  conn.close()
+  with lock:
+    state["threshold"] = new_threshold
+  return {"result": "ok", "threshold": new_threshold}
