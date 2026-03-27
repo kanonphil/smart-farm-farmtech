@@ -8,7 +8,18 @@
   overflow: hidden;
 }
 
-.table th,
+.tableWrapper {
+  overflow-x: auto;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.table th {
+  border: 1px solid #e2e8f0;
+  padding: 12px 10px;
+  word-break: keep-all;
+}
+
 .table td {
   border: 1px solid #e2e8f0;
   padding: 12px 16px;
@@ -41,4 +52,13 @@
 .odd:hover {
   background-color: #eff6ff;
   transition: background-color 0.15s;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    font-size: 12px;
+    padding: 8px 6px;
+  }
 }
