@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getSensor } from '../../api/mamagerApi'
+import { getSensor } from '../../api/managerApi'
 import TemperatureAreaChart from './TemperatureAreaChart';
 import HumidityPieChart from './HumidityPieChart';
 
