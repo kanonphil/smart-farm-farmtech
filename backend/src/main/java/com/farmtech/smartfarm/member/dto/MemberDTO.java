@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 @ToString
 public class MemberDTO {
   private int memberId;
-  private String firstName;
-  private String lastName;
   private String memberEmail;
   private String memberPw;
   private String memberName;
