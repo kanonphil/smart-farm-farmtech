@@ -5,6 +5,8 @@ import Login from './pages/member/Login'
 import Dashboard from "./pages/manager/Dashboard"
 import ActuatorControl from "./pages/manager/ActuatorControl"
 import ManagerLayout from "./components/layout/ManagerLayout"
+import ThresholdPreset from "./pages/manager/ThresholdPreset"
+import ProductRegister from "./pages/manager/ProductRegister"
 
 function App() {
   return (
@@ -17,7 +19,9 @@ function App() {
 
         <Route path="/manager" element={<ManagerLayout />}>
           <Route path='dashboard' element={<Dashboard/>} />
+          <Route path='reg-product' element={<ProductRegister />} />
           <Route path='actuator' element={<ActuatorControl />} />
+          <Route path='threshold' element={<ThresholdPreset />} />
         </Route>
         
       </Routes>
