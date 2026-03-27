@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.farmtech.smartfarm.product.mapper.ProductMapper">
+
+    <resultMap id="productResultMap" type="com.farmtech.smartfarm.product.dto.ProductDTO">
+        <id     property="productId"        column="PRODUCT_ID"/>
+        <result property="categoryId"       column="CATEGORY_ID"/>
+        <result property="productName"      column="PRODUCT_NAME"/>
+        <result property="productPrice"     column="PRODUCT_PRICE"/>
+        <result property="productStock"     column="PRODUCT_STOCK"/>
+        <result property="productDesc"      column="PRODUCT_DESC"/>
+        <result property="productStatus"    column="PRODUCT_STATUS"/>
+        <result property="productCreatedAt" column="PRODUCT_CREATED_AT"/>
+    </resultMap>
+
+    <resultMap id="productImageResultMap" type="com.farmtech.smartfarm.product.dto.ProductImageDTO">
+        <id     property="imageId"          column="IMAGE_ID"/>
+        <result property="productId"        column="PRODUCT_ID"/>
+        <result property="imageOriginName"  column="IMAGE_ORIGIN_NAME"/>
+        <result property="imageSavedName"   column="IMAGE_SAVED_NAME"/>
+        <result property="imageType"        column="IMAGE_TYPE"/>
+        <result property="imageOrder"       column="IMAGE_ORDER"/>
+    </resultMap>
+
+    <insert id="insertProduct">
+        INSERT INTO PRODUCT (
+        PRODUCT_ID, CATEGORY_ID, PRODUCT_NAME, PRODUCT_PRICE,
+        PRODUCT_STOCK, PRODUCT_DESC, PRODUCT_STATUS
+        ) VALUES (
+        #{productId}, #{categoryId}, #{productName}, #{productPrice},
+        #{productStock}, #{productDesc}, #{productStatus}
+        )
+    </insert>
+
+<!--    <insert id="insertImage">-->
+<!--        INSERT INTO PRODUCT_IMAGE (-->
+<!--        PRODUCT_ID,-->
+<!--        IMAGE_ORIGIN_NAME,-->
+<!--        IMAGE_SAVED_NAME,-->
+<!--        IMAGE_TYPE,-->
+<!--        IMAGE_ORDER-->
+<!--        ) VALUES (-->
+<!--        #{productId},-->
+<!--        #{imageOriginName},-->
+<!--        #{imageSavedName},-->
+<!--        #{imageType},-->
+<!--        #{imageOrder}-->
+<!--        )-->
+<!--    </insert>-->
+
+</mapper>
