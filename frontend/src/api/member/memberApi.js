@@ -34,3 +34,13 @@ export const goLogin = async (loginData) => {
     const response = await axiosInstance.post('/members/login', loginData)
     return response
 }
+
+/**
+ * 비밀번호 확인 API
+ * @param {*} loginData 
+ * @returns 
+ */
+export const confirmPw = async (loginData) => {
+    const response = await axiosInstance.post('/members/confirm-pw', loginData)
+    return response
+}

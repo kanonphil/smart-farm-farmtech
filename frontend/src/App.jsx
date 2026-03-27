@@ -8,6 +8,8 @@ import ManagerLayout from "./components/layout/ManagerLayout"
 import ThresholdPreset from "./pages/manager/ThresholdPreset"
 import ProductRegister from "./pages/manager/ProductRegister"
 import AlertHistory from "./pages/manager/AlertHistory"
+import PasswordConfirm from "./pages/member/PasswordConfirm"
+import MyPage from "./pages/member/MyPage"
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path='/' element={<BasicLayout/>}>
           <Route path='join' element={ <Join /> }/>
           <Route path='login' element={<Login />} />
+          <Route path='pw-confirm' element={<PasswordConfirm/>}/>
+          <Route path='mypage' element={<MyPage/>}/>
         </Route>
 
         <Route path="/manager" element={<ManagerLayout />}>

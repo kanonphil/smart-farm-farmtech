@@ -42,4 +42,17 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    //마이페이지 접속 시 비밀번호 확인 api
+    @PostMapping("/confirm-pw")
+    public ResponseEntity<?> confirmPw(@RequestBody MemberDTO memberDTO){
+        try {
+            boolean result = memberService.confirmPw(memberDTO);
+            System.out.println(result);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        }catch(Exception e){
+            log.error("비밀번호 확인 중 서버 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

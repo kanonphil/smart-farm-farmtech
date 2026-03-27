@@ -32,4 +32,11 @@ public class MemberService {
     public MemberDTO getLoginInfo(String memEmail){
         return memberMapper.getLoginInfo(memEmail);
     }
+
+    //마이페이지 접속 시 비밀번호 확인 기능
+    public boolean confirmPw (MemberDTO memberDTO) {
+        MemberDTO member = memberMapper.getLoginInfo(memberDTO.getMemberEmail());
+        System.out.println(memberDTO.getMemberPw());
+        return passwordEncoder.matches(memberDTO.getMemberPw(), member.getMemberPw()); // (평문, 암호화된 값)
+    }
 }
