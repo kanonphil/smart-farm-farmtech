@@ -12,6 +12,7 @@
 
 .logo_div > img{
   width: 250px;
+  cursor: pointer;
 }
 
 .menu {

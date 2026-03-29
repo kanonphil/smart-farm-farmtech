@@ -8,7 +8,7 @@ import AddressInput from '../../components/common/AddressInput'
 import styles from './Join.module.css'
 import { useNavigate } from 'react-router-dom'
 import { checkEmailDuplicate, regMember } from '../../api/member/memberApi'
-import Modal from '../../components/common/Modal'  
+import Modal from '../../components/common/Modal'
 
 /**
  * 화살표함수 바깥에 쓰는 이유 : state가 변할 때마다 함수 전체가 다시 리렌더링됨
@@ -240,161 +240,154 @@ const Join = () => {
 
   console.log(form);
   return (
-    <div className={styles.page} data-theme='light'>
-      <Modal open={true} onClose={() => nav(-1)}>
-        <div className={styles.formWrapper}>
-          <Form 
-            title='회원가입'
-            onSubmit={handleSubmit} 
-            noValidate
-            className={styles.formInnerWrapper}
-          >
-
-            {/* 이름 - Input 컴포넌트 + 체크 아이콘 */}
-            <div className={`${styles.fieldWrapper} ${errors.memName ? styles.hasError : ''}`}>
-              <Input
-                label='이름'
-                type='text'
-                name='memName'
-                placeholder='이름을 입력해주세요'
-                value={form.memName}
-                onChange={handleChange('memName')}
-                required
+    <Modal
+      isOpen={true}
+      onClose={() => nav(-1)}
+    >
+      <div className={styles.page} data-theme='light'>
+        <Form title='회원가입' onSubmit={handleSubmit} noValidate>
+          {/* 이름 - Input 컴포넌트 + 체크 아이콘 */}
+          <div className={`${styles.fieldWrapper} ${errors.memName ? styles.hasError : ''}`}>
+            <Input
+              label='이름'
+              type='text'
+              name='memName'
+              placeholder='이름을 입력해주세요'
+              value={form.memName}
+              onChange={handleChange('memName')}
+              required
+            />
+            <span className={`${styles.checkIcon} ${isValid.memName ? styles.checkIconActive : ''}`}>✓</span>
+            <span className={styles.errorMsg}>{errors.memName}</span>
+          </div>
+  
+          {/* 이메일 - Input + 중복확인 버튼 + 체크 아이콘 */}
+          <div className={`${styles.fieldWrapper} ${errors.memEmail ? styles.hasError : ''}`}>
+            <Input
+              label='이메일'
+              type='email'
+              name='memEmail'
+              placeholder='이메일 주소 입력'
+              value={form.memEmail}
+              onChange={handleChange('memEmail')}
+              button='중복확인'
+              onButtonClick={handleEmailCheck}
+              required
+            />
+            <span className={`${styles.checkIcon} ${isValid.memEmail ? styles.checkIconActive : ''}`}>✓</span>
+            <span className={styles.errorMsg}>{errors.memEmail}</span>
+          </div>
+  
+          {/* 비밀번호 - Input + 체크 아이콘 */}
+          <div className={`${styles.fieldWrapper} ${errors.memPw ? styles.hasError : ''}`}>
+            <Input
+              label='비밀번호'
+              type='password'
+              name='memPw'
+              placeholder='비밀번호 (8자 이상)'
+              value={form.memPw}
+              onChange={handleChange('memPw')}
+              required
+            />
+            <span className={`${styles.checkIcon} ${isValid.memPw ? styles.checkIconActive : ''}`}>✓</span>
+            <span className={styles.errorMsg}>{errors.memPw}</span>
+          </div>
+  
+          {/* 비밀번호 확인 - Input + 체크 아이콘 */}
+          <div className={`${styles.fieldWrapper} ${errors.memPwCheck ? styles.hasError : ''}`}>
+            <Input
+              label='비밀번호 확인'
+              type='password'
+              name='memPwCheck'
+              placeholder='비밀번호 확인'
+              value={form.memPwCheck}
+              onChange={handleChange('memPwCheck')}
+              required
+            />
+            <span className={`${styles.checkIcon} ${isValid.memPwCheck ? styles.checkIconActive : ''}`}>✓</span>
+            <span className={styles.errorMsg}>{errors.memPwCheck}</span>
+          </div>
+  
+          {/* 전화번호 - TelInput 공통 컴포넌트 */}
+          <div className={`${styles.fieldWrapper} ${errors.tel ? styles.fieldError : ''}`}>
+            <TelInput
+              label='전화번호'
+              name='tel'
+              value1={form.tel1}
+              value2={form.tel2}
+              value3={form.tel3}
+              onChange={handleTelChange}
+              required
+            />
+            <span className={styles.errorMsg}>{errors.tel}</span>
+          </div>
+  
+          {/* 생년월일 - Select 공통 컴포넌트 3개를 flex 배치 */}
+          <div className={`${styles.fieldWrapper} ${errors.birth ? styles.birthError : ''}`}>
+            <label className={styles.birthLabel}>
+              생년월일<span className={styles.required}>*</span>
+            </label>
+            <div className={styles.birthRow}>
+              <Select
+                name='birthYear'
+                value={form.birthYear}
+                onChange={(e) => handleBirthChange('birthYear', e.target.value)}
+                options={years.map(y => ({ value: String(y), label: `${y}년` }))}
+                placeholder='연도'
               />
-              <span className={`${styles.checkIcon} ${isValid.memName ? styles.checkIconActive : ''}`}>✓</span>
-              <span className={styles.errorMsg}>{errors.memName}</span>
-            </div>
-
-            {/* 이메일 - Input + 중복확인 버튼 + 체크 아이콘 */}
-            <div className={`${styles.fieldWrapper} ${errors.memEmail ? styles.hasError : ''}`}>
-              <Input
-                label='이메일'
-                type='email'
-                name='memEmail'
-                placeholder='이메일 주소 입력'
-                value={form.memEmail}
-                onChange={handleChange('memEmail')}
-                button='중복확인'
-                onButtonClick={handleEmailCheck}
-                required
+              <Select
+                name='birthMonth'
+                value={form.birthMonth}
+                onChange={(e) => handleBirthChange('birthMonth', e.target.value)}
+                options={months.map(m => ({ value: String(m), label: `${m}월` }))}
+                placeholder='월'
               />
-              <span className={`${styles.checkIcon} ${isValid.memEmail ? styles.checkIconActive : ''}`}>✓</span>
-              <span className={styles.errorMsg}>{errors.memEmail}</span>
-            </div>
-
-            {/* 비밀번호 - Input + 체크 아이콘 */}
-            <div className={`${styles.fieldWrapper} ${errors.memPw ? styles.hasError : ''}`}>
-              <Input
-                label='비밀번호'
-                type='password'
-                name='memPw'
-                placeholder='비밀번호 (8자 이상)'
-                value={form.memPw}
-                onChange={handleChange('memPw')}
-                required
+              <Select
+                name='birthDay'
+                value={form.birthDay}
+                onChange={(e) => handleBirthChange('birthDay', e.target.value)}
+                options={days.map(d => ({ value: String(d), label: `${d}일` }))}
+                placeholder='일'
               />
-              <span className={`${styles.checkIcon} ${isValid.memPw ? styles.checkIconActive : ''}`}>✓</span>
-              <span className={styles.errorMsg}>{errors.memPw}</span>
             </div>
-
-            {/* 비밀번호 확인 - Input + 체크 아이콘 */}
-            <div className={`${styles.fieldWrapper} ${errors.memPwCheck ? styles.hasError : ''}`}>
-              <Input
-                label='비밀번호 확인'
-                type='password'
-                name='memPwCheck'
-                placeholder='비밀번호 확인'
-                value={form.memPwCheck}
-                onChange={handleChange('memPwCheck')}
-                required
-              />
-              <span className={`${styles.checkIcon} ${isValid.memPwCheck ? styles.checkIconActive : ''}`}>✓</span>
-              <span className={styles.errorMsg}>{errors.memPwCheck}</span>
-            </div>
-
-            {/* 전화번호 - TelInput 공통 컴포넌트 */}
-            <div className={`${styles.fieldWrapper} ${errors.tel ? styles.fieldError : ''}`}>
-              <TelInput
-                label='전화번호'
-                name='tel'
-                value1={form.tel1}
-                value2={form.tel2}
-                value3={form.tel3}
-                onChange={handleTelChange}
-                required
-              />
-              <span className={styles.errorMsg}>{errors.tel}</span>
-            </div>
-
-            {/* 생년월일 - Select 공통 컴포넌트 3개를 flex 배치 */}
-            <div className={`${styles.fieldWrapper} ${errors.birth ? styles.birthError : ''}`}>
-              <label className={styles.birthLabel}>
-                생년월일<span className={styles.required}>*</span>
-              </label>
-              <div className={styles.birthRow}>
-                <Select
-                  name='birthYear'
-                  value={form.birthYear}
-                  onChange={(e) => handleBirthChange('birthYear', e.target.value)}
-                  options={years.map(y => ({ value: String(y), label: `${y}년` }))}
-                  placeholder='연도'
-                />
-                <Select
-                  name='birthMonth'
-                  value={form.birthMonth}
-                  onChange={(e) => handleBirthChange('birthMonth', e.target.value)}
-                  options={months.map(m => ({ value: String(m), label: `${m}월` }))}
-                  placeholder='월'
-                />
-                <Select
-                  name='birthDay'
-                  value={form.birthDay}
-                  onChange={(e) => handleBirthChange('birthDay', e.target.value)}
-                  options={days.map(d => ({ value: String(d), label: `${d}일` }))}
-                  placeholder='일'
-                />
-              </div>
-              <span className={styles.errorMsg}>{errors.birth}</span>
-            </div>
-
-            {/* 주소 - Input 클릭 시 다음 주소 검색창 열림 */}
-            <div className={`${styles.fieldWrapper} ${styles.addrWrapper} ${errors.addr ? styles.hasError : ''}`}>
-              <Input
-                label='주소'
-                name='addr-addr'
-                placeholder='클릭하여 주소 검색'
-                value={form.addr}
-                readOnly
-                onClick={handleAddrClick}
-                required
-              />
-              <Input
-                label='상세주소'
-                name='addr-detail'
-                placeholder='상세주소 입력'
-                value={form.addrDetail}
-                onChange={handleAddrDetailChange}
-              />
-              <span className={styles.errorMsg}>{errors.addr}</span>
-            </div>
-
-            {/* 제출 버튼 */}
-            <Button 
-              type='submit' 
-              fullWidth 
-              className={styles.submitBtn}
-              >
-              제출
-            </Button>
-            <Button type='button' fullWidth className={styles.linkBtn} onClick={() => nav(-1)}>
-              이미 계정이 있습니다
-            </Button>
-
-          </Form>
-        </div>
-      </Modal>
-      
-    </div>
+            <span className={styles.errorMsg}>{errors.birth}</span>
+          </div>
+  
+          {/* 주소 - Input 클릭 시 다음 주소 검색창 열림 */}
+          <div className={`${styles.fieldWrapper} ${styles.addrWrapper} ${errors.addr ? styles.hasError : ''}`}>
+            <Input
+              label='주소'
+              name='addr-addr'
+              placeholder='클릭하여 주소 검색'
+              value={form.addr}
+              readOnly
+              onClick={handleAddrClick}
+              required
+            />
+            <Input
+              label='상세주소'
+              name='addr-detail'
+              placeholder='상세주소 입력'
+              value={form.addrDetail}
+              onChange={handleAddrDetailChange}
+            />
+            <span className={styles.errorMsg}>{errors.addr}</span>
+          </div>
+  
+          {/* 제출 버튼 */}
+          <Button 
+            type='submit' 
+            fullWidth 
+            className={styles.submitBtn}
+            >
+            제출
+          </Button>
+          <Button type='button' fullWidth className={styles.linkBtn} onClick={() => nav(-1)}>
+            이미 계정이 있습니다
+          </Button>
+        </Form>
+      </div>
+    </Modal>
   )
 }
 

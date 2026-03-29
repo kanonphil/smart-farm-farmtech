@@ -104,41 +104,43 @@ const Login = () => {
   }
   
   return (
-    <Form title='로그인' onSubmit={handleSubmit} noValidate>
-      {/* Email */}
-      <Input 
-        label='Email'
-        type='email'
-        name='memberEmail'
-        placeholder='Input Your ID'
-        value={loginData.memberEmail}
-        onChange={handleChange('memberEmail')}
-        error={errors.memberEmail}
-        required
-      />
-      {/* Password */}
-      <Input 
-        label='Password'
-        type='password'
-        name='memberPw'
-        placeholder='Input Your Password'
-        value={loginData.memberPw}
-        onChange={handleChange('memberPw')}
-        error={errors.memberPw}
-        required
-      />
-
-      {/* Submit Button */}
-      <div>
-        <Button
-          variant='dark'
-          fullWidth={true}
-          type='submit'
-        >
-          로그인
-        </Button>
-      </div>
-    </Form>
+    <div data-theme='light'>
+      <Form title='로그인' onSubmit={handleSubmit} noValidate>
+        {/* Email */}
+        <Input 
+          label='Email'
+          type='email'
+          name='memberEmail'
+          placeholder='Input Your ID'
+          value={loginData.memberEmail}
+          onChange={handleChange('memberEmail')}
+          error={errors.memberEmail}
+          required
+        />
+        {/* Password */}
+        <Input 
+          label='Password'
+          type='password'
+          name='memberPw'
+          placeholder='Input Your Password'
+          value={loginData.memberPw}
+          onChange={handleChange('memberPw')}
+          error={errors.memberPw}
+          required
+        />
+  
+        {/* Submit Button */}
+        <div>
+          <Button
+            variant='dark'
+            fullWidth={true}
+            type='submit'
+          >
+            로그인
+          </Button>
+        </div>
+      </Form>
+    </div>
   )
 }
 
