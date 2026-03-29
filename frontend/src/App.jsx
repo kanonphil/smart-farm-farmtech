@@ -9,19 +9,24 @@ import ThresholdPreset from "./pages/manager/ThresholdPreset"
 import ProductRegister from "./pages/manager/ProductRegister"
 import AlertHistory from "./pages/manager/AlertHistory"
 import PasswordConfirm from "./pages/member/PasswordConfirm"
-import MyPage from "./pages/member/MyPage"
+import MemberLayout from "./components/layout/MemberLayout"
+import EditInfo from "./pages/member/EditInfo"
+import OrderList from "./pages/member/OrderList"
+import Reviews from "./pages/member/Reviews"
 
 function App() {
   return (
     <>
       <Routes>
+
+        {/* 모두가 보는 페이지 */}
         <Route path='/' element={<BasicLayout/>}>
           <Route path='join' element={ <Join /> }/>
           <Route path='login' element={<Login />} />
           <Route path='pw-confirm' element={<PasswordConfirm/>}/>
-          <Route path='mypage' element={<MyPage/>}/>
         </Route>
 
+        {/* 관리자 페이지 */}
         <Route path="/manager" element={<ManagerLayout />}>
           <Route path='dashboard' element={<Dashboard/>} />
           <Route path='reg-product' element={<ProductRegister />} />
@@ -29,7 +34,14 @@ function App() {
           <Route path='threshold' element={<ThresholdPreset />} />
           <Route path='alerts' element={<AlertHistory />} />
         </Route>
-        
+
+        {/* 일반 회원 마이페이지 */}
+        <Route path="/mypage" element={<MemberLayout/>}>
+          <Route index element={<EditInfo/>}/>
+          <Route path="orders" element={<OrderList/>}/>
+          <Route path="reviews" element={<Reviews/>}/>
+        </Route>
+
       </Routes>
     </>
   )

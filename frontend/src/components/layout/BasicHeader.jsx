@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from './BasicHeader.module.css'
 import logo from '../../assets/logo.png'
 import { RiSearchLine } from "react-icons/ri";
@@ -10,6 +9,7 @@ const BasicHeader = () => {
 
   const decoded = decodeToken(localStorage.getItem('token'))
   console.log(decoded)
+
 
   //로그아웃 함수
   const logout = () => {
@@ -42,7 +42,7 @@ const BasicHeader = () => {
         }
       </div>
       <div className={styles.logo_div}>
-        <img src={logo}/>
+        <img src={logo} onClick={e => nav('/')}/>
       </div>
       <div className={styles.menu}>
         <div>
