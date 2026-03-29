@@ -1,9 +1,19 @@
 /* ── 페이지 배경 ── */
 .page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px 0;
+  padding: 0;
 }
+
+.formWrapper {
+  zoom: 0.745;
+  margin: auto;
+}
+
+/* 회원가입 폼 래퍼 */
+.formInnerWrapper {
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
 
 /* ── 공통 필드 래퍼 ── */
 .fieldWrapper {
@@ -14,7 +24,7 @@
 /* Input / TelInput / Select 컴포넌트의 outer div 하단 마진 제거
    → fieldWrapper가 간격을 전담 */
 .fieldWrapper > div {
-  margin-bottom: 0;
+  margin-bottom: 0rem;
 }
 
 /* ── 라벨 색상 통일 (light mode) ── */
