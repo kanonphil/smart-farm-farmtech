@@ -44,7 +44,6 @@ const PasswordConfirm = () => {
     try{
       const response = await confirmPw(loginData)
       if(response.data === true){
-        alert('성공')
         nav('/mypage')
       }
       else{
@@ -58,7 +57,7 @@ const PasswordConfirm = () => {
   console.log(pwData.memberPw)
 
   return (
-    <div>
+    <div data-theme='light'>
       <Form title='비밀번호 확인' onSubmit={handleSubmit} noValidate>
         <Input
           label='Password'

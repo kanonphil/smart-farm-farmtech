@@ -14,6 +14,9 @@ import EditInfo from "./pages/member/EditInfo"
 import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
 import EditPassword from "./pages/member/EditPassword"
+import About from "./pages/Info/about"
+import Home from "./pages/Home"
+
 
 function App() {
   return (
@@ -22,9 +25,11 @@ function App() {
 
         {/* 모두가 보는 페이지 */}
         <Route path='/' element={<BasicLayout/>}>
+          <Route index element={<Home/>}/>
           <Route path='join' element={ <Join /> }/>
           <Route path='login' element={<Login />} />
           <Route path='pw-confirm' element={<PasswordConfirm/>}/>
+          <Route path="about" element={<About/>}/>
         </Route>
 
         {/* 관리자 페이지 */}

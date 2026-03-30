@@ -47,7 +47,7 @@ const BasicHeader = () => {
       <div className={styles.menu}>
         <div>
           <ul>
-            <li>한우마루 소개</li>
+            <li><Link to='/about'>한우마루 소개</Link></li>
             <li>공지사항</li>
             <li>베스트상품</li>
             <li>한우</li>
