@@ -1,5 +1,6 @@
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
+import { data } from "react-router-dom";
 
 //회원가입 등록 API
 export const regMember = async(regForm) => {
@@ -44,3 +45,56 @@ export const confirmPw = async (loginData) => {
     const response = await axiosInstance.post('/members/confirm-pw', loginData)
     return response
 }
+
+/**
+ * 회원 전체 정보 조회
+ * @param {*} memberEmail 
+ * @returns 
+ */
+export const getAllInfo = async (memberEmail) => {
+    const response = await axiosInstance.get(`members/${memberEmail}`)
+    return response
+}
+
+
+/**
+ * 회원 정보 수정
+ * @param {*} data 
+ * @returns 
+ */
+export const setInfo = async(data) => {
+    try{
+        const response = await axiosInstance.put('members/set-info', data)
+        return response
+    }catch(e){
+        console.log("회원 정보 수정 실패",e)
+    }
+}
+
+/**
+ * 비밀번호 변겅
+ * @param {*} data 
+ * @returns 
+ */
+export const setPw = async(data) => {
+    try{
+        const response = await axiosInstance.patch('members/set-pw', data)
+        return response
+    }catch(e){
+        console.log("비밀번호 변경 실패", e)
+    }
+}
+
+/**
+ * 로그아웃 시 refresh token 삭제
+ * @returns 
+ */
+export const logoutAPI = async () => {
+    try{
+        const response = await axiosInstance.post('members/logout')
+        return response
+    }catch(e){
+        console.log("refresh token 삭제 실패", e)
+    }
+}
+

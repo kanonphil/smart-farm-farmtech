@@ -1,11 +1,15 @@
 package com.farmtech.smartfarm.member.service;
 
+import com.farmtech.smartfarm.jwt.JwtUtil;
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     //회원가입 등록
     public void insertMember(MemberDTO memberDTO){
@@ -39,4 +44,48 @@ public class MemberService {
         System.out.println(memberDTO.getMemberPw());
         return passwordEncoder.matches(memberDTO.getMemberPw(), member.getMemberPw()); // (평문, 암호화된 값)
     }
+
+    //로그인 회원 정보 전체 조회 기능
+    public MemberDTO getAllInfo(String memEmail){
+        return memberMapper.getAllInfo(memEmail);
+    }
+
+    //회원 정보 수정 기능
+    public void setMemberInfo(MemberDTO memberDTO){
+        memberMapper.setMemberInfo(memberDTO);
+    }
+
+    //비밀번호 수정 기능
+    public void setNewPw(MemberDTO memberDTO){
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String newPw = encoder.encode(memberDTO.getMemberPw());
+        memberDTO.setMemberPw(newPw);
+        memberMapper.setNewPw(memberDTO);
+    }
+
+    //refresh토큰 저장 기능
+    public void saveRefreshToken(MemberDTO memberDTO){
+        memberMapper.saveRefreshToken(memberDTO);
+    }
+
+    //refresh토큰 조회 기능
+    public String refreshAccessToken(String refreshToken){
+        //1. DB에서 Refresh Token으로 회원 조회
+        MemberDTO member = memberMapper.findByRefreshToken(refreshToken);
+
+        //2. 토큰 없으면 null 반환
+        if (member == null) return null;
+
+        //3. 만료 시간 체크
+        if (member.getRefreshTokenExpiry().isBefore(LocalDateTime.now())) return null;
+
+        //4. 새 Access Token 발급해서 반환
+        return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), 1000 * 60 * 60);
+    }
+
+    //로그아웃 시 refresh token 삭제 기능
+    public void deleteRefreshToken(String memberEmail) {
+        memberMapper.deleteRefreshToken(memberEmail);
+    }
+
 }

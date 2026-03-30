@@ -3,9 +3,11 @@ import logo from '../../assets/logo.png'
 import styles from './MemberMenu.module.css'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { FaTrash } from 'react-icons/fa'
+import { decodeToken } from '../../utils/tokenUtils'
 
 const MemberMenu = () => {
   const nav = useNavigate();
+  const decoded = decodeToken(localStorage.getItem('token'))
 
   return (
     <div className={styles.container}>
@@ -13,7 +15,7 @@ const MemberMenu = () => {
         <img src={logo} onClick={e => nav('/')}/>
       </div>
       <div className={styles.profile}>
-        <p className={styles.name}>...님</p>
+        <p className={styles.name}>{decoded.sub}님</p>
         <p className={styles.welcome}>안녕하세요 👋</p>
       </div>
       <ul className={styles.menu_list}>
@@ -23,6 +25,12 @@ const MemberMenu = () => {
             end
             className={(param)=> param.isActive ? styles.active : ''}
           >내 정보 수정</NavLink>
+        </li>
+        <li>
+          <NavLink
+            to= 'pw'
+            className={(param)=> param.isActive ? styles.active : ''}
+          >비밀번호 변경</NavLink>
         </li>
         <li>
           <NavLink

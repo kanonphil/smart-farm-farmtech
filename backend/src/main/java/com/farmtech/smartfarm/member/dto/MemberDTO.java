@@ -22,4 +22,7 @@ public class MemberDTO {
   private String memberRole;
   private String memberStatus;
   private LocalDateTime memberCreatedAt;
+  private String refreshToken;
+  private LocalDateTime refreshTokenExpiry;
+  private boolean autoLogin;
 }

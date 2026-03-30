@@ -10,6 +10,9 @@ import { decodeToken } from '../../utils/tokenUtils'
 const Login = () => {
   const nav = useNavigate();
 
+  // 자동 로그인 체크박스 state 변수
+  const [autoLogin, setAutoLogin] = useState(false)
+
   const [loginData, setLoginData] = useState({
     memberEmail: '',
     memberPw: ''
@@ -83,10 +86,14 @@ const Login = () => {
       return
     }
     try{
-      const response = await goLogin(loginData)
+      const response = await goLogin({...loginData, autoLogin})
       console.log(response)
       if(response.status === 200){
         localStorage.setItem('token', response.headers.authorization)
+        // Refresh Token 있으면 저장
+        if(response.headers['refresh-token']){
+          localStorage.setItem('refreshToken', response.headers['refresh-token'])
+        }
         alert('로그인 성공')
         // 토큰 복호화하여 저장
         const decoded = decodeToken(response.headers.authorization)
@@ -128,7 +135,15 @@ const Login = () => {
           error={errors.memberPw}
           required
         />
-  
+        <div className={styles.chkbox_div}>
+          <input 
+            type='checkbox' 
+            id='autoLogin'
+            checked={autoLogin}
+            onChange={e => setAutoLogin(e.target.checked)}
+          />
+          <label htmlFor='autoLogin'>자동 로그인</label>
+        </div>
         {/* Submit Button */}
         <div>
           <Button

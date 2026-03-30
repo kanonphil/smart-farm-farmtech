@@ -4,17 +4,19 @@
 <mapper namespace="com.farmtech.smartfarm.member.mapper.MemberMapper">
 
     <resultMap id="memberResultMap" type="com.farmtech.smartfarm.member.dto.MemberDTO">
-        <id     column="MEMBER_ID"          property="memberId"/>
-        <result column="MEMBER_EMAIL"       property="memberEmail" />
-        <result column="MEMBER_PASSWORD"    property="memberPw" />
-        <result column="MEMBER_NAME"        property="memberName" />
-        <result column="MEMBER_PHONE"       property="memberPhone" />
-        <result column="MEMBER_BIRTH"       property="memberBirth" />
-        <result column="MEMBER_ADDR"        property="memberAddr" />
-        <result column="MEMBER_ADDR_DETAIL" property="memberAddrDetail" />
-        <result column="MEMBER_ROLE"        property="memberRole"/>
-        <result column="MEMBER_STATUS"      property="memberStatus"/>
-        <result column="MEMBER_CREATED_AT"  property="memberCreatedAt"/>
+        <id     column="MEMBER_ID"              property="memberId"/>
+        <result column="MEMBER_EMAIL"           property="memberEmail" />
+        <result column="MEMBER_PASSWORD"        property="memberPw" />
+        <result column="MEMBER_NAME"            property="memberName" />
+        <result column="MEMBER_PHONE"           property="memberPhone" />
+        <result column="MEMBER_BIRTH"           property="memberBirth" />
+        <result column="MEMBER_ADDR"            property="memberAddr" />
+        <result column="MEMBER_ADDR_DETAIL"     property="memberAddrDetail" />
+        <result column="MEMBER_ROLE"            property="memberRole"/>
+        <result column="MEMBER_STATUS"          property="memberStatus"/>
+        <result column="MEMBER_CREATED_AT"      property="memberCreatedAt"/>
+        <result column="REFRESH_TOKEN"          property="refreshToken"/>
+        <result column="REFRESH_TOKEN_EXPITY"   property="refreshTokenExpiry"/>
     </resultMap>
 
     <insert id="insertMember">
@@ -52,4 +54,55 @@
         WHERE MEMBER_EMAIL = #{memEmail}
     </select>
 
+<!--  로그인 회원 정보 전체 조회 쿼리  -->
+    <select id="getAllInfo" resultMap="memberResultMap">
+        SELECT *
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{memEmail}
+    </select>
+
+<!--  내 정보 수정 쿼리  -->
+    <update id="setMemberInfo">
+        UPDATE MEMBER
+        SET
+            MEMBER_NAME = #{memberName}
+            , MEMBER_BIRTH = #{memberBirth}
+            , MEMBER_PHONE = #{memberPhone}
+            , MEMBER_ADDR = #{memberAddr}
+            , MEMBER_ADDR_DETAIL = #{memberAddrDetail}
+        WHERE MEMBER_EMAIL = #{memberEmail}
+    </update>
+
+<!--  비밀번호 수정 쿼리  -->
+    <update id="setNewPw">
+        UPDATE MEMBER
+        SET
+            MEMBER_PASSWORD = #{memberPw}
+        WHERE MEMBER_EMAIL = #{memberEmail}
+    </update>
+
+<!--  Refresh Token 저장  -->
+    <update id="saveRefreshToken">
+        UPDATE MEMBER
+        SET
+            REFRESH_TOKEN = #{refreshToken},
+            REFRESH_TOKEN_EXPIRY = #{refreshTokenExpiry}
+        WHERE MEMBER_EMAIL = #{memberEmail}
+    </update>
+
+<!--  Refresh Token으로 회원 조회  -->
+    <select id="findByRefreshToken" resultMap="memberResultMap">
+        SELECT MEMBER_EMAIL, REFRESH_TOKEN, REFRESH_TOKEN_EXPIRY
+        FROM MEMBER
+        WHERE REFRESH_TOKEN = #{refreshToken}
+    </select>
+
+<!--  로그아웃 시 Refresh Token 삭제  -->
+    <update id="deleteRefreshToken">
+        UPDATE MEMBER
+        SET
+            REFRESH_TOKEN = NULL,
+            REFRESH_TOKEN_EXPIRY = NULL
+        WHERE MEMBER_EMAIL = #{memberEmail}
+    </update>
 </mapper>
