@@ -1,18 +1,37 @@
 package com.farmtech.smartfarm.product.service;
 
+import com.farmtech.smartfarm.product.dto.ProductCategoryDTO;
 import com.farmtech.smartfarm.product.dto.ProductDTO;
+import com.farmtech.smartfarm.product.dto.ProductImageDTO;
 import com.farmtech.smartfarm.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// 상품 관련 비즈니스 로직 처리
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class ProductService {
   private final ProductMapper productMapper;
 
-  //상품등록 메서드
-  public void insertProduct(ProductDTO productDTO){
+  // 상품 + 이미지 등록
+  @Transactional
+  public void insertProduct(ProductDTO productDTO, List<ProductImageDTO> imgList) {
+    // 1. 상품 INSERT → DB AUTO_INCREMENT ID가 productDTO.productId에 자동 주입됨
     productMapper.insertProduct(productDTO);
+
+    // 2. 생성된 productId를 이미지 리스트에 세팅
+    for (ProductImageDTO img : imgList) {
+      img.setProductId(productDTO.getProductId());
+    }
+
+    // 3. 이미지 INSERT
+    productMapper.insertImage(imgList);
+  }
+
+  // 카테고리 조회
+  public List<ProductCategoryDTO> selectCategory(){
+    return productMapper.selectCategory();
   }
 }

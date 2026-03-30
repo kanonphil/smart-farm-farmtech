@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +20,5 @@ public class ProductDTO {
   private String productDesc;
   private String productStatus;
   private LocalDateTime productCreatedAt;
+  private List<ProductImageDTO> productImageList;
 }

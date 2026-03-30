@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secret & Local Config ###
+**/application-secret.properties
+
+### Upload folder (keep folder, ignore files) ###
+uploads/*
+!uploads/.gitkeep
