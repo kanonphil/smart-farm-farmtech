@@ -13,10 +13,6 @@ import MemberLayout from "./components/layout/MemberLayout"
 import EditInfo from "./pages/member/EditInfo"
 import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
-import EditPassword from "./pages/member/EditPassword"
-import About from "./pages/Info/about"
-import Home from "./pages/Home"
-
 
 function App() {
   return (
@@ -47,6 +43,13 @@ function App() {
           <Route path="orders" element={<OrderList/>}/>
           <Route path="pw" element={<EditPassword/>}/>
           <Route path="reviews" element={<Reviews/>}/>
+        </Route>
+
+        {/* 결제 페이지 (test) */}
+        <Route path="/payment" element={<BasicLayout />}>
+          <Route index element={<Payments />} />
+          <Route path="success" element={<PaymentSuccess />} />
+          <Route path="fail" element={<PaymentFail />} />
         </Route>
 
       </Routes>
