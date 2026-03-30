@@ -13,6 +13,9 @@ import MemberLayout from "./components/layout/MemberLayout"
 import EditInfo from "./pages/member/EditInfo"
 import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
+import Payments from "./pages/payments/Payments"
+import PaymentSuccess from "./pages/payments/PaymentSuccess"
+import PaymentFail from "./pages/payments/PaymentFail"
 
 function App() {
   return (
@@ -40,6 +43,13 @@ function App() {
           <Route index element={<EditInfo/>}/>
           <Route path="orders" element={<OrderList/>}/>
           <Route path="reviews" element={<Reviews/>}/>
+        </Route>
+
+        {/* 결제 페이지 (test) */}
+        <Route path="/payment" element={<BasicLayout />}>
+          <Route index element={<Payments />} />
+          <Route path="success" element={<PaymentSuccess />} />
+          <Route path="fail" element={<PaymentFail />} />
         </Route>
 
       </Routes>
