@@ -1,15 +1,19 @@
 package com.farmtech.smartfarm.product.controller;
 
+import com.farmtech.smartfarm.product.dto.ProductCategoryDTO;
 import com.farmtech.smartfarm.product.dto.ProductDTO;
+import com.farmtech.smartfarm.product.dto.ProductImageDTO;
 import com.farmtech.smartfarm.product.service.ProductService;
+import com.farmtech.smartfarm.util.UploadUtil;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -17,15 +21,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProductController {
   private final ProductService productService;
+  private final UploadUtil uploadUtil;
 
-  @PostMapping
-  public ResponseEntity<?> insertProduct(@RequestBody ProductDTO productDTO){
-      try {
-        productService.insertProduct(productDTO);
-        return ResponseEntity.status(HttpStatus.OK).build();
-      }catch (Exception e){
-        log.error("상품등록 api 오류",e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품등록중 오류가 발생했습니다.");
-      }
+  //상품 + 이미지 등록 api
+  @PostMapping("")
+  public ResponseEntity<?> insertProduct(ProductDTO productDTO,
+                                         @RequestParam("mainImg") MultipartFile mainImgFile,
+                                         @RequestParam("subImgs") MultipartFile[] subImgs,
+                                         @RequestParam("detailImg") MultipartFile detailImgFile) {
+    try {
+      // 대표 이미지 업로드
+      ProductImageDTO dto = uploadUtil.fileUpload(mainImgFile);
+
+      // 서브 이미지들 업로드
+      List<ProductImageDTO> imgList = uploadUtil.multipleFileUpload(subImgs);
+
+      // 상세 페이지 이미지 업로드
+      ProductImageDTO detailDTO = uploadUtil.fileUpload(detailImgFile);
+      detailDTO.setImageType("DETAIL");
+      imgList.add(detailDTO);
+
+      // 대표 이미지도 리스트에 합치기
+      imgList.add(dto);
+
+      // PRODUCT INSERT 후 생성된 ID로 PRODUCT_IMAGE INSERT (service 내부에서 처리)
+      productService.insertProduct(productDTO, imgList);
+
+      return ResponseEntity.status(HttpStatus.CREATED).build();
+    } catch (Exception e) {
+      log.error("상품등록 api 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품등록중 오류가 발생했습니다.");
+    }
   }
+
+  // 카테고리 조회 api
+  @GetMapping("/category")
+  public ResponseEntity<?> selectCategory(){
+    try {
+      List<ProductCategoryDTO> category = productService.selectCategory();
+      return ResponseEntity.status(HttpStatus.OK).body(category);
+    }catch (Exception e){
+      log.error("상품등록 시 카테고리 조회 api 오류",e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
 }

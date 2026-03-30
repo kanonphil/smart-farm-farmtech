@@ -376,9 +376,9 @@ const Join = () => {
   
           {/* 제출 버튼 */}
           <Button 
-            type='submit' 
             fullWidth 
             className={styles.submitBtn}
+            onClick={handleSubmit}
             >
             제출
           </Button>

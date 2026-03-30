@@ -1,0 +1,62 @@
+.container{
+  width: 500px;
+  margin: auto;
+}
+
+/* 이미지 프리뷰 전체 영역 */
+.imgPreviewArea {
+  display: flex;
+  height: 10vh;
+  gap: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f9f9f9;
+}
+
+/* 좌측 - 대표 이미지 (크게) */
+.mainImgPre {
+  flex: 1;
+  overflow: hidden;
+}
+
+.mainImgPre img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 가운데 - 서브 이미지들 (세로로 나열) */
+.subImgsPre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.subImgsPre img {
+  width: 100%;
+  flex: 1;
+  object-fit: cover;
+  min-height: 0;
+}
+
+/* 우측 - 상세페이지 이미지 (세로로 길게) */
+.detailImgPre {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.detailImgPre img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.imageSelecter{
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}

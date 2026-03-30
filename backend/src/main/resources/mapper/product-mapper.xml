@@ -3,6 +3,7 @@
 
 <mapper namespace="com.farmtech.smartfarm.product.mapper.ProductMapper">
 
+    <!--ProductDTO resultMap-->
     <resultMap id="productResultMap" type="com.farmtech.smartfarm.product.dto.ProductDTO">
         <id     property="productId"        column="PRODUCT_ID"/>
         <result property="categoryId"       column="CATEGORY_ID"/>
@@ -12,8 +13,10 @@
         <result property="productDesc"      column="PRODUCT_DESC"/>
         <result property="productStatus"    column="PRODUCT_STATUS"/>
         <result property="productCreatedAt" column="PRODUCT_CREATED_AT"/>
+        <collection property="productImageList" resultMap="com.farmtech.smartfarm.product.mapper.ProductMapper"></collection>
     </resultMap>
 
+    <!--ProductImageDTO resultMap    -->
     <resultMap id="productImageResultMap" type="com.farmtech.smartfarm.product.dto.ProductImageDTO">
         <id     property="imageId"          column="IMAGE_ID"/>
         <result property="productId"        column="PRODUCT_ID"/>
@@ -23,30 +26,49 @@
         <result property="imageOrder"       column="IMAGE_ORDER"/>
     </resultMap>
 
-    <insert id="insertProduct">
+    <!--ProductCategoryDTO resultMap-->
+    <resultMap id="productCategoryMap" type="com.farmtech.smartfarm.product.dto.ProductCategoryDTO">
+        <id property="categoryId" column="CATEGORY_ID"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+    </resultMap>
+
+    <!--상품 등록 (DB AUTO_INCREMENT, 생성된 ID를 productId에 자동 주입)-->
+    <insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId">
         INSERT INTO PRODUCT (
-        PRODUCT_ID, CATEGORY_ID, PRODUCT_NAME, PRODUCT_PRICE,
-        PRODUCT_STOCK, PRODUCT_DESC, PRODUCT_STATUS
+            CATEGORY_ID, PRODUCT_NAME, PRODUCT_PRICE,
+            PRODUCT_STOCK, PRODUCT_DESC, PRODUCT_STATUS
         ) VALUES (
-        #{productId}, #{categoryId}, #{productName}, #{productPrice},
-        #{productStock}, #{productDesc}, #{productStatus}
+            #{categoryId}, #{productName}, #{productPrice},
+            #{productStock}, #{productDesc}, #{productStatus}
         )
     </insert>
 
-<!--    <insert id="insertImage">-->
-<!--        INSERT INTO PRODUCT_IMAGE (-->
-<!--        PRODUCT_ID,-->
-<!--        IMAGE_ORIGIN_NAME,-->
-<!--        IMAGE_SAVED_NAME,-->
-<!--        IMAGE_TYPE,-->
-<!--        IMAGE_ORDER-->
-<!--        ) VALUES (-->
-<!--        #{productId},-->
-<!--        #{imageOriginName},-->
-<!--        #{imageSavedName},-->
-<!--        #{imageType},-->
-<!--        #{imageOrder}-->
-<!--        )-->
-<!--    </insert>-->
+    <!--상품 이미지 등록-->
+    <insert id="insertImage">
+        INSERT INTO PRODUCT_IMAGE (
+            PRODUCT_ID,
+            IMAGE_ORIGIN_NAME,
+            IMAGE_SAVED_NAME,
+            IMAGE_TYPE,
+            IMAGE_ORDER
+        ) VALUES
+        <foreach collection="imgList" item="img" separator=",">
+            (
+                #{img.productId},
+                #{img.imageOriginName},
+                #{img.imageSavedName},
+                #{img.imageType},
+                #{img.imageOrder}
+            )
+        </foreach>
+    </insert>
+
+    <!--카테고리 조회-->
+    <select id="selectCategory" resultMap="productCategoryMap">
+        SELECT *
+        FROM CATEGORY
+    </select>
+
+
 
 </mapper>
