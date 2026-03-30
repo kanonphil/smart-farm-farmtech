@@ -69,4 +69,14 @@ public class JwtUtil {
 
     }
 
+    // Refresh Token 생성 (7일)
+    public String createRefreshToken(String email){
+        return Jwts.builder()
+                .subject(email)  // 토큰 안에 이메일 담기
+                .issuedAt(new Date())  // 발급 시간
+                .expiration(new Date(System.currentTimeMillis() + 1000*60*60*24*7))  // 만료시간
+                .signWith(secretKey)  // 시크릿 키로 서명
+                .compact(); // 문자열로 변환해서 반환
+    }
+
 }

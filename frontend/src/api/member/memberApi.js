@@ -71,6 +71,11 @@ export const setInfo = async(data) => {
     }
 }
 
+/**
+ * 비밀번호 변겅
+ * @param {*} data 
+ * @returns 
+ */
 export const setPw = async(data) => {
     try{
         const response = await axiosInstance.patch('members/set-pw', data)
@@ -80,4 +85,16 @@ export const setPw = async(data) => {
     }
 }
 
+/**
+ * 로그아웃 시 refresh token 삭제
+ * @returns 
+ */
+export const logoutAPI = async () => {
+    try{
+        const response = await axiosInstance.post('members/logout')
+        return response
+    }catch(e){
+        console.log("refresh token 삭제 실패", e)
+    }
+}
 

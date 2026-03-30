@@ -23,4 +23,13 @@ public interface MemberMapper {
 
     //비밀번호 수정 메서드
     void setNewPw(MemberDTO memberDTO);
+
+    //refresh token 저장 메서드
+    void saveRefreshToken(MemberDTO memberDTO);
+
+    //refresh token 조회 메서드
+    MemberDTO findByRefreshToken(String refreshToken);
+
+    //로그아웃 시 refresh token 삭제 메서드
+    void deleteRefreshToken(String memberEmail);
 }

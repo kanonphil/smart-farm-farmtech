@@ -1,6 +1,7 @@
 package com.farmtech.smartfarm.jwt;
 
 import com.farmtech.smartfarm.member.dto.MemberDTO;
+import com.farmtech.smartfarm.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +20,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -26,10 +28,13 @@ import java.util.Iterator;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final MemberService memberService;
+    private MemberDTO loginVo;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, MemberService memberService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.memberService = memberService;
 
         //로그인 요청 url 변경
         setFilterProcessesUrl("/members/login");
@@ -52,6 +57,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             ServletInputStream inputStream = request.getInputStream();
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             vo = objectMapper.readValue(messageBody, MemberDTO.class);
+            loginVo = vo;
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -80,8 +86,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //JWT 토큰 생성
         String token = jwtUtil.createJwt(userEmail, role, 1000 * 60 * 60); //1000 = 1초
 
+        // Refresh Token - autoLogin 체크 시에만 발급
+        if (loginVo.isAutoLogin()) {
+            String refreshToken = jwtUtil.createRefreshToken(userEmail);
+
+            MemberDTO dto = new MemberDTO();
+            dto.setMemberEmail(userEmail);
+            dto.setRefreshToken(refreshToken);
+            dto.setRefreshTokenExpiry(LocalDateTime.now().plusDays(7));
+            memberService.saveRefreshToken(dto);
+
+            response.setHeader("Refresh-Token", refreshToken);
+        }
+
         //생성한 토큰을 응답 헤더에 담아 React에 전달
-        response.setHeader("Access-Control-Expose-Headers", "Authorization");
+        response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
         response.setHeader("Authorization", "Bearer " + token);
         response.setStatus(HttpStatus.OK.value());
     }

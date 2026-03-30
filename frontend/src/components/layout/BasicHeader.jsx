@@ -3,6 +3,7 @@ import logo from '../../assets/logo.png'
 import { RiSearchLine } from "react-icons/ri";
 import { Link, useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/tokenUtils';
+import { logoutAPI } from '../../api/member/memberApi';
 
 const BasicHeader = () => {
   const nav = useNavigate();
@@ -12,10 +13,17 @@ const BasicHeader = () => {
 
 
   //로그아웃 함수
-  const logout = () => {
-    localStorage.removeItem('token')
-    alert('로그아웃 되었습니다')
-    nav('/')
+  const logout = async () => {
+    try{
+      await logoutAPI()
+    }catch(e){
+      console.error('로그아웃 오류', e)
+    }finally{
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      alert('로그아웃 되었습니다')
+      nav('/')
+    }
   }
   
 

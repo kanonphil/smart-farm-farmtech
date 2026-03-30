@@ -3,6 +3,7 @@ package com.farmtech.smartfarm.config;
 import com.farmtech.smartfarm.jwt.JwtConfirmFilter;
 import com.farmtech.smartfarm.jwt.JwtUtil;
 import com.farmtech.smartfarm.jwt.LoginFilter;
+import com.farmtech.smartfarm.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
+    private final MemberService memberService;
 
     //인증 및 인가 설정을 작성하는 메서드
     @Bean
@@ -46,7 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         //기존 로그인 처리를 담당하는 UsernamePasswordAuthenticationFilter 를 LoginFilter 클래스로 대체
-        http.addFilterAt(new LoginFilter(authenticationManager, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager, jwtUtil, memberService), UsernamePasswordAuthenticationFilter.class);
 
         //로그인 검증 필터 전에 토큰 유무를 판단하는 필터를 추가
         http.addFilterBefore(new JwtConfirmFilter(jwtUtil), LoginFilter.class);
@@ -65,12 +67,5 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    //비밀번호 암호화 기능을 제공하는 객체
-    //복호화 기능은 제공되지 않으므로 초기화만 가능
-    @Bean
-    public PasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
