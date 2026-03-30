@@ -4,6 +4,7 @@ import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,4 +40,23 @@ public class MemberService {
         System.out.println(memberDTO.getMemberPw());
         return passwordEncoder.matches(memberDTO.getMemberPw(), member.getMemberPw()); // (평문, 암호화된 값)
     }
+
+    //로그인 회원 정보 전체 조회 기능
+    public MemberDTO getAllInfo(String memEmail){
+        return memberMapper.getAllInfo(memEmail);
+    }
+
+    //회원 정보 수정 기능
+    public void setMemberInfo(MemberDTO memberDTO){
+        memberMapper.setMemberInfo(memberDTO);
+    }
+
+    //비밀번호 수정 기능
+    public void setNewPw(MemberDTO memberDTO){
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String newPw = encoder.encode(memberDTO.getMemberPw());
+        memberDTO.setMemberPw(newPw);
+        memberMapper.setNewPw(memberDTO);
+    }
+
 }

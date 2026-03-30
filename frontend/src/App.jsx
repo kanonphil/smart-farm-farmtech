@@ -13,6 +13,7 @@ import MemberLayout from "./components/layout/MemberLayout"
 import EditInfo from "./pages/member/EditInfo"
 import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
+import EditPassword from "./pages/member/EditPassword"
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/mypage" element={<MemberLayout/>}>
           <Route index element={<EditInfo/>}/>
           <Route path="orders" element={<OrderList/>}/>
+          <Route path="pw" element={<EditPassword/>}/>
           <Route path="reviews" element={<Reviews/>}/>
         </Route>
 

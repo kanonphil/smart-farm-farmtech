@@ -55,4 +55,40 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    //로그인 한 회원 전체 정보 조회 api
+    @GetMapping("/{memEmail}")
+    public ResponseEntity<?> getAllInfo(@PathVariable("memEmail") String memEmail){
+        try {
+            MemberDTO memberDTO = memberService.getAllInfo(memEmail);
+            return ResponseEntity.status(HttpStatus.OK).body(memberDTO);
+        }catch (Exception e){
+            log.error("회원 정보 전체 조회 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //회원 정보 수정 api
+    @PutMapping("/set-info")
+    public ResponseEntity<?> setMemberInfo(@RequestBody MemberDTO memberDTO){
+        try {
+            memberService.setMemberInfo(memberDTO);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }catch (Exception e){
+            log.error("회원 정보 수정 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //비밀번호 수정 api
+    @PatchMapping("/set-pw")
+    public ResponseEntity<?> setNewPw(@RequestBody MemberDTO memberDTO){
+        try {
+            memberService.setNewPw(memberDTO);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }catch (Exception e){
+            log.error("비밀번호 수정 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
