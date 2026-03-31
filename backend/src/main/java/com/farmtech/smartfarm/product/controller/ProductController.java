@@ -78,4 +78,16 @@ public class ProductController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  // 상품 상세 정보 조회 api
+  @GetMapping("/{productId}")
+  public ResponseEntity<?> getProductDetail(@PathVariable("productId") int productId){
+    try {
+      ProductDTO productDTO = productService.getProductDetail(productId);
+      return ResponseEntity.status(HttpStatus.OK).body(productDTO);
+    }catch (Exception e){
+      log.error("상품 상세 정보 조회 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }

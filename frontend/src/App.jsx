@@ -20,6 +20,7 @@ import Payments from './pages/payments/Payments'
 import PaymentSuccess from './pages/payments/PaymentSuccess'
 import PaymentFail from './pages/payments/PaymentFail'
 import ProductList from "./pages/product/ProductList"
+import ProductDetail from "./pages/product/ProductDetail"
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path='pw-confirm' element={<PasswordConfirm/>}/>
           <Route path="about" element={<About/>}/>
           <Route path='products' element={<ProductList />} />
+          <Route path='products/:productId' element={<ProductDetail/>}/>
         </Route>
 
         {/* 관리자 페이지 */}

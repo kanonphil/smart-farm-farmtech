@@ -93,4 +93,12 @@
         FROM V_PRODUCT_LIST
     </select>
 
+    <!--  상품 상세 정보 조회  -->
+    <select id="getProductDetail" resultMap="productResultMap">
+        SELECT *
+        FROM PRODUCT P, PRODUCT_IMAGE I
+        WHERE P.PRODUCT_ID = I.PRODUCT_ID
+        AND P.PRODUCT_ID = #{productId}
+    </select>
+
 </mapper>

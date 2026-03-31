@@ -23,4 +23,7 @@ public interface ProductMapper {
 
   // 상품 목록 조회
   List<ProductListDTO> selectProductList();
+
+  // 상세 상품 조회 메서드
+  ProductDTO getProductDetail(int productId);
 }

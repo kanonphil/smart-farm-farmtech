@@ -32,3 +32,12 @@ export const getProductList = async () => {
   const response = await axiosInstance.get('/products')
   return response.data
 }
+/**
+ * 해당 번호의 상품 상세 조회
+ * @param {*} productId 
+ * @returns 
+ */
+export const getProduct = async (productId) => {
+  const response = await axiosInstance.get(`/products/${productId}`)
+  return response
+}

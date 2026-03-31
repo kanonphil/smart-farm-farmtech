@@ -15,6 +15,7 @@ const ProductList = () => {
    * @type {[Array, Function]} 상품 목록 상태
    */
   const [products, setProducts] = useState([])
+  console.log(products)
 
   /**
    * 상품 목록 조회 함수
