@@ -39,6 +39,5 @@ out/
 ### Secret & Local Config ###
 **/application-secret.properties
 
-### Upload folder (keep folder, ignore files) ###
-uploads/*
+### Upload folder ###
 !uploads/.gitkeep
