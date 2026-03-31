@@ -37,8 +37,8 @@ public class ProductService {
   }
 
   // 상품 목록 조회
-  public List<ProductListDTO> getProductList() {
-    return productMapper.selectProductList();
+  public List<ProductListDTO> getProductList(String sort) {
+    return productMapper.selectProductList(sort);
   }
 
   // 상품 상세 조회 기능

@@ -15,4 +15,5 @@ public class ProductListDTO {
   private int productStock;       // 재고 수량
   private String productStatus;   // 상품 상태 (ACTIVE / INACTIVE)
   private String mainImage;       // 대표 이미지 저장명 (V_PRODUCT_LIST VIEW에서 가져옴)
+  private int salesCount;         // 판매량 (V_PRODUCT_LIST VIEW에서 집계)
 }
