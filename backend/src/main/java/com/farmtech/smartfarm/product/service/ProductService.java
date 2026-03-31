@@ -3,6 +3,7 @@ package com.farmtech.smartfarm.product.service;
 import com.farmtech.smartfarm.product.dto.ProductCategoryDTO;
 import com.farmtech.smartfarm.product.dto.ProductDTO;
 import com.farmtech.smartfarm.product.dto.ProductImageDTO;
+import com.farmtech.smartfarm.product.dto.ProductListDTO;
 import com.farmtech.smartfarm.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,5 +34,10 @@ public class ProductService {
   // 카테고리 조회
   public List<ProductCategoryDTO> selectCategory(){
     return productMapper.selectCategory();
+  }
+
+  // 상품 목록 조회
+  public List<ProductListDTO> getProductList() {
+    return productMapper.selectProductList();
   }
 }

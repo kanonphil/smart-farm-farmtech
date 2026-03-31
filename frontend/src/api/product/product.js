@@ -1,4 +1,5 @@
 import axios from "axios"
+import { axiosInstance } from "../axiosInstance";
 
 export const regProductAPI = async(productData) => {
   try{
@@ -19,4 +20,15 @@ export const getCategory = async() => {
   } catch(e){
      console.log('상품 등록 시 카테고리 axios 오류',e)
   }
+}
+
+/**
+ * 상품 목록 조회 API
+ * GET /products
+ * V_PRODUCT_LIST VIEW 기반으로 ACTIVE 상태의 상품 목록과 대표 이미지를 반환
+ * @returns {Promise<Array>} 상품 목록 배열 (productId, productName, productPrice, productStock, mainImage 등)
+ */
+export const getProductList = async () => {
+  const response = await axiosInstance.get('/products')
+  return response.data
 }

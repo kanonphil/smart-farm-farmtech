@@ -13,7 +13,7 @@
         <result property="productDesc"      column="PRODUCT_DESC"/>
         <result property="productStatus"    column="PRODUCT_STATUS"/>
         <result property="productCreatedAt" column="PRODUCT_CREATED_AT"/>
-        <collection property="productImageList" resultMap="com.farmtech.smartfarm.product.mapper.ProductMapper"></collection>
+        <collection property="productImageList" resultMap="productImageResultMap"></collection>
     </resultMap>
 
     <!--ProductImageDTO resultMap    -->
@@ -30,6 +30,17 @@
     <resultMap id="productCategoryMap" type="com.farmtech.smartfarm.product.dto.ProductCategoryDTO">
         <id property="categoryId" column="CATEGORY_ID"/>
         <result property="categoryName" column="CATEGORY_NAME"/>
+    </resultMap>
+
+    <!-- ProductListDTO resultMap -->
+    <resultMap id="productListMap" type="com.farmtech.smartfarm.product.dto.ProductListDTO">
+        <id     column="PRODUCT_ID"         property="productId" />
+        <result column="CATEGORY_ID"        property="categoryId" />
+        <result column="PRODUCT_NAME"       property="productName" />
+        <result column="PRODUCT_PRICE"      property="productPrice" />
+        <result column="PRODUCT_STOCK"      property="productStock" />
+        <result column="PRODUCT_STATUS"     property="productStatus" />
+        <result column="MAIN_IMAGE"         property="mainImage" />
     </resultMap>
 
     <!--상품 등록 (DB AUTO_INCREMENT, 생성된 ID를 productId에 자동 주입)-->
@@ -69,6 +80,17 @@
         FROM CATEGORY
     </select>
 
-
+    <!-- 상품 목록 조회 (V_PRODUCT_LIST VIEW 사용) -->
+    <select id="selectProductList" resultMap="productListMap">
+        SELECT
+            PRODUCT_ID,
+            CATEGORY_ID,
+            PRODUCT_NAME,
+            PRODUCT_PRICE,
+            PRODUCT_STOCK,
+            PRODUCT_STATUS,
+            MAIN_IMAGE
+        FROM V_PRODUCT_LIST
+    </select>
 
 </mapper>

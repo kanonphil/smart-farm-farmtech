@@ -3,6 +3,7 @@ package com.farmtech.smartfarm.product.mapper;
 import com.farmtech.smartfarm.product.dto.ProductCategoryDTO;
 import com.farmtech.smartfarm.product.dto.ProductDTO;
 import com.farmtech.smartfarm.product.dto.ProductImageDTO;
+import com.farmtech.smartfarm.product.dto.ProductListDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,7 @@ public interface ProductMapper {
 
   // 상품 카테고리 조회
   List<ProductCategoryDTO> selectCategory();
+
+  // 상품 목록 조회
+  List<ProductListDTO> selectProductList();
 }
