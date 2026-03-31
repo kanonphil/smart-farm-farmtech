@@ -5,14 +5,39 @@
   padding: 40px 20px;
 }
 
+/* 상단 타이틀 + 정렬 선택 영역: 양쪽 정렬 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  border-bottom: 2px solid #1a1a1a;
+  padding-bottom: 12px;
+}
+
 /* 페이지 타이틀 */
 .title {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 32px;
   color: #1a1a1a;
-  border-bottom: 2px solid #1a1a1a;
-  padding-bottom: 12px;
+  margin: 0;
+}
+
+/* 정렬 선택 드롭다운 */
+.sortSelect {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sortSelect:hover,
+.sortSelect:focus {
+  border-color: #1a1a1a;
 }
 
 /* 상품 카드 그리드: 4열 배치 */
@@ -27,6 +52,7 @@
   cursor: pointer;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #dddddd;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
