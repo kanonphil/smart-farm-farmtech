@@ -90,10 +90,6 @@ const Login = () => {
       console.log(response)
       if(response.status === 200){
         localStorage.setItem('token', response.headers.authorization)
-        // Refresh Token 있으면 저장
-        if(response.headers['refresh-token']){
-          localStorage.setItem('refreshToken', response.headers['refresh-token'])
-        }
         alert('로그인 성공')
         // 토큰 복호화하여 저장
         const decoded = decodeToken(response.headers.authorization)

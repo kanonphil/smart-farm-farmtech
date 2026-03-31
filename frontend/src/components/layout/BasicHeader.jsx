@@ -20,7 +20,6 @@ const BasicHeader = () => {
       console.error('로그아웃 오류', e)
     }finally{
       localStorage.removeItem('token')
-      localStorage.removeItem('refreshToken')
       alert('로그아웃 되었습니다')
       nav('/')
     }
@@ -55,7 +54,7 @@ const BasicHeader = () => {
       <div className={styles.menu}>
         <div>
           <ul>
-            <li><Link to='/about'>한우마루 소개</Link></li>
+            <Link to='/about'><li>한우마루 소개</li></Link>
             <li>공지사항</li>
             <li>베스트상품</li>
             <li>한우</li>

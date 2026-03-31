@@ -13,6 +13,13 @@ import MemberLayout from "./components/layout/MemberLayout"
 import EditInfo from "./pages/member/EditInfo"
 import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
+import Home from "./pages/Home"
+import About from "./pages/info/About"
+import EditPassword from "./pages/member/EditPassword"
+import Payments from "./pages/payments/Payments"
+import PaymentSuccess from "./pages/payments/PaymentSuccess"
+import PaymentFail from "./pages/payments/PaymentFail"
+
 
 function App() {
   return (

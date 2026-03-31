@@ -35,23 +35,16 @@ axiosInstance.interceptors.response.use(
     
     // 401 에러이고 refresh 요청이 아닐 때
     if (error.response?.status === 401 && error.config?.url !== '/members/refresh') {
-      const refreshToken = localStorage.getItem('refreshToken')
-      
-      if (refreshToken) {
-        try {
-          const response = await axiosInstance.post('/members/refresh', null, {
-            headers: { 'Refresh-Token': refreshToken }
-          })
-          const newToken = response.headers['authorization']
-          localStorage.setItem('token', newToken)
-          error.config.headers['Authorization'] = newToken
-          return axiosInstance(error.config)
-        } catch (e) {
-          localStorage.removeItem('token')
-          localStorage.removeItem('refreshToken')
-          alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
-          window.location.href = '/login'
-        }
+      try{
+        const response = await axiosInstance.post('members/refresh')
+        const newToken = response.headers['authorization']
+        localStorage.setItem('token', newToken)
+        error.config.headers['Authorization'] = newToken
+        return axiosInstance(error.config)
+      } catch (e) {
+        localStorage.removeItem('token')
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
+        window.location.href = '/login'
       }
     }
     return Promise.reject(error)
