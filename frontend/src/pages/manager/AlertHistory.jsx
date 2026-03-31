@@ -27,10 +27,10 @@ const AlertHistory = () => {
   }, [])
 
   const headers = [[
-    { label: '센서' },
-    { label: '측정값' },
-    { label: '임계값' },
-    { label: '발생 시각' },
+    { label: '센서', styles: { width: '20%' } },
+    { label: '측정값', styles: { width: '20%' }  },
+    { label: '임계값', styles: { width: '20%' }  },
+    { label: '발생 시각', styles: { width: '20%' }  },
   ]]
 
   return (
@@ -41,7 +41,7 @@ const AlertHistory = () => {
         headers={headers}
         data={alerts}
         renderRow={(alert) => (
-          <tr key={alert.id}>
+          <>
             <td>
               <span className={styles.sensorBadge}>
                 {SENSOR_LABEL[alert.sensorType] ?? alert.sensorType}
@@ -50,7 +50,7 @@ const AlertHistory = () => {
             <td className={styles.valueCell}>{alert.value}</td>
             <td className={styles.thresholdCell}>{alert.threshold}</td>
             <td className={styles.timeCell}>{alert.createdAt?.replace('T', ' ').slice(0, 19)}</td>
-          </tr>
+          </>
         )}
       />
     </div>
