@@ -3,6 +3,7 @@ package com.farmtech.smartfarm.product.controller;
 import com.farmtech.smartfarm.product.dto.ProductCategoryDTO;
 import com.farmtech.smartfarm.product.dto.ProductDTO;
 import com.farmtech.smartfarm.product.dto.ProductImageDTO;
+import com.farmtech.smartfarm.product.dto.ProductListDTO;
 import com.farmtech.smartfarm.product.service.ProductService;
 import com.farmtech.smartfarm.util.UploadUtil;
 import lombok.Getter;
@@ -66,4 +67,15 @@ public class ProductController {
     }
   }
 
+  // 상품 목록 조회 api
+  @GetMapping("")
+  public ResponseEntity<?> getProductList() {
+    try {
+      List<ProductListDTO> productList = productService.getProductList();
+      return ResponseEntity.status(HttpStatus.OK).body(productList);
+    } catch (Exception e) {
+      log.error("상품 목록 조회 api 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }

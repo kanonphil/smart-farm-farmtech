@@ -57,7 +57,7 @@ const BasicHeader = () => {
             <Link to='/about'><li>한우마루 소개</li></Link>
             <li>공지사항</li>
             <li>베스트상품</li>
-            <li>한우</li>
+            <li><Link to='/products'>한우</Link></li>
             <li>세트상품</li>
           </ul>
         </div>

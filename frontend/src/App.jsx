@@ -19,6 +19,7 @@ import EditPassword from './pages/member/EditPassword'
 import Payments from './pages/payments/Payments'
 import PaymentSuccess from './pages/payments/PaymentSuccess'
 import PaymentFail from './pages/payments/PaymentFail'
+import ProductList from "./pages/product/ProductList"
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path='login' element={<Login />} />
           <Route path='pw-confirm' element={<PasswordConfirm/>}/>
           <Route path="about" element={<About/>}/>
+          <Route path='products' element={<ProductList />} />
         </Route>
 
         {/* 관리자 페이지 */}
