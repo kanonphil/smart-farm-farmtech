@@ -50,8 +50,11 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
         //토큰 만료기간이 지났으면
         if(isExpired){
             log.info("토큰 만료");
-            // filterChain.doFilter(request, response);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            if (!request.getRequestURI().equals("/members/refresh")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            filterChain.doFilter(request, response);
             return;
         }
 

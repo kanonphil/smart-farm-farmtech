@@ -16,7 +16,7 @@
         <result column="MEMBER_STATUS"          property="memberStatus"/>
         <result column="MEMBER_CREATED_AT"      property="memberCreatedAt"/>
         <result column="REFRESH_TOKEN"          property="refreshToken"/>
-        <result column="REFRESH_TOKEN_EXPITY"   property="refreshTokenExpiry"/>
+        <result column="REFRESH_TOKEN_EXPIRY"   property="refreshTokenExpiry"/>
     </resultMap>
 
     <insert id="insertMember">

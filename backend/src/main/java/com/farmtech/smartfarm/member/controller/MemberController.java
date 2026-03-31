@@ -4,6 +4,8 @@ package com.farmtech.smartfarm.member.controller;
 import com.farmtech.smartfarm.jwt.JwtUtil;
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.service.MemberService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -96,7 +98,7 @@ public class MemberController {
 
     //refresh token 발급 api
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Refresh-Token") String refreshToken){
+    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false)String refreshToken){
         String newAccessToken = memberService.refreshAccessToken(refreshToken);
 
         if (newAccessToken == null) return ResponseEntity.status(401).build();
@@ -109,10 +111,15 @@ public class MemberController {
 
     //로그아웃 시 refresh token 삭제 api
     @PostMapping("/logout")
-    public ResponseEntity<?> deleteRefreshToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> deleteRefreshToken(@RequestHeader("Authorization") String token, HttpServletResponse response) {
         try {
             String email = jwtUtil.getUsername(token.replace("Bearer ", ""));
             memberService.deleteRefreshToken(email);
+
+            Cookie refreshCookie = new Cookie("refreshToken", null);
+            refreshCookie.setMaxAge(0);
+            refreshCookie.setPath("/");
+            response.addCookie(refreshCookie);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(500).build();

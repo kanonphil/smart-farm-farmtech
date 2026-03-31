@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -96,11 +97,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             dto.setRefreshTokenExpiry(LocalDateTime.now().plusDays(7));
             memberService.saveRefreshToken(dto);
 
-            response.setHeader("Refresh-Token", refreshToken);
+            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(7*24*60*60);
+            response.addCookie(refreshCookie);
         }
 
         //생성한 토큰을 응답 헤더에 담아 React에 전달
-        response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
+        response.setHeader("Access-Control-Expose-Headers", "Authorization");
         response.setHeader("Authorization", "Bearer " + token);
         response.setStatus(HttpStatus.OK.value());
     }
