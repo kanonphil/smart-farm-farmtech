@@ -22,5 +22,5 @@ public interface ProductMapper {
   List<ProductCategoryDTO> selectCategory();
 
   // 상품 목록 조회
-  List<ProductListDTO> selectProductList();
+  List<ProductListDTO> selectProductList(@Param("sort") String sort);
 }

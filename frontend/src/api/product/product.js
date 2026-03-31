@@ -26,9 +26,12 @@ export const getCategory = async() => {
  * 상품 목록 조회 API
  * GET /products
  * V_PRODUCT_LIST VIEW 기반으로 ACTIVE 상태의 상품 목록과 대표 이미지를 반환
- * @returns {Promise<Array>} 상품 목록 배열 (productId, productName, productPrice, productStock, mainImage 등)
+ * @param {string|null} sort - 정렬 기준 (sales_desc / price_desc / price_asc / null: 기본값)
+ * @returns {Promise<Array>} 상품 목록 배열
  */
-export const getProductList = async () => {
-  const response = await axiosInstance.get('/products')
+export const getProductList = async (sort = null) => {
+  const response = await axiosInstance.get('/products', {
+    params: { sort }
+  })
   return response.data
 }

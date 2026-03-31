@@ -41,6 +41,7 @@
         <result column="PRODUCT_STOCK"      property="productStock" />
         <result column="PRODUCT_STATUS"     property="productStatus" />
         <result column="MAIN_IMAGE"         property="mainImage" />
+        <result column="SALES_COUNT"        property="salesCount" />
     </resultMap>
 
     <!--상품 등록 (DB AUTO_INCREMENT, 생성된 ID를 productId에 자동 주입)-->
@@ -89,8 +90,27 @@
             PRODUCT_PRICE,
             PRODUCT_STOCK,
             PRODUCT_STATUS,
-            MAIN_IMAGE
+            MAIN_IMAGE,
+            SALES_COUNT
         FROM V_PRODUCT_LIST
+        <choose>
+            <!-- 판매량 높은 순 -->
+            <when test="sort == 'sales_desc'">
+                ORDER BY SALES_COUNT DESC
+            </when>
+            <!-- 가격 높은 순 -->
+            <when test="sort == 'price_desc'">
+                ORDER BY PRODUCT_PRICE DESC
+            </when>
+            <!-- 가격 낮은 순 -->
+            <when test="sort == 'price_asc'">
+                ORDER BY PRODUCT_PRICE ASC
+            </when>
+            <!-- 기본값: 등록 순 (PRODUCT_ID 내림차순) -->
+            <otherwise>
+                ORDER BY PRODUCT_ID DESC
+            </otherwise>
+        </choose>
     </select>
 
 </mapper>
