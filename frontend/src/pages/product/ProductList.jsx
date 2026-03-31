@@ -16,6 +16,7 @@ const ProductList = () => {
    * @type {[Array, Function]} 상품 목록 상태
    */
   const [products, setProducts] = useState([])
+  console.log(products)
 
   /**
    * @type {[string|null, Function]} 현재 선택된 정렬 기준
