@@ -1,0 +1,73 @@
+/* 사이드바 전체 컨테이너 */
+.container {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+  /* min-height: 100vh; */
+  height: 100%;
+}
+
+/* 로고 영역 */
+.logo_div {
+  text-align: center;
+}
+
+.logo_div > img {
+  width: 150px;
+  cursor: pointer;
+}
+
+/* 관리자 타이틀 영역 */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 24px;
+  gap: 6px;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.welcome {
+  font-size: 15px;
+  color: #888;
+  margin: 0;
+}
+
+/* 메뉴 리스트 */
+.menu_list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.menu_list li {
+  display: flex;
+  align-items: center;
+  padding: 0px 16px;
+  border-radius: 8px;
+  color: #333;
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.menu_list li:hover {
+  background: #f5f5f5;
+}
+
+/* 현재 활성화된 메뉴 항목 스타일 */
+.active {
+  color: #1a1a1a;
+  font-weight: 600;
+  background: #f0f0f0;
+  border-left: 3px solid #1a1a1a;
+  padding-left: 1rem;
+}
