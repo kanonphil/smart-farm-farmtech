@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secret & Local Config ###
+**/application-secret.properties
+
+### Upload folder ###
+!uploads/.gitkeep

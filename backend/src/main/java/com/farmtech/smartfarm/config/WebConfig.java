@@ -1,7 +1,9 @@
 package com.farmtech.smartfarm.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -14,6 +16,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration  // Spring 설정 클래스임을 명시
 public class WebConfig implements WebMvcConfigurer {
+
+  @Value("${file.upload.dir}")
+  private String uploadPath;
+
+  // /uploads/** URL로 업로드 폴더의 파일을 직접 접근 가능하게 설정
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/uploads/**")
+            .addResourceLocations("file:" + uploadPath);
+  }
 
   /**
    * CORS 매핑 설정을 추가하는 메서드
