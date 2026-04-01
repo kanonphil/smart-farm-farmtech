@@ -4,6 +4,7 @@ import styles from './ProductDetail.module.css'
 import { getProduct } from '../../api/product/product';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+import Button from '../../components/common/Button'
 
 const ProductDetail = () => {
   const nav = useNavigate();
@@ -87,14 +88,14 @@ const ProductDetail = () => {
         </div>
         <div className={styles.detail_div}>
           <div>{product?.productName}</div>
-          <div className={styles.price_div}>
-            <div>
+          <div className={styles.price_cnt}>
+            <div className={styles.price_div}>
               <p>판매가격</p>
-              <p>수량</p>
+              <p className={styles.price}>{product.productPrice?.toLocaleString()}원</p>
             </div>
-            <div>
-              <p>{product.productPrice?.toLocaleString()}원</p>
-              <div className={styles.cnt_div}>
+            <div className={styles.cnt_div}>
+              <p>수량</p>
+              <div>
                 <button
                   onClick={e => minusCnt(e)}
                 >-</button>
@@ -109,6 +110,20 @@ const ProductDetail = () => {
                 >+</button>
               </div>
             </div>
+          </div>
+          <div className={styles.total_cnt}>
+            <p>총 구매 가격 : </p>
+            <p>{(product.productPrice*cnt)?.toLocaleString()}원</p>
+          </div>
+          <div className={styles.btn_div}>
+            <Button
+              variant='success'
+            >
+              바로 구매
+            </Button>
+            <Button>
+              장바구니
+            </Button>
           </div>
         </div>
       </div>
