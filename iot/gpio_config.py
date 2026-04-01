@@ -11,7 +11,7 @@ class GPIOConfig:
   AIR_CH = 1  # 대기질 센서 CH1
 
   # 액츄에이터 핀
-  LED_PIN = 18  # PWM LED
+  LED_PIN = 24  # PWM LED
   BUZZER_PIN = 23  # 부저
-  FAN_IA_PIN = 5 
+  FAN_IA_PIN = 13 
   FAN_IB_PIN = 6
