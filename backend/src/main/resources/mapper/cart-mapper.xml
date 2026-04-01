@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.cart.mapper.CartMapper">
+    <resultMap id="cartResultMap" type="com.farmtech.smartfarm.cart.dto.CartDTO">
+        <id property="cartId" column="cart_id"/>
+        <result property="memberId" column="member_id"/>
+        <collection property="cartItemDTOList" ofType="com.farmtech.smartfarm.cart.dto.CartItemDTO">
+            <id property="cartItemId" column="cart_item_id"/>
+            <result property="cartId" column="cart_id"/>
+            <result property="productId" column="product_id"/>
+            <result property="cartItemQty" column="cart_item_qty"/>
+        </collection>
+    </resultMap>
+
+<!--  장바구니 아이템 담기 쿼리  -->
+    <insert id="insertCartItem">
+        INSERT INTO CART_ITEM (
+            CART_ID
+            , PRODUCT_ID
+            , CART_ITEM_QTY
+        ) VALUES (
+            #{cartId}
+            , #{productId}
+            , #{cartItemQty}
+        )
+    </insert>
+
+<!-- cartId 조회 쿼리 -->
+    <select id="getCartId" resultType="int">
+        SELECT CART_ID
+        FROM CART
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+<!--  카트에 상품이 담겨있는지 조회하는 쿼리  -->
+    <select id="findCartItem" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM CART_ITEM
+        WHERE CART_ID = #{cartId}
+        AND PRODUCT_ID = #{productId}
+    </select>
+
+<!--  이미 담겨있는 상품일 경우 수량 추가 쿼리  -->
+    <update id="addItem">
+        UPDATE CART_ITEM
+        SET CART_ITEM_QTY = CART_ITEM_QTY + #{cartItemQty}
+        WHERE CART_ID = #{cartId}
+        AND PRODUCT_ID = #{productId}
+    </update>
+</mapper>

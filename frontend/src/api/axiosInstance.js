@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
     // 401 에러이고 refresh 요청이 아닐 때
     if (error.response?.status === 401 && error.config?.url !== '/members/refresh') {
       try{
-        const response = await axiosInstance.post('members/refresh')
+        const response = await axiosInstance.post('/members/refresh')
         const newToken = response.headers['authorization']
         localStorage.setItem('token', newToken)
         error.config.headers['Authorization'] = newToken
