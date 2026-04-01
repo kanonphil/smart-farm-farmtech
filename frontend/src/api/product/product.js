@@ -44,3 +44,8 @@ export const getProduct = async (productId) => {
   const response = await axiosInstance.get(`/products/${productId}`)
   return response
 }
+
+export const insertCartItem = async (item) => {
+  const response = await axiosInstance.post('/carts', item)
+  return response
+}

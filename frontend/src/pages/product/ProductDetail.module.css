@@ -30,6 +30,8 @@
 .detail_div{
   width: 500px;
   height: 450px;
+  display: flex;
+  flex-direction: column;
 }
 
 .detail_div > div:nth-child(1){
@@ -80,6 +82,7 @@
   background-color: black;
   font-size: 18px;
   width: 30px;
+  cursor: pointer;
 }
 
 .total_cnt{
@@ -98,4 +101,9 @@
 .btn_div{
   display: flex;
   margin-top: auto;
+  gap: 0.5rem;
+}
+
+.btn_div button{
+  width: 200px;
 }

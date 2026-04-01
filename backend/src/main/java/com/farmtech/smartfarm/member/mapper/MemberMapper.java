@@ -9,6 +9,9 @@ public interface MemberMapper {
     //회원가입 등록
     void insertMember(MemberDTO memberDTO);
 
+    //memberId 조회 메서드
+    int getNextMemberId();
+
     //이메일 중복 체크
     int checkEmailDuplicate(String memberEmail);
 
@@ -32,4 +35,6 @@ public interface MemberMapper {
 
     //로그아웃 시 refresh token 삭제 메서드
     void deleteRefreshToken(String memberEmail);
+
+    int getMemberIdByEmail(String email);
 }

@@ -1,5 +1,7 @@
 package com.farmtech.smartfarm.member.service;
 
+import com.farmtech.smartfarm.cart.dto.CartDTO;
+import com.farmtech.smartfarm.cart.mapper.CartMapper;
 import com.farmtech.smartfarm.jwt.JwtUtil;
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.mapper.MemberMapper;
@@ -8,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -18,12 +21,19 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CartMapper cartMapper;
 
     //회원가입 등록
+    @Transactional
     public void insertMember(MemberDTO memberDTO){
         String encodePw = passwordEncoder.encode(memberDTO.getMemberPw());
         memberDTO.setMemberPw(encodePw);
+        int memberId = memberMapper.getNextMemberId();
+        memberDTO.setMemberId(memberId);
+        CartDTO cart = new CartDTO();
+        cart.setMemberId(memberId);
         memberMapper.insertMember(memberDTO);
+        cartMapper.insertCart(cart);
     }
 
     //이메일 중복 체크
@@ -80,12 +90,17 @@ public class MemberService {
         if (member.getRefreshTokenExpiry().isBefore(LocalDateTime.now())) return null;
 
         //4. 새 Access Token 발급해서 반환
-        return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), 1000 * 60 * 60);
+        return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), member.getMemberId(),1000 * 60 * 60);
     }
 
     //로그아웃 시 refresh token 삭제 기능
     public void deleteRefreshToken(String memberEmail) {
         memberMapper.deleteRefreshToken(memberEmail);
+    }
+
+    //memberId 조회 기능
+    public int getMemberIdByEmail(String email) {
+        return memberMapper.getMemberIdByEmail(email);
     }
 
 }

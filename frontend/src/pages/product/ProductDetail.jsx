@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styles from './ProductDetail.module.css'
-import { getProduct } from '../../api/product/product';
+import { getProduct, insertCartItem } from '../../api/product/product';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import Button from '../../components/common/Button'
+import { decodeToken } from '../../utils/tokenUtils';
 
 const ProductDetail = () => {
   const nav = useNavigate();
   const {productId} = useParams();
+
+  const decoded = decodeToken(localStorage.getItem('token'))
+  const memEmail = decoded.sub
 
   //상품 상세 정보 저장 state 변수
   const [product, setProduct] = useState({})
@@ -20,21 +24,25 @@ const ProductDetail = () => {
   const handleCnt = e => {
     //만약 숫자가 아닌 문자열이 입력되면 입력된 문자열을 빈문자열로 변경
     let cntValue = e.target.value.replace(/[^0-9]/g, '')
-    cntValue = cntValue === '' ? '1' : cntValue
+    cntValue = cntValue === '' ? '1' : Number(cntValue)
+    if(cntValue > 99) {
+      cntValue = 99
+      alert('최대 구매 수량은 99개입니다.')
+    }
     setCnt(cntValue)
-    // setCart(prev => ({
-    //   ...prev,
-    //   cartCnt : cntValue
-    // }))
   }
 
   //-버튼 클릭시
   const minusCnt = e => {
-    setCnt(prev => prev <= 1 ? 1 : prev -1)
+    setCnt(prev => prev <= 1 ? 1 : prev -1) 
   }
   //+버튼 클릭시
   const plusCnt = e => {
-    setCnt(prev => prev + 1)
+    setCnt(prev => prev >= 99 ? 99 : prev + 1)
+    if(cnt >= 99) {
+      alert('최대 구매 수량은 99개입니다.')
+      return
+    }
   }
 
   //상품 조회 및 저장된 이미지이름 저장 함수
@@ -64,6 +72,21 @@ const ProductDetail = () => {
   useEffect(()=>{
     getProductDetail()
   }, [])
+
+  //장바구니 담기 버튼 클릭 시 실행함수
+  const addCartItem = async () => {
+    const cartItem = {
+      productId : product.productId,
+      cartItemQty : cnt
+    }
+    const response = await insertCartItem(cartItem)
+    if(response.status === 200){
+      alert('장바구니 저장 완료')
+    }
+    else{
+      alert('실패')
+    }
+  }
 
   console.log(product)
 
@@ -121,7 +144,9 @@ const ProductDetail = () => {
             >
               바로 구매
             </Button>
-            <Button>
+            <Button
+              onClick={e => addCartItem()}
+            >
               장바구니
             </Button>
           </div>

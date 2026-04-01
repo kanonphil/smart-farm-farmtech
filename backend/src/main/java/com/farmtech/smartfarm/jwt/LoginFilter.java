@@ -84,8 +84,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
+        // memberId 조회 추가
+        int memberId = memberService.getMemberIdByEmail(userEmail);
+
         //JWT 토큰 생성
-        String token = jwtUtil.createJwt(userEmail, role, 1000 * 60 * 60); //1000 = 1초
+        String token = jwtUtil.createJwt(userEmail, role, memberId, 1000 * 60 * 60); //1000 = 1초
 
         // Refresh Token - autoLogin 체크 시에만 발급
         if (loginVo.isAutoLogin()) {

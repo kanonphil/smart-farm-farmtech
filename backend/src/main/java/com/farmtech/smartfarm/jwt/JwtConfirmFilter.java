@@ -64,10 +64,12 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
 
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
+        int memberId = jwtUtil.getMemberId(token);
 
         MemberDTO member = new MemberDTO();
         member.setMemberEmail(username);
         member.setMemberRole(role);
+        member.setMemberId(memberId);
 
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
 
