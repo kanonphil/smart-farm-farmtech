@@ -204,12 +204,13 @@ def sensor_loop():
       with lock:
         led_on = state['led']['is_on']
         buzzer_on = state['buzzer']['is_on']
+        fan_on = state['fan']['is_on']
 
       # DB 센서 데이터 저장
       if temp is not None and hum is not None:
         cursor.execute(
           "INSERT INTO SENSOR_DHT22 (TEMPERATURE, HUMIDITY, FAN_ON) VALUES (%s, %s, %s)",
-          (temp, hum, 1 if 'temperature' in fan_triggers or 'humidity' in fan_triggers else 0)
+          (temp, hum, 1 if ('temperature' in fan_triggers or 'humidity' in fan_triggers) or (current_mode == "manual" and fan_on) else 0)
         )
       if lux is not None:
         cursor.execute(
@@ -219,7 +220,7 @@ def sensor_loop():
       if raw is not None and raw > 0:
         cursor.execute(
           "INSERT INTO SENSOR_AIR (RAW_VALUE, FAN_ON) VALUES (%s, %s)",
-          (raw, 1 if 'air' in fan_triggers else 0)
+          (raw, 1 if 'air' in fan_triggers or (current_mode == "manual" and fan_on) else 0)
         )
       if motion:
         cursor.execute(
