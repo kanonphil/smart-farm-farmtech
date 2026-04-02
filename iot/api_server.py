@@ -5,10 +5,11 @@
 import time
 import threading
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional, Literal
 
 from sensors.dht22 import DHT22Sensor
 from sensors.light import LightSensor
@@ -53,28 +54,34 @@ pir_sensor = PIRSensor()
 
 # DB 기본값 (프리셋 로드 실패 시 풀백용)
 DEFAULT_THRESHOLD = {
+  "temp_low": 20.0,
   "temp_high": 30.0,
+  "hum_low": 50.0,
   "hum_high": 70.0,
+  "air_ppm_low": 300,
   "air_ppm_bad": 500,
-  "lux_high": 10000,
-  "lux_low": 3000,
+  "lux_low": 100,
+  "lux_high": 800,
 }
 
 def load_threshold(cursor):
   """DB에서 현재 활성화 된 프리셋을 읽어 반환. 실패 시 기본값 반환"""
   try:
     cursor.execute(
-      "SELECT TEMP_HIGH, HUM_HIGH, AIR_PPM_BAD, LUX_HIGH, LUX_LOW "
+      "SELECT TEMP_LOW, TEMP_HIGH, HUM_LOW, HUM_HIGH, AIR_PPM_LOW, AIR_PPM_BAD, LUX_LOW, LUX_HIGH "
       "FROM THRESHOLD_PRESET WHERE IS_ACTIVE = 1 LIMIT 1"
     )
     row = cursor.fetchone()
     if row:
       return {
-        "temp_high":   row[0],
-        "hum_high":    row[1],
-        "air_ppm_bad": row[2],
-        "lux_high":    row[3],
-        "lux_low":     row[4],
+        "temp_low":    row[0],
+        "temp_high":   row[1],
+        "hum_low":     row[2],
+        "hum_high":    row[3],
+        "air_ppm_low": row[4],
+        "air_ppm_bad": row[5],
+        "lux_low":     row[6],
+        "lux_high":    row[7],
       }
     print("[경고] 활성화된 프리셋 없음 -> 기본값 사용")
     return DEFAULT_THRESHOLD
@@ -184,14 +191,19 @@ def sensor_loop():
         _auto_led(lux, threshold["lux_high"], threshold["lux_low"])
         
         # 팬 자동 제어 (초과된 센서 종류 반환)
-        fan_triggers = _fan.control_fan(
+        fan_result = _fan.control_fan(
           temp, hum, ppm,
+          threshold["temp_low"],
           threshold["temp_high"],
+          threshold["hum_low"],
           threshold["hum_high"],
+          threshold["air_ppm_low"],
           threshold["air_ppm_bad"]
         )
+        fan_triggers = fan_result["reasons"]
+        fan_speed = fan_result["speed"]
         with lock:
-          state['fan'] = {'is_on': bool(fan_triggers), 'speed': 1.0 if fan_triggers else 0}
+          state['fan'] = {'is_on': bool(fan_triggers), 'speed': fan_speed}
 
         # 임계값 초과 시 알림 저장
         if temp is not None and temp >= threshold["temp_high"]:
@@ -235,118 +247,201 @@ def sensor_loop():
 
 # ── 요청 모델 ───────────────────────────────────────────────
 class ModeRequest(BaseModel):
-  mode: str  # "auto" | "manual"
+  mode: Literal["auto", "manual"]
 
+# ge: greator than or equal (이상)
+# le: less than or equal (이하)
+# gt: greater than (초과)
 class LedRequest(BaseModel):
-  brightness: float = 1.0
+  brightness: float = Field(default=1.0, ge=0.0, le=1.0)
 
 class BuzzerRequest(BaseModel):
-  freq: int = 440
+  freq: int = Field(default=440, gt=0)
 
 class FanRequest(BaseModel):
-  speed: float = 1.0  # 0.0 - 1.0
+  speed: float = Field(default=1.0, ge=0.0, le=1.0)
+
+# ── 응답 모델 ───────────────────────────────────────────────
+class ThresholdResponse(BaseModel):
+  temp_low: float
+  temp_high: float
+  hum_low: float
+  hum_high: float
+  air_ppm_low: int
+  air_ppm_bad: int
+  lux_low: int
+  lux_high: int
+
+class LedStateResponse(BaseModel):
+  is_on: bool
+  brightness: float
+
+class BuzzerStateResponse(BaseModel):
+  is_on: bool
+  freq: int
+
+class FanStateResponse(BaseModel):
+  is_on: bool
+  speed: float
+
+class SensorStateResponse(BaseModel):
+  temperature: Optional[float] = None
+  humidity: Optional[float] = None
+  lux: Optional[float] = None
+  air_raw: Optional[int] = None
+  air_ppm: Optional[float] = None
+  motion: bool
+
+class StatusResponse(BaseModel):
+  mode: Literal["auto", "manual"]
+  threshold: ThresholdResponse
+  led: LedStateResponse
+  buzzer: BuzzerStateResponse
+  fan: FanStateResponse
+  sensor: SensorStateResponse
+
+class OkResponse(BaseModel):
+  result: Literal["ok"]
+
+class ModeResponse(BaseModel):
+  mode: Literal["auto", "manual"]
+
+class LedControlResponse(BaseModel):
+  result: Literal["ok"]
+  brightness: float
+
+class BuzzerControlResponse(BaseModel):
+  result: Literal["ok"]
+  freq: int
+
+class FanControlResponse(BaseModel):
+  result: Literal["ok"]
+  speed: float
+
+class ThresholdReloadResponse(BaseModel):
+  result: Literal["ok"]
+  threshold: ThresholdResponse
 
 # ── 모드 API ────────────────────────────────────────────────
-@app.get("/mode")
+@app.get("/mode", response_model=ModeResponse)
 def get_mode():
   with lock:
     return {"mode": state["mode"]}
 
-@app.post("/mode")
+@app.post("/mode", response_model=ModeResponse)
 def set_mode(req: ModeRequest):
-  if req.mode not in ("auto", "manual"):
-    return {"error": "auto 또는 manual 만 허용"}
-  with lock:
-    state["mode"] = req.mode
   if req.mode == "auto":
     _led.off()
     _buzzer.buzz_off()
     _fan.fan_off()
-    with lock:
+
+  with lock:
+    state["mode"] = req.mode
+    if req.mode == "auto":
       state["led"] = {"is_on": False, "brightness": 0.0}
       state["buzzer"] = {"is_on": False, "freq": 440}
       state["fan"] = {"is_on": False, "speed": 0.0}
+
   return {"mode": req.mode}
 
 # ── LED API (manual 전용) ────────────────────────────────────
-@app.post("/led/on")
+@app.post("/led/on", response_model=LedControlResponse)
 def led_on(req: LedRequest):
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
-  b = max(0.0, min(1.0, req.brightness))
-  _led.set_brightness(b)
-  with lock:
-    state["led"] = {"is_on": True, "brightness": b}
-  return {"result": "ok", "brightness": b}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
 
-@app.post("/led/off")
+  _led.set_brightness(req.brightness)
+
+  with lock:
+    state["led"] = {"is_on": True, "brightness": req.brightness}
+
+  return {"result": "ok", "brightness": req.brightness}
+
+@app.post("/led/off", response_model=OkResponse)
 def led_off():
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+    
   _led.off()
+
   with lock:
     state["led"] = {"is_on": False, "brightness": 0.0}
+
   return {"result": "ok"}
 
-
 # ── 부저 API (manual 전용) ───────────────────────────────────
-@app.post("/buzzer/on")
+@app.post("/buzzer/on", response_model=BuzzerControlResponse)
 def buzzer_on(req: BuzzerRequest):
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+    
   _buzzer.buzz_on(req.freq)
+
   with lock:
     state["buzzer"] = {"is_on": True, "freq": req.freq}
+
   return {"result": "ok", "freq": req.freq}
 
-@app.post("/buzzer/off")
+@app.post("/buzzer/off", response_model=OkResponse)
 def buzzer_off():
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+    
   _buzzer.buzz_off()
+
   with lock:
     state["buzzer"] = {"is_on": False, "freq": 440}
+
   return {"result": "ok"}
 
 # ── 팬 API (manual 전용) ─────────────────────────────────────
-@app.post("/fan/on")
+@app.post("/fan/on", response_model=FanControlResponse)
 def fan_on(req: FanRequest):
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
-  s = max(0.0, min(1.0, req.speed))
-  _fan.fan_on(s)
-  with lock:
-    state["fan"] = {"is_on": True, "speed": s}
-  return {"result": "ok", "speed": s}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+    
+  _fan.fan_on(req.speed)
 
-@app.post("/fan/off")
+  with lock:
+    state["fan"] = {"is_on": True, "speed": req.speed}
+
+  return {"result": "ok", "speed": req.speed}
+
+@app.post("/fan/off", response_model=OkResponse)
 def fan_off():
   with lock:
     if state["mode"] != "manual":
-      return {"error": "manual 모드에서만 제어 가능"}
+      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+    
   _fan.fan_off()
+
   with lock:
     state["fan"] = {"is_on": False, "speed": 0.0}
   return {"result": "ok"}
 
 # ── 전체 상태 조회 ────────────────────────────────────────────
-@app.get("/status")
+@app.get("/status", response_model=StatusResponse)
 def get_status():
   with lock:
     return dict(state)
 
 # ── 임계값 즉시 반영 ──────────────────────────────────────────
-@app.post("/threshold/reload")
+@app.post("/threshold/reload", response_model=ThresholdReloadResponse)
 def reload_threshold():
   conn   = get_connection()
   cursor = conn.cursor()
-  new_threshold = load_threshold(cursor)
-  conn.close()
+  try:
+    new_threshold = load_threshold(cursor)
+  finally:
+    cursor.close()
+    conn.close()
+
   with lock:
     state["threshold"] = new_threshold
+
   return {"result": "ok", "threshold": new_threshold}
