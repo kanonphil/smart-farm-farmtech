@@ -1,5 +1,6 @@
 package com.farmtech.smartfarm.cart.dto;
 
+import com.farmtech.smartfarm.product.dto.ProductDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,4 +15,5 @@ public class CartItemDTO {
   private int cartId;
   private int productId;
   private int cartItemQty;
+  private ProductDTO product;
 }

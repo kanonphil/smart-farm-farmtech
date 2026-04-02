@@ -12,6 +12,7 @@
             <result property="cartId" column="cart_id"/>
             <result property="productId" column="product_id"/>
             <result property="cartItemQty" column="cart_item_qty"/>
+            <association property="product" resultMap="com.farmtech.smartfarm.product.mapper.ProductMapper.productResultMap"/>
         </collection>
     </resultMap>
 
@@ -50,4 +51,19 @@
         WHERE CART_ID = #{cartId}
         AND PRODUCT_ID = #{productId}
     </update>
+
+<!--  카트에 담긴 상품 조회 쿼리  -->
+    <select id="getCartItems" resultMap="cartResultMap">
+        SELECT
+            C.CART_ITEM_QTY
+            , P.PRODUCT_NAME
+            , P.PRODUCT_PRICE
+            , P.PRODUCT_STOCK
+            , I.IMAGE_SAVED_NAME
+        FROM CART_ITEM C
+            LEFT JOIN PRODUCT P ON C.PRODUCT_ID = P.PRODUCT_ID
+            LEFT JOIN PRODUCT_IMAGE I ON P.PRODUCT_ID = I.PRODUCT_ID
+        WHERE C.CART_ID = #{cartId}
+        AND IMAGE_TYPE = 'MAIN';
+    </select>
 </mapper>
