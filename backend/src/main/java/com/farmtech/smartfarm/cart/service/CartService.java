@@ -6,6 +6,8 @@ import com.farmtech.smartfarm.cart.mapper.CartMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -26,5 +28,10 @@ public class CartService {
     }
   }
 
+  // 카트에 담긴 상품 조회 기능
+  public List<CartItemDTO> getCartItems(int memberId){
+    int cartId = cartMapper.getCartId(memberId);
+    return cartMapper.getCartItems(cartId);
+  }
 
 }

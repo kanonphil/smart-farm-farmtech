@@ -28,6 +28,8 @@ axiosInstance.interceptors.request.use(
 //응답 인터셉터
 //첫번째 매개변수 : 응답 시 작업할 내용, 화살표 함수
 //두번째 매개변수 : 응답 중 오류 발생 시 내용, 화살표 함수
+let isRefreshing = false // refresh 진행 중 여부
+
 axiosInstance.interceptors.response.use(
   response => { return response }, 
   async error => {
@@ -35,6 +37,11 @@ axiosInstance.interceptors.response.use(
     
     // 401 에러이고 refresh 요청이 아닐 때
     if (error.response?.status === 401 && error.config?.url !== '/members/refresh') {
+      // 이미 refresh 중이면 그냥 reject
+      if(isRefreshing) return Promise.reject(error);
+
+      isRefreshing = true  //refresh 시작
+
       try{
         const response = await axiosInstance.post('/members/refresh')
         const newToken = response.headers['authorization']
@@ -45,6 +52,8 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('token')
         alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
         window.location.href = '/login'
+      } finally {
+        isRefreshing = false // refresh 끝나면 초기화
       }
     }
     return Promise.reject(error)

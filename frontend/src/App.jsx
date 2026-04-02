@@ -21,6 +21,7 @@ import PaymentSuccess from './pages/payments/PaymentSuccess'
 import PaymentFail from './pages/payments/PaymentFail'
 import ProductList from "./pages/product/ProductList"
 import ProductDetail from "./pages/product/ProductDetail"
+import Cart from "./pages/product/Cart"
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="about" element={<About/>}/>
           <Route path='products' element={<ProductList />} />
           <Route path='products/:productId' element={<ProductDetail/>}/>
+          <Route path="cart" element={<Cart/>}/>
         </Route>
 
         {/* 관리자 페이지 */}

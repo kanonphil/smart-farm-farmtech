@@ -33,6 +33,7 @@ const BasicHeader = () => {
           <div>
             <ul>
               <li style={{cursor : 'default', fontWeight : 'bolder'}}>{decoded.sub}님 반갑습니다.</li>
+              <li><Link to='/cart'>장바구니</Link></li>
               <li><Link to='/pw-confirm'>마이페이지</Link></li>
               <li
                 onClick={()=>logout()}

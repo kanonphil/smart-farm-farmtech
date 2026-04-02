@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/carts")
@@ -27,6 +29,19 @@ public class CartController {
       return ResponseEntity.status(HttpStatus.OK).build();
     }catch (Exception e){
       log.error("카트 상품 저장 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  //카트에 담긴 상품 조회 api
+  @GetMapping("/items")
+  public ResponseEntity<?> getCartItems(@AuthenticationPrincipal CustomUserDetails userDetails){
+    try {
+      int memberId = userDetails.getMemberDTO().getMemberId();
+      List<CartItemDTO> cartItemDTOList = cartService.getCartItems(memberId);
+      return ResponseEntity.status(HttpStatus.OK).body(cartItemDTOList);
+    }catch (Exception e){
+      log.error("카트에 담긴 상품 조회 오류", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
