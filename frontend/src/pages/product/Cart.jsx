@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import styles from './Cart.module.css'
 import Table from '../../components/common/Table'
 import { getCartItems, putCnt } from '../../api/product/product'
+import Button from '../../components/common/Button'
+import { MdPayment } from "react-icons/md";
 
 const Cart = () => {
   //카트 리스트 저장 state 변수
@@ -21,13 +23,12 @@ const Cart = () => {
       }
     })
     setCartItem(dataList)
+    setCheckedItems(dataList.map(item => item.cartItemId))
   }
 
   useEffect(()=>{
     getCart()
   },[])
-
-  console.log(cartItem)
 
   //수량과 카트번호 저장 state변수
   const [cntAndCartNum, setCntAndCartNum] = useState({
@@ -65,9 +66,11 @@ const Cart = () => {
     })
   }
 
+  //수량 변경 db 저장 함수
   const updateCnt = async (data) => {
     await putCnt(data)
   }
+  // 수량 변경시 db 업데이트 후 렌더링
   useEffect(()=>{
     if (cntAndCartNum.cartItemId === 0) return
     const update = async () => {
@@ -77,7 +80,38 @@ const Cart = () => {
   update()
   }, [cntAndCartNum])
 
+   //체크박스 선택시 카트번호가 저장될 state변수
+  const [checkedItems, setCheckedItems] = useState([]);
+  
+  //전체 체크박스 state변수
+  const [isChecked, setIsChecked] = useState(true); 
 
+   //체크 박스 클릭 시 실행할 함수
+  const checkItem = (e) => {
+  let newChecked
+    if (e.target.checked) {
+      newChecked = [...checkedItems, Number(e.target.value)]
+    } else {
+      newChecked = checkedItems.filter(data => data !== Number(e.target.value))
+    }
+    setCheckedItems(newChecked)
+    // 전체 선택됐는지 자동으로 반영
+    setIsChecked(newChecked.length === cartItem.length)
+  }
+
+  console.log(checkedItems)
+
+  const checkAll = (e) => {
+    if (e.target.checked) {
+      // 전체 선택 → 모든 cartItemId를 checkedItems에 추가
+      setCheckedItems(cartItem.map(item => item.cartItemId))
+      setIsChecked(true)
+    } else {
+      // 전체 해제
+      setCheckedItems([])
+      setIsChecked(false)
+    }
+  }
 
   const headers = [
     [
@@ -85,6 +119,8 @@ const Cart = () => {
         label: (
           <input
             type="checkbox"
+            checked={isChecked}
+            onChange={checkAll}
           />
         )
       },
@@ -98,9 +134,12 @@ const Cart = () => {
   const renderRow = (item, index) => (
     <>
       <td>
-        <div>
-
-        </div>
+        <input
+          type="checkbox"
+          value={item.cartItemId}
+          checked={checkedItems.includes(item.cartItemId)}
+          onChange={e => checkItem(e)} 
+        />
       </td>
       <td className={styles.img_name_div}>
         <img
@@ -129,6 +168,22 @@ const Cart = () => {
     </>
   )
 
+  // 총 금액이 저장될 변수
+  const totalPrice = cartItem
+    .filter(item => checkedItems
+    .includes(item.cartItemId))
+    .reduce((sum, item) => sum + item.productPrice * item.cartItemQty, 0)
+
+  // 주문하기 버튼 클릭 함수
+  const goOrder = () => {
+    const data = {
+      'orderDTO' : {},
+      'orderItemDTOList' : []
+    }
+
+
+  }
+
   return (
     <div className={styles.container}>
       <Table
@@ -137,6 +192,23 @@ const Cart = () => {
         renderRow={renderRow}
         className={styles.cart_table}
       />
+      <div className={styles.delete_totalPrice_div}>
+        <div className={styles.btn_div}>
+          <Button>선택삭제</Button>
+          <Button
+            variant='danger'
+          >전체삭제</Button>
+        </div>
+        <div className={styles.totalPrice_div}>
+          <p>총 결제금액 : </p>
+          <p>{totalPrice.toLocaleString()}원</p>
+        </div>
+      </div>
+      <div className={styles.order_div}>
+        <Button
+          variant='success'
+        ><MdPayment />  주문하기</Button>
+      </div>
     </div>
   )
 }

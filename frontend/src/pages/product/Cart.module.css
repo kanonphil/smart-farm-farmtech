@@ -83,43 +83,39 @@
   color: #2563eb;
 }
 
-/* 하단 주문 영역 */
-.bottom_bar {
+.delete_totalPrice_div{
+  margin-top: 2rem;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 24px;
-  padding: 20px 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  gap: 24px;
+  justify-content: space-between;
 }
 
-.total_text {
-  font-size: 16px;
-  color: #475569;
+.btn_div{
+  display: flex;
+  gap: 1rem;
 }
 
-.total_text span {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-left: 8px;
+.btn_div button{
+  height: 30px;
+  width: 100px;
 }
 
-.order_btn {
-  padding: 12px 32px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+.totalPrice_div{
+  display: flex;
+  gap: 1rem;
+  font-size: 18px;
+  font-weight: bolder;
 }
 
-.order_btn:hover {
-  background: #1d4ed8;
+.totalPrice_div p:last-child{
+  color: rgb(248, 126, 126);
+}
+
+.order_div{
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.order_div button{
+  width: 300px;
 }
