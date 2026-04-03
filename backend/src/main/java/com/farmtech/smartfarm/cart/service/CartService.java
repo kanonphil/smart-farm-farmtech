@@ -34,4 +34,9 @@ public class CartService {
     return cartMapper.getCartItems(cartId);
   }
 
+  //수량 변경 기능
+  public void updateCnt(CartItemDTO cartItemDTO){
+    cartMapper.updateCnt(cartItemDTO);
+  }
+
 }

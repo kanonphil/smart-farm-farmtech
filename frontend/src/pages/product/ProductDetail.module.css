@@ -43,11 +43,10 @@
 }
 
 .price_cnt{
-  padding: 30px 0px;
+  padding: 30px 10px;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding-right: 10rem;
   border-bottom: 1px solid lightgray;
   font-weight: bold;
 }
@@ -86,7 +85,7 @@
 }
 
 .total_cnt{
-  padding: 50px 0px;
+  padding: 50px 10px;
   font-size: 20px;
   display: flex;
   justify-content: space-between;

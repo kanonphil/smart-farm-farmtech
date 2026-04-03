@@ -45,4 +45,16 @@ public class CartController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  //수량 변경 api
+  @PutMapping("/cnt")
+  public ResponseEntity<?> updateCnt(@RequestBody CartItemDTO cartItemDTO){
+    try {
+      cartService.updateCnt(cartItemDTO);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    }catch (Exception e){
+      log.error("카트 수량 변경 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }

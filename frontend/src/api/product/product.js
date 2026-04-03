@@ -55,7 +55,16 @@ export const insertCartItem = async (item) => {
   return response
 }
 
+/**
+ * 카트에 담긴 상품 조회
+ * @returns 
+ */
 export const getCartItems = async () => {
   const response = await axiosInstance.get('/carts/items')
+  return response
+}
+
+export const putCnt = async (data) => {
+  const response = await axiosInstance.put('/carts/cnt', data)
   return response
 }
