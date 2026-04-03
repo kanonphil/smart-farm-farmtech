@@ -98,7 +98,7 @@
 
 <!--  Refresh Token으로 회원 조회  -->
     <select id="findByRefreshToken" resultMap="memberResultMap">
-        SELECT MEMBER_EMAIL, REFRESH_TOKEN, REFRESH_TOKEN_EXPIRY
+        SELECT MEMBER_ID, MEMBER_ROLE, MEMBER_EMAIL, REFRESH_TOKEN, REFRESH_TOKEN_EXPIRY
         FROM MEMBER
         WHERE REFRESH_TOKEN = #{refreshToken}
     </select>

@@ -29,4 +29,7 @@ public interface CartMapper {
 
   //카트에 담긴 상품 조회 메서드
   List<CartItemDTO> getCartItems(int cartId);
+
+  //수량 변경 메서드
+  void updateCnt(CartItemDTO cartItemDTO);
 }

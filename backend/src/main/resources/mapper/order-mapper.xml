@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.order.mapper.OrderMapper">
+    <resultMap id="orderResultMap" type="com.farmtech.smartfarm.order.dto.OrderDTO">
+        <id     property="orderId"          column="order_id"/>
+        <result property="memberId"         column="member_id"/>
+        <result property="orderStatus"      column="order_status"/>
+        <result property="orderTotalPrice"  column="order_total_price"/>
+        <result property="orderCreatedAt"   column="order_created_at"/>
+        <result property="tossOrderId"      column="toss_order_id"/>
+        <result property="paymentKey"       column="payment_key"/>
+        <collection property="orderItemDTOList" resultMap="orderItemResultMap"/>
+    </resultMap>
+
+    <resultMap id="orderItemResultMap" type="com.farmtech.smartfarm.order.dto.OrderItemDTO">
+        <id property="orderItemId" column="order_item_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="orderItemQty" column="order_item_qty"/>
+        <result property="orderItemPrice" column="order_item_price"/>
+    </resultMap>
+
+<!--  주문 정보 저장 쿼리  -->
+    <insert id="insertOrder">
+        INSERT INTO ORDERS(
+            MEMBER_ID
+            , ORDER_ID
+            , ORDER_TOTAL_PRICE
+        )VALUES(
+            #{memberId}
+            , #{orderId}
+            , #{orderTotalPrice}
+        )
+    </insert>
+
+<!--  주문 번호 불러올 쿼리  -->
+    <select id="getNextOrderId" resultType="int">
+        SELECT IFNULL(MAX(ORDER_ID), 0) + 1
+        FROM ORDERS
+    </select>
+
+<!--  주문 상품 저장 쿼리  -->
+    <insert id="insertOrderItem">
+        INSERT INTO ORDERS(
+            ORDER_ID
+            , PRODUCT_ID
+            , ORDER_ITEM_QTY
+            , ORDER_ITEM_PRICE
+        ) VALUES
+        <foreach collection="itemList" item="item" separator=",">
+            (
+                #{item.orderId}
+                , #{item.productId}
+                , #{orderItemQty}
+                , #{orderItemPrice}
+            )
+        </foreach>
+    </insert>
+</mapper>

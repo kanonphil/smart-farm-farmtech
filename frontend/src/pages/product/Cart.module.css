@@ -1,0 +1,121 @@
+.container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.container table td {
+  vertical-align: middle;
+  text-align: center;
+  padding: 20px 16px;
+}
+
+.container table th {
+  padding: 16px;
+  font-size: 14px;
+}
+
+/* 상품명+이미지 셀 */
+.img_name_div {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: left;
+}
+
+.item_img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.img_name_div p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* 수량 조절 */
+.cnt_div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cnt_btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  transition: all 0.15s;
+}
+
+.cnt_btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.cnt_input {
+  width: 48px;
+  height: 28px;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+/* 합계 금액 */
+.total_price {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.delete_totalPrice_div{
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn_div{
+  display: flex;
+  gap: 1rem;
+}
+
+.btn_div button{
+  height: 30px;
+  width: 100px;
+}
+
+.totalPrice_div{
+  display: flex;
+  gap: 1rem;
+  font-size: 18px;
+  font-weight: bolder;
+}
+
+.totalPrice_div p:last-child{
+  color: rgb(248, 126, 126);
+}
+
+.order_div{
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.order_div button{
+  width: 300px;
+}
