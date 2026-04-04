@@ -57,6 +57,7 @@
         SELECT
             C.CART_ITEM_ID
             , C.CART_ITEM_QTY
+            , p.PRODUCT_ID
             , P.PRODUCT_NAME
             , P.PRODUCT_PRICE
             , P.PRODUCT_STOCK
@@ -74,4 +75,19 @@
         SET CART_ITEM_QTY = #{cartItemQty}
         WHERE CART_ITEM_ID = #{cartItemId}
     </update>
+
+<!--  선택 목록 삭제  -->
+    <delete id="deleteItem">
+        DELETE FROM CART_ITEM
+        WHERE CART_ITEM_ID IN
+        <foreach collection="idList" item="cartItemId" open="(" separator="," close=")">
+            #{cartItemId}
+        </foreach>
+    </delete>
+
+<!--  전체 목록 삭제  -->
+    <delete id="deleteAllItem">
+        DELETE FROM CART_ITEM
+        WHERE CART_ID = #{cartId}
+    </delete>
 </mapper>

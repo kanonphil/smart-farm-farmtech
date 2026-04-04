@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Cart.module.css'
 import Table from '../../components/common/Table'
-import { getCartItems, putCnt } from '../../api/product/product'
+import { deleteAllItem, deleteItem, getCartItems, insertOrder, putCnt } from '../../api/product/product'
 import Button from '../../components/common/Button'
 import { MdPayment } from "react-icons/md";
+import Step from '../../components/common/Step'
 
 const Cart = () => {
   //카트 리스트 저장 state 변수
@@ -16,6 +17,7 @@ const Cart = () => {
     const dataList = response.data.map((item, index) => {
       return {
         cartItemId : item.cartItemDTOList[0].cartItemId,
+        productId : item.cartItemDTOList[0].product.productId,
         productName : item.cartItemDTOList[0].product.productName,
         productPrice : item.cartItemDTOList[0].product.productPrice,
         cartItemQty : item.cartItemDTOList[0].cartItemQty,
@@ -174,18 +176,40 @@ const Cart = () => {
     .includes(item.cartItemId))
     .reduce((sum, item) => sum + item.productPrice * item.cartItemQty, 0)
 
+
+  // 선택 삭제 함수
+  const handleDeleteItem = async () => {
+    await deleteItem(checkedItems)
+    getCart()
+  }
+
+  // 전체 삭제 함수
+  const handleDeleteAllItem = async () => {
+    await deleteAllItem()
+    getCart()
+  }
+
   // 주문하기 버튼 클릭 함수
   const goOrder = () => {
+    const orderItems = cartItem.filter(item => checkedItems.includes(item.cartItemId))
+
     const data = {
-      'orderDTO' : {},
-      'orderItemDTOList' : []
+      'orderDTO': {
+        'orderTotalPrice': totalPrice
+      },
+      'orderItemDTOList': orderItems.map(item => ({
+        'productId': item.productId,
+        'orderItemQty': item.cartItemQty,
+        'orderItemPrice': item.productPrice
+      }))
     }
 
-
+    insertOrder(data)
   }
 
   return (
     <div className={styles.container}>
+      <Step currentStep={1}/>
       <Table
         headers={headers}
         data={cartItem}
@@ -194,9 +218,12 @@ const Cart = () => {
       />
       <div className={styles.delete_totalPrice_div}>
         <div className={styles.btn_div}>
-          <Button>선택삭제</Button>
+          <Button
+            onClick={handleDeleteItem}
+          >선택삭제</Button>
           <Button
             variant='danger'
+            onClick={handleDeleteAllItem}
           >전체삭제</Button>
         </div>
         <div className={styles.totalPrice_div}>
@@ -207,6 +234,7 @@ const Cart = () => {
       <div className={styles.order_div}>
         <Button
           variant='success'
+          onClick={goOrder}
         ><MdPayment />  주문하기</Button>
       </div>
     </div>

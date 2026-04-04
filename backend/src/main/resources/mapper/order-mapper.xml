@@ -44,7 +44,7 @@
 
 <!--  주문 상품 저장 쿼리  -->
     <insert id="insertOrderItem">
-        INSERT INTO ORDERS(
+        INSERT INTO ORDER_ITEM(
             ORDER_ID
             , PRODUCT_ID
             , ORDER_ITEM_QTY
@@ -54,8 +54,8 @@
             (
                 #{item.orderId}
                 , #{item.productId}
-                , #{orderItemQty}
-                , #{orderItemPrice}
+                , #{item.orderItemQty}
+                , #{item.orderItemPrice}
             )
         </foreach>
     </insert>

@@ -64,7 +64,41 @@ export const getCartItems = async () => {
   return response
 }
 
+/**
+ * 카트에 담긴 상품 수량 변경
+ * @param {*} data 
+ * @returns 
+ */
 export const putCnt = async (data) => {
   const response = await axiosInstance.put('/carts/cnt', data)
+  return response
+}
+
+/**
+ * 카트 선택 상품 삭제
+ * @param {*} idList 
+ * @returns 
+ */
+export const deleteItem = async (idList) => {
+  const response = await axiosInstance.delete('/carts/item', {data : idList})
+  return response
+}
+
+/**
+ * 카트 전체 상품 삭제
+ * @returns 
+ */
+export const deleteAllItem = async () => {
+  const response = await axiosInstance.delete('/carts/all')
+  return response
+}
+
+/**
+ * 주문 정보 저장 
+ * @param {} data 
+ * @returns 
+ */
+export const insertOrder = async (data) => {
+  const response = await axiosInstance.post('/orders', data)
   return response
 }

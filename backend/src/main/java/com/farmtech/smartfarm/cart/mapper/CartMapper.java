@@ -32,4 +32,10 @@ public interface CartMapper {
 
   //수량 변경 메서드
   void updateCnt(CartItemDTO cartItemDTO);
+
+  //선택 아이템 삭제 메서드
+  void deleteItem(List<Integer> idList);
+
+  //전체 아이템 삭제 메서드
+  void deleteAllItem(int cartId);
 }

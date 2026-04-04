@@ -57,4 +57,30 @@ public class CartController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  //선택 삭제 api
+  @DeleteMapping("/item")
+  public ResponseEntity<?> deleteItem(@RequestBody List<Integer> idList){
+    try {
+      cartService.deleteItem(idList);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (Exception e) {
+      log.error("카트 선택 삭제 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  //전체 삭제 api
+  @DeleteMapping("/all")
+  public ResponseEntity<?> deleteAllItem(@AuthenticationPrincipal CustomUserDetails userDetails){
+    try {
+      int memberId = userDetails.getMemberDTO().getMemberId();
+      cartService.deleteAllItem(memberId);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (Exception e) {
+      log.error("카트 전체 삭제 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }
+

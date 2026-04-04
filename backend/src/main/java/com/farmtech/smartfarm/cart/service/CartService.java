@@ -39,4 +39,14 @@ public class CartService {
     cartMapper.updateCnt(cartItemDTO);
   }
 
+  //선택 삭제 기능
+  public void deleteItem(List<Integer> idList){
+    cartMapper.deleteItem(idList);
+  }
+
+  //전체 삭제 기능
+  public void deleteAllItem(int memberId){
+    int cartId = cartMapper.getCartId(memberId);
+    cartMapper.deleteAllItem(cartId);
+  }
 }
