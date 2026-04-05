@@ -1,0 +1,91 @@
+.container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.order_info{
+  width: 100%;
+  display: flex;
+  border: 1px solid lightgray;
+  margin-top: 100px;
+}
+
+.order_info > div:first-child{
+  width: 60%;
+}
+
+.title{
+  background-color: #fafafa;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  font-size: 20px;
+  padding: 25px 20px;
+  font-weight: 600;
+}
+
+.orderer_div{
+  padding: 30px 50px;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;; 
+}
+
+.pay_div{
+  width: 40%;
+  background-color: #fafafa;
+  padding: 50% 20px;
+}
+
+.total_div{
+  background-color: white;
+  border: 2px solid rgb(187, 27, 27);
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.total_div > p{
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.total_div > p:last-child{
+  font-size: 23px;
+  color: red;
+}
+
+.pay_method{
+  font-size: 18px;
+  color: #4b4b4d;
+  margin-bottom: 1rem;
+}
+
+.pay_method_div{
+  border: 1px solid lightgray;
+  background-color: white;
+  display: flex;
+  margin-bottom: 4rem;
+}
+
+.pay_method_div > div{
+  display: flex;
+  width: 100%;
+  font-size: 17px;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  color: #4b4b4d;
+}
+
+.pay_method_div > div:first-child{
+  border-right: 1px solid lightgray;
+}
+
+.btn_div{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

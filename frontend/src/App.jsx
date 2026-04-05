@@ -22,6 +22,7 @@ import PaymentFail from './pages/payments/PaymentFail'
 import ProductList from "./pages/product/ProductList"
 import ProductDetail from "./pages/product/ProductDetail"
 import Cart from "./pages/product/Cart"
+import Order from "./pages/product/Order"
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path='products' element={<ProductList />} />
           <Route path='products/:productId' element={<ProductDetail/>}/>
           <Route path="cart" element={<Cart/>}/>
+          <Route path="order" element={<Order/>}/>
         </Route>
 
         {/* 관리자 페이지 */}
