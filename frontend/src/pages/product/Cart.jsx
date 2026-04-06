@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Cart.module.css'
 import Table from '../../components/common/Table'
-import { deleteAllItem, deleteItem, getCartItems, insertOrder, putCnt } from '../../api/product/product'
+import { deleteAllItem, deleteItem, getCartItems, putCnt } from '../../api/product/product'
 import Button from '../../components/common/Button'
 import { MdPayment } from "react-icons/md";
 import Step from '../../components/common/Step'
@@ -192,23 +192,14 @@ const Cart = () => {
   }
 
   // 주문하기 버튼 클릭 함수
-  const goOrder = async () => {
+  const goOrder = () => {
     const orderItems = cartItem.filter(item => checkedItems.includes(item.cartItemId))
-
-    const data = {
-      'orderDTO': {
-        'orderTotalPrice': totalPrice
-      },
-      'orderItemDTOList': orderItems.map(item => ({
-        'productId': item.productId,
-        'orderItemQty': item.cartItemQty,
-        'orderItemPrice': item.productPrice
-      }))
-    }
-
-    await insertOrder(data)
-    alert('주문서 작성 페이지로 이동합니다.')
-    nav('/order')
+    nav('/order', {
+      state: {
+        totalPrice,
+        orderItems  // productId, productName, img, productPrice, cartItemQty 포함
+      }
+    })
   }
 
   return (

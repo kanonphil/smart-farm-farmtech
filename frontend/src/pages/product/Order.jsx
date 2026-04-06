@@ -6,12 +6,16 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import Textarea from '../../components/common/Textarea'
 import { FaCcAmazonPay } from "react-icons/fa6";
-import { getOrder } from '../../api/product/product'
+import { insertOrder } from '../../api/product/product'
 import { getAllInfos } from '../../api/member/memberApi'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { ANONYMOUS, loadTossPayments } from '@tosspayments/tosspayments-sdk'
+
+const CLIENT_KEY = 'test_ck_DpexMgkW36yZdZdWlB698GbR5ozO'
 
 const Order = () => {
   const nav = useNavigate()
+  const { state } = useLocation()
 
   //주문 정보 저장 state변수
   const [order, setOrder] = useState({})
@@ -33,31 +37,26 @@ const Order = () => {
   //주문 방법 저장 state변수
   const [paymentMethod, setPaymentMethod] = useState('')
 
-  //주문 정보 조회 함수
-  const selectOrder = async () => {
-    const response = await getOrder()
-    setOrder(response.data)
-    const dataList = response.data.orderItemDTOList.map((item, i) => {
-      return {
-        imageName : item.imageSavedName,
-        productName : item.productName,
-        orderItemPrice : item.orderItemPrice,
-        orderItemQty : item.orderItemQty,
-        orderItemTotalPrice : item.orderItemPrice * item.orderItemQty
-      }
-    })
-    setOrderItem(dataList)
-  }
-
   //회원 정보 조회 함수
   const getUser = async () => {
     const response = await getAllInfos();
     setUserdata(response.data)
   }
-  useEffect(()=>{
-    selectOrder()
+  
+  useEffect(() => {
+    if (!state) { nav('/'); return }
+
+    const dataList = state.orderItems.map(item => ({
+      imageName: item.img,
+      productName: item.productName,
+      orderItemPrice: item.productPrice,
+      orderItemQty: item.cartItemQty,
+      orderItemTotalPrice: item.productPrice * item.cartItemQty
+    }))
+    setOrderItem(dataList)
+    setOrder({ orderTotalPrice: state.totalPrice })
     getUser()
-  },[])
+  }, [])
 
   console.log(order)
   console.log(orderItem)
@@ -163,25 +162,44 @@ const Order = () => {
     }
   }
 
-  const handlePayment = () => {
+  const handlePayment = async() => {
     if(!paymentMethod) {
       alert('결제수단을 선택해주세요.')
       return
     }
-    nav('/payment', {
-      state : {
-        method : paymentMethod,
-        amount : order.orderTotalPrice,
-        orderName : orderItem.length > 1
-          ? `${orderItem[0].productName} 외 ${orderItem.length -1}건`
-          : orderItem[0].productName,
-        customerName : userData.memberName,
-        customerEmail : userData.memberEmail
-      }
+    if (!receiverInfo.recipientName || !receiverInfo.recipientPhone || !receiverInfo.recipientAddress) {
+      alert('수령인 정보를 입력해주세요')
+      return
+    }
+
+    // 1. 주문 생성 -> tossOrderId 받기
+    const response = await insertOrder({
+      orderDTO: { orderTotalPrice: state.totalPrice },
+      orderItemDTOList: state.orderItems.map(item => ({
+        productId: item.productId,
+        orderItemQty: item.cartItemQty,
+        orderItemPrice: item.productPrice
+      }))
+    })
+    const tossOrderId = response.data.tossOrderId
+
+    // 2. TossPayments 직접 호출
+    const tossPayments = await loadTossPayments(CLIENT_KEY)
+    const payment = tossPayments.payment({customerKey: ANONYMOUS})
+
+    await payment.requestPayment({
+        method: 'CARD',
+        amount: { currency: 'KRW', value: order.orderTotalPrice },
+        orderId: tossOrderId,
+        orderName: orderItem.length > 1
+            ? `${orderItem[0].productName} 외 ${orderItem.length - 1}건`
+            : orderItem[0].productName,
+        customerName: userData.memberName,
+        customerEmail: userData.memberEmail,
+        successUrl: window.location.origin + '/payment/success',
+        failUrl: window.location.origin + '/payment/fail',
     })
   }
-  
-
 
   return (
     <div className={styles.container}>
