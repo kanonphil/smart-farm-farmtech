@@ -26,4 +26,11 @@ public interface ProductMapper {
 
   // 상세 상품 조회 메서드
   ProductDTO getProductDetail(int productId);
+
+  // 상품 목록 조회
+  List<ProductListDTO> selectProductListManager();
+
+  // 상품 목록 삭제
+  List<ProductListDTO> deleteProduct(int productId);
+  List<ProductImageDTO> deleteProductImage(int productId);
 }

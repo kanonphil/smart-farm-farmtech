@@ -127,6 +127,7 @@ const ProductRegister = () => {
         </div>
         <div>
           <p>상세이미지를 선택해주세요. </p>
+          
           <Input 
               type='file'
               multiple={true}

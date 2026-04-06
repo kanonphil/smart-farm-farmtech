@@ -80,6 +80,18 @@ public class ProductController {
     }
   }
 
+  // 매니저 상품 전체 목록 조회 api (ACTIVE + INACTIVE)
+  @GetMapping("/manager")
+  public ResponseEntity<?> selectProductListManager() {
+    try {
+      List<ProductListDTO> productList = productService.selectProductListManager();
+      return ResponseEntity.status(HttpStatus.OK).body(productList);
+    } catch (Exception e) {
+      log.error("상품 목록 조회(매니저) api 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   // 상품 상세 정보 조회 api
   @GetMapping("/{productId}")
   public ResponseEntity<?> getProductDetail(@PathVariable("productId") int productId){
@@ -91,4 +103,5 @@ public class ProductController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
 }

@@ -1,10 +1,11 @@
 .container{
-  width: 500px;
+  width: 700px;
   margin: auto;
 }
 
 /* 이미지 프리뷰 전체 영역 */
 .imgPreviewArea {
+  margin-top: 20px;
   display: flex;
   height: 10vh;
   gap: 8px;
@@ -59,4 +60,19 @@
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+  justify-content: center;
+}
+.imageSelecter > div {
+  flex: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.imageSelecter input{
+  width: 100px;
+}
+.imageSelecter p{
+  margin-bottom: 15px;
+  font-size: 0.8rem;
 }

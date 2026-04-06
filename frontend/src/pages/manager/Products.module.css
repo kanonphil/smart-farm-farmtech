@@ -1,0 +1,44 @@
+.container {
+  margin: 40px;
+}
+
+.titleArea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.titleArea h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* 판매중 / 판매중지 뱃지 */
+.badgeActive {
+  background-color: #d3f9d8;
+  color: #2f9e44;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badgeInactive {
+  background-color: #ffe3e3;
+  color: #e03131;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* 수정/삭제 버튼 영역 */
+.btnArea {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.tableWrap td{
+  vertical-align: middle;
+}

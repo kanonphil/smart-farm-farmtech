@@ -23,7 +23,6 @@ import ProductList from "./pages/product/ProductList"
 import ProductDetail from "./pages/product/ProductDetail"
 import Cart from "./pages/product/Cart"
 import Order from "./pages/product/Order"
-import FindAccount from "./pages/member/FindAccount"
 
 function App() {
   return (
@@ -41,7 +40,6 @@ function App() {
           <Route path='products/:productId' element={<ProductDetail/>}/>
           <Route path="cart" element={<Cart/>}/>
           <Route path="order" element={<Order/>}/>
-          <Route path="find-account" element={<FindAccount />} />
         </Route>
 
         {/* 관리자 페이지 */}

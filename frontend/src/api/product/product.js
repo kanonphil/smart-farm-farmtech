@@ -102,21 +102,3 @@ export const insertOrder = async (data) => {
   const response = await axiosInstance.post('/orders', data)
   return response
 }
-
-export const getOrder = async () => {
-  const response = await axiosInstance.get('/orders')
-  return response
-}
-
-/**
- * 내 주문 내역
- * @param {*} startDate 
- * @param {*} endDate 
- * @returns 
- */
-export const getOrderList = async (startDate, endDate) => {
-    const response = await axiosInstance.get('/orders/list', {
-        params: { startDate, endDate }
-    })
-    return response
-}
