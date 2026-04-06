@@ -2,6 +2,7 @@ package com.farmtech.smartfarm.member.mapper;
 
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface MemberMapper {
@@ -37,4 +38,10 @@ public interface MemberMapper {
     void deleteRefreshToken(String memberEmail);
 
     int getMemberIdByEmail(String email);
+
+    // 아이디 찾기: 이름 + 전화번호로 이메일 조회
+    String findEmailByNameAndPhone(@Param("name") String name, @Param("phone") String phone);
+
+    // 비밀번호 찾기: 이메일 + 이름 + 전화번호 일치 여부 확인
+    int verifyAccount(@Param("email") String email, @Param("name") String name, @Param("phone") String phone);
 }

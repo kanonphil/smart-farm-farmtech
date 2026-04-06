@@ -4,7 +4,7 @@ import styles from './Login.module.css'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import { goLogin } from '../../api/member/memberApi'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { decodeToken } from '../../utils/tokenUtils'
 
 const Login = () => {
@@ -149,6 +149,11 @@ const Login = () => {
           >
             로그인
           </Button>
+        </div>
+        <div className={styles.findLink}>
+          <Link to='/find-account?tab=id'>아이디 찾기</Link>
+          <span className={styles.divider}>|</span>
+          <Link to='/find-account?tab=pw'>비밀번호 찾기</Link>
         </div>
       </Form>
     </div>
