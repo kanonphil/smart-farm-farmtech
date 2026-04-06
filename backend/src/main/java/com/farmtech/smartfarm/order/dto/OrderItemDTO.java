@@ -15,4 +15,6 @@ public class OrderItemDTO {
   private int productId;
   private int orderItemQty;
   private BigDecimal orderItemPrice;
+  private String productName;
+  private String imageSavedName;
 }

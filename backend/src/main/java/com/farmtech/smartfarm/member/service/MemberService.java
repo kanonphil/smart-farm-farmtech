@@ -60,6 +60,11 @@ public class MemberService {
         return memberMapper.getAllInfo(memEmail);
     }
 
+    //로그인 회원 정보 전체 조회 기능 (memberId로 조회)
+    public MemberDTO getAllInfos(int memberId){
+        return memberMapper.getAllInfos(memberId);
+    }
+
     //회원 정보 수정 기능
     public void setMemberInfo(MemberDTO memberDTO){
         memberMapper.setMemberInfo(memberDTO);

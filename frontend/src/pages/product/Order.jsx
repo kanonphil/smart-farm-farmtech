@@ -6,9 +6,62 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import Textarea from '../../components/common/Textarea'
 import { FaCcAmazonPay } from "react-icons/fa6";
-
+import { getOrder } from '../../api/product/product'
+import { getAllInfos } from '../../api/member/memberApi'
+import { useNavigate } from 'react-router-dom'
 
 const Order = () => {
+  const nav = useNavigate()
+
+  //주문 정보 저장 state변수
+  const [order, setOrder] = useState({})
+  //회원 정보 저장 state변수
+  const [userData, setUserdata] = useState({})
+  //수령인 정보 저장 state변수
+  const [receiverInfo, setReceiverInfo] = useState({
+    orderId : '',
+    recipientName : '',
+    recipientPhone : '',
+    recipientAddress : '',
+    recipientAddressDetail : '',
+    deliveryRequest : ''
+  })
+  //주문 상품 저장 state변수
+  const [orderItem, setOrderItem] = useState([])
+  //주문인, 수령인 같은지 확인 여부 저장할 state변수
+  const [sameAsOrderer, setSameAsOrderer] = useState(false)
+  //주문 방법 저장 state변수
+  const [paymentMethod, setPaymentMethod] = useState('')
+
+  //주문 정보 조회 함수
+  const selectOrder = async () => {
+    const response = await getOrder()
+    setOrder(response.data)
+    const dataList = response.data.orderItemDTOList.map((item, i) => {
+      return {
+        imageName : item.imageSavedName,
+        productName : item.productName,
+        orderItemPrice : item.orderItemPrice,
+        orderItemQty : item.orderItemQty,
+        orderItemTotalPrice : item.orderItemPrice * item.orderItemQty
+      }
+    })
+    setOrderItem(dataList)
+  }
+
+  //회원 정보 조회 함수
+  const getUser = async () => {
+    const response = await getAllInfos();
+    setUserdata(response.data)
+  }
+  useEffect(()=>{
+    selectOrder()
+    getUser()
+  },[])
+
+  console.log(order)
+  console.log(orderItem)
+
   //입력값 변경 핸들러
   const handleChange = (field) => (e) => {
     let value = e.target.value
@@ -43,7 +96,7 @@ const Order = () => {
             if (data.buildingName) extra += (extra ? ', ' : '') + data.buildingName
             if (extra) fullAddress += ` (${extra})`
           }
-          setMemberInfo(prev => ({ ...prev, memberAddr : fullAddress }))
+          setReceiverInfo(prev => ({ ...prev, recipientAddress : fullAddress }))
           
           // 상세주소 input에 포커스 (name='addr-detail'로 되어있으므로 수정)
           setTimeout(() => {
@@ -56,29 +109,7 @@ const Order = () => {
     }
   }
 
-
-  const orderInfo = {
-    orderTotalPrice: 35000,
-    orderItemDTOList: [
-      { img: 'test1.jpg', productName: '유기농 토마토', orderItemQty: 2, orderItemPrice: 12000 },
-      { img: 'test2.jpg', productName: '친환경 오이', orderItemQty: 1, orderItemPrice: 11000 }
-    ]
-  }
-
-    const [orderer, setOrderer] = useState({ name: '홍길동', t1: '010', t2: '1234', t3: '5678' })
-    const [receiver, setReceiver] = useState({ name: '김철수', t1: '010', t2: '9876', t3: '5432' })
-    const [address, setAddress] = useState({ addr: '서울시 강남구 테헤란로 123', detail: '101호' })
-
-    const getOrder = async () => { /* TODO */ }
-
-    useEffect(() => {
-      getOrder()
-      return () => { /* TODO: 주문 삭제 */ }
-    }, [])
-
-    const handlePayment = async () => { /* TODO */ }
-
-    const headers = [
+  const headers = [
     [
       { label: '상품명' },
       { label: '가격' },
@@ -86,6 +117,70 @@ const Order = () => {
       { label: '합계' },
     ]
   ]
+  const renderRow = (item, i) => (
+    <>
+      <td className={styles.img_name_div}>
+        <img
+          src={item.imageName}
+          alt={item.productName}
+          className={styles.item_img}
+        ></img>
+        <p>{item.productName}</p>
+      </td>
+      <td>
+        <p>{item.orderItemPrice}</p>
+      </td>
+      <td>
+        <p>{item.orderItemQty}</p>
+      </td>
+      <td>
+        <p>{item.orderItemTotalPrice}</p>
+      </td>
+    </>
+  )
+
+  //체크박스 핸들러 
+  const handleSameAsOrderer = (e) => {
+    const checked = e.target.checked
+    setSameAsOrderer(checked)
+    if (checked) {
+      setReceiverInfo({
+        ...receiverInfo,
+        recipientName : userData.memberName || '',
+        recipientPhone : userData.memberPhone || '',
+        recipientAddress : userData.memberAddr || '',
+        recipientAddressDetail : userData.memberAddrDetail || ''
+      })
+    } else {
+      setReceiverInfo({
+        orderId : '',
+        recipientName : '',
+        recipientPhone : '',
+        recipientAddress : '',
+        recipientAddressDetail : '',
+        deliveryRequest : ''
+      })
+    }
+  }
+
+  const handlePayment = () => {
+    if(!paymentMethod) {
+      alert('결제수단을 선택해주세요.')
+      return
+    }
+    nav('/payment', {
+      state : {
+        method : paymentMethod,
+        amount : order.orderTotalPrice,
+        orderName : orderItem.length > 1
+          ? `${orderItem[0].productName} 외 ${orderItem.length -1}건`
+          : orderItem[0].productName,
+        customerName : userData.memberName,
+        customerEmail : userData.memberEmail
+      }
+    })
+  }
+  
 
 
   return (
@@ -94,6 +189,8 @@ const Order = () => {
       <div>
         <Table
           headers={headers}
+          data={orderItem}
+          renderRow={renderRow}
         />
       </div>
       <div className={styles.order_info}>
@@ -104,80 +201,108 @@ const Order = () => {
           <div className={styles.orderer_div} data-theme = 'light'>
             <Input
               label='이름'
+              value={userData.memberName}
               required
+              readOnly
             />
             <Input
               label='이메일'
+              value={userData.memberEmail}
               required
+              readOnly
             />
             <Input
               label='전화번호'
+              value={userData.memberPhone}
               required
+              readOnly
             />
             <Input
               label='주소'
-              name='addr-addr'
+              value={userData.memberAddr}
               readOnly
-              onClick={handleAddrClick}
               required
             />
             <Input
               label='상세주소'
+              value={userData.memberAddrDetail}
+              readOnly
               required
             />
           </div>
           <div>
             <p className={styles.title}>받으시는 분</p>
+            
           </div>
           <div className={styles.orderer_div} data-theme = 'light'>
+            <label className={styles.label}>
+              <input
+                type="checkbox" 
+                className={styles.checkbox}
+                checked={sameAsOrderer} 
+                onChange={handleSameAsOrderer} 
+              />
+              주문자와 동일
+            </label>
             <Input
               label='이름'
-              required
-            />
-            <Input
-              label='이메일'
+              value={receiverInfo.recipientName}
+              onChange={e => setReceiverInfo({...receiverInfo, recipientName : e.target.value})}
               required
             />
             <Input
               label='전화번호'
+              value={receiverInfo.recipientPhone}
+              onChange={e => setReceiverInfo({...receiverInfo, recipientPhone : e.target.value})}
               required
             />
             <Input
               label='주소'
               name='addr-addr'
-              readOnly
+              value={receiverInfo.recipientAddress}
               onClick={handleAddrClick}
               required
             />
             <Input
               label='상세주소'
+              value={receiverInfo.recipientAddressDetail}
+              onChange={e => setReceiverInfo({...receiverInfo, recipientAddressDetail : e.target.value})}
               required  
             />
             <Textarea
-              label='배송시 요청사항  '
+              label='배송시 요청사항'
+              value={receiverInfo.deliveryRequest}
+              onChange={e => setReceiverInfo({...receiverInfo, deliveryRequest : e.target.value})}
             />
           </div>
         </div>
         <div className={styles.pay_div}>
           <div className={styles.total_div}>
             <p>총 주문금액</p>
-            <p>90,000원</p>
+            <p>{(order.orderTotalPrice)?.toLocaleString()}원</p>
           </div>
           <p className={styles.pay_method}>결제수단</p>
           <div className={styles.pay_method_div}>
-            <div>
+            <div
+              className={`${styles.pay_card} ${paymentMethod === '무통장입금' ? styles.selected : ''}`}
+              onClick={() => setPaymentMethod('무통장입금')}
+            >
               <FaCcAmazonPay style={{fontSize : '30px'}}/>
-              <p>일반결제</p>
+              <p>무통장입금</p>
             </div>
-            <div>
+            <div
+              className={`${styles.pay_card} ${paymentMethod === '카드' ? styles.selected : ''}`}
+              onClick={() => setPaymentMethod('카드')}
+            >
               <FaCcAmazonPay style={{fontSize : '30px'}}/>
-              <p>토스페이</p>
+              <p>카드결제</p>
             </div>
           </div>
           <div className={styles.btn_div}>
             <Button
               fullWidth
               variant='success'
+              onClick={handlePayment}
             >주문하기</Button>
             <Button
               fullWidth

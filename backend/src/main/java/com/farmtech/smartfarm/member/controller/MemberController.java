@@ -2,6 +2,7 @@ package com.farmtech.smartfarm.member.controller;
 
 
 import com.farmtech.smartfarm.jwt.JwtUtil;
+import com.farmtech.smartfarm.member.dto.CustomUserDetails;
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.service.MemberService;
 import jakarta.servlet.http.Cookie;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -67,6 +69,19 @@ public class MemberController {
     public ResponseEntity<?> getAllInfo(@PathVariable("memEmail") String memEmail){
         try {
             MemberDTO memberDTO = memberService.getAllInfo(memEmail);
+            return ResponseEntity.status(HttpStatus.OK).body(memberDTO);
+        }catch (Exception e){
+            log.error("회원 정보 전체 조회 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //로그인 한 회원 전체 정보 조회 api (memberId로 조회
+    @GetMapping("user")
+    public ResponseEntity<?> getAllInfos(@AuthenticationPrincipal CustomUserDetails userDetails){
+        try {
+            int memberId = userDetails.getMemberDTO().getMemberId();
+            MemberDTO memberDTO = memberService.getAllInfos(memberId);
             return ResponseEntity.status(HttpStatus.OK).body(memberDTO);
         }catch (Exception e){
             log.error("회원 정보 전체 조회 오류 발생", e);

@@ -5,8 +5,11 @@ import { deleteAllItem, deleteItem, getCartItems, insertOrder, putCnt } from '..
 import Button from '../../components/common/Button'
 import { MdPayment } from "react-icons/md";
 import Step from '../../components/common/Step'
+import { useNavigate } from 'react-router-dom'
 
 const Cart = () => {
+  const nav = useNavigate()
+
   //카트 리스트 저장 state 변수
   const [cartItem, setCartItem] = useState([])
 
@@ -101,7 +104,6 @@ const Cart = () => {
     setIsChecked(newChecked.length === cartItem.length)
   }
 
-  console.log(checkedItems)
 
   const checkAll = (e) => {
     if (e.target.checked) {
@@ -190,7 +192,7 @@ const Cart = () => {
   }
 
   // 주문하기 버튼 클릭 함수
-  const goOrder = () => {
+  const goOrder = async () => {
     const orderItems = cartItem.filter(item => checkedItems.includes(item.cartItemId))
 
     const data = {
@@ -204,7 +206,9 @@ const Cart = () => {
       }))
     }
 
-    insertOrder(data)
+    await insertOrder(data)
+    alert('주문서 작성 페이지로 이동합니다.')
+    nav('/order')
   }
 
   return (
@@ -214,7 +218,6 @@ const Cart = () => {
         headers={headers}
         data={cartItem}
         renderRow={renderRow}
-        className={styles.cart_table}
       />
       <div className={styles.delete_totalPrice_div}>
         <div className={styles.btn_div}>
