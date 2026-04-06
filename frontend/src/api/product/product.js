@@ -102,3 +102,8 @@ export const insertOrder = async (data) => {
   const response = await axiosInstance.post('/orders', data)
   return response
 }
+
+export const getOrder = async () => {
+  const response = await axiosInstance.get('/orders')
+  return response
+}

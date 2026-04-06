@@ -21,6 +21,8 @@
         <result property="productId" column="product_id"/>
         <result property="orderItemQty" column="order_item_qty"/>
         <result property="orderItemPrice" column="order_item_price"/>
+        <result property="productName"      column="product_name"/>
+        <result property="imageSavedName" column="image_saved_name"/>
     </resultMap>
 
 <!--  주문 정보 저장 쿼리  -->
@@ -59,4 +61,23 @@
             )
         </foreach>
     </insert>
+
+<!--  주문 정보 조회 쿼리  -->
+    <select id="getOrder" resultMap="orderResultMap">
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TOTAL_PRICE,
+            I.ORDER_ITEM_ID,
+            I.ORDER_ITEM_PRICE,
+            I.ORDER_ITEM_QTY,
+            P.PRODUCT_NAME,
+            PI.IMAGE_SAVED_NAME
+        FROM ORDERS O
+        JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
+        JOIN PRODUCT P ON I.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN PRODUCT_IMAGE PI ON P.PRODUCT_ID = PI.PRODUCT_ID
+        WHERE MEMBER_ID = #{memberId}
+        AND ORDER_STATUS = 'READY'
+    </select>
+
 </mapper>

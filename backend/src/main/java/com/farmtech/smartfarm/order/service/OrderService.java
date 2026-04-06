@@ -27,4 +27,9 @@ public class OrderService {
     orderMapper.insertOrderItem(itemList);
 
   }
+
+  //주문 정보 조회 기능
+  public OrderDTO getOrder(int memberId){
+    return orderMapper.getOrder(memberId);
+  }
 }

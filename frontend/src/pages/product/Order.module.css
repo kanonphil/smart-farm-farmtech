@@ -89,3 +89,67 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 6px;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #172e18;
+  cursor: pointer;
+}
+
+.container table td {
+  vertical-align: middle;
+  text-align: center;
+  padding: 20px 16px;
+}
+
+.container table th {
+  padding: 16px;
+  font-size: 14px;
+}
+
+.img_name_div {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: left;
+}
+
+.item_img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.img_name_div p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.pay_card {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.selected {
+  border-color: #1976D2;
+  background-color: #E3F2FD;
+  color: #1976D2;
+  font-weight: bolder;
+}

@@ -56,6 +56,15 @@ export const getAllInfo = async (memberEmail) => {
     return response
 }
 
+/**
+ * memberId로 회원 전체 정보 조회
+ * @returns 
+ */
+export const getAllInfos = async () => {
+    const response = await axiosInstance.get('members/user');
+    return response
+}
+
 
 /**
  * 회원 정보 수정
