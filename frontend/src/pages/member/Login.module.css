@@ -1,3 +1,26 @@
 .chkbox_div{
   margin-bottom: 1rem;
 }
+
+.findLink {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.findLink a {
+  color: #64748b;
+  text-decoration: none;
+}
+
+.findLink a:hover {
+  color: #1e293b;
+  text-decoration: underline;
+}
+
+.divider {
+  color: #cbd5e1;
+}

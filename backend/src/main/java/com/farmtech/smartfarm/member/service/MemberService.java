@@ -103,4 +103,48 @@ public class MemberService {
         return memberMapper.getMemberIdByEmail(email);
     }
 
+    /**
+     * 아이디 찾기 - 이름 + 전화번호로 이메일 조회 후 마스킹 처리
+     * @param name 회원 이름
+     * @param phone 전화번호
+     * @return 마스킹 된 이메일 (ex: ka***@gmail.com), 없으면 null
+     * return에서 마스킹 된 이메일을 반환하면
+     * 다른 방법으로 이메일 전체를 확인할 수 없는 문제가 발생하여
+     * return email로 수정
+     */
+    public String findEmail(String name, String phone) {
+        String email = memberMapper.findEmailByNameAndPhone(name, phone);
+        if (email == null) return null;
+
+        //int atIdx = email.indexOf('@');
+        //String local = email.substring(0, atIdx);
+        //String masked = local.substring(0, Math.min(2, local.length())) + "***" + email.substring(atIdx);
+        //return masked;
+
+        return email;
+    }
+
+    /**
+     * 비밀번호 찾기 Step 1 - 이메일 + 이름 + 전화번호 일치 여부 확인
+     * @param email 이메일
+     * @param name 이름
+     * @param phone 전화번호
+     * @return 일치하면 true
+     */
+    public boolean verifyAccount(String email, String name, String phone) {
+        return memberMapper.verifyAccount(email, name, phone) > 0;
+    }
+
+    /**
+     * 비밀번호 재설정 - 계정 정보 검증 후 새 비밀번호로 변경
+     * @param memberDTO memberEmail, memberName, memberPhone, memberPw(새 비밀번호) 포함
+     * @return 정보 불일치 시 false
+     */
+    public boolean resetPw(MemberDTO memberDTO) {
+        boolean verified = verifyAccount(memberDTO.getMemberEmail(), memberDTO.getMemberName(), memberDTO.getMemberPhone());
+        if (!verified) return false;
+        setNewPw(memberDTO);
+        return true;
+    }
+
 }

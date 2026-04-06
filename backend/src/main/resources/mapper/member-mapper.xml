@@ -118,4 +118,22 @@
         FROM MEMBER
         WHERE MEMBER_EMAIL = #{memberEmail}
     </select>
+
+<!--  아이디 찾기: 이름 + 전화번호로 이메일 조회  -->
+    <select id="findEmailByNameAndPhone" resultType="String">
+        SELECT MEMBER_EMAIL
+        FROM MEMBER
+        WHERE MEMBER_NAME = #{name}
+          AND MEMBER_PHONE = #{phone}
+        LIMIT 1
+    </select>
+
+<!--  비밀번호 찾기: 이메일 + 이름 + 전화번호 일치 여부  -->
+    <select id="verifyAccount" resultType="int">
+        SELECT COUNT(*)
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{email}
+          AND MEMBER_NAME = #{name}
+          AND MEMBER_PHONE = #{phone}
+    </select>
 </mapper>

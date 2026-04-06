@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RequestMapping("/members")
 @Slf4j
 @RestController
@@ -124,5 +126,51 @@ public class MemberController {
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }
+    }
+
+    // 아이디 찾기 API
+    @PostMapping("/find-email")
+    public ResponseEntity<?> findEmail(@RequestBody MemberDTO memberDTO) {
+      try {
+        String maskedEmail = memberService.findEmail(memberDTO.getMemberName(), memberDTO.getMemberPhone());
+        if (maskedEmail == null) {
+          return ResponseEntity.status(HttpStatus.NOT_FOUND).body("일치하는 계정이 없습니다.");
+        }
+        return ResponseEntity.ok(Map.of("email", maskedEmail));
+      } catch (Exception e) {
+        log.error("아이디 찾기 오류", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+    }
+
+    // 계정 정보 확인 API (비밀번호 찾기 Step 1)
+    @PostMapping("/verify-account")
+    public ResponseEntity<Boolean> verifyAccount(@RequestBody MemberDTO memberDTO) {
+      try {
+        boolean result = memberService.verifyAccount(
+                memberDTO.getMemberEmail(),
+                memberDTO.getMemberName(),
+                memberDTO.getMemberPhone()
+        );
+        return ResponseEntity.ok(result);
+      } catch (Exception e) {
+        log.error("계정 정보 확인 오류", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+    }
+
+    // 비밀번호 재설정 API (비밀번호 찾기 Step 2)
+    @PatchMapping("/reset-pw")
+    public ResponseEntity<?> resetPw(@RequestBody MemberDTO memberDTO) {
+      try {
+        boolean result = memberService.resetPw(memberDTO);
+        if (!result) {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("계정 정보가 일치하지 않습니다.");
+        }
+        return ResponseEntity.ok().build();
+      } catch (Exception e) {
+        log.error("비밀번호 재설정 오류", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
     }
 }

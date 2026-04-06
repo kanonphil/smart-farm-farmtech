@@ -98,3 +98,35 @@ export const logoutAPI = async () => {
     }
 }
 
+/**
+ * 아이디 찾기 - 이름 + 전화번호로 마스킹 이메일 반환
+ * @param {string} memberName
+ * @param {string} memberPhone
+ * @returns {Promise<{email: string}>}
+ */
+export const findEmail = async (memberName, memberPhone) => {
+    const response = await axios.post('http://localhost:8080/members/find-email', {memberName, memberPhone})
+    return response
+}
+
+/**
+ * 계정 정보 확인 (비밀번호 찾기 Step 1)
+ * @param {string} memberEmail
+ * @param {string} memberName
+ * @param {string} memberPhone
+ * @returns {Promise<boolean>}
+ */
+export const verifyAccount = async (memberEmail, memberName, memberPhone) => {
+    const response = await axios.post('http://localhost:8080/members/verify-account', {memberEmail, memberName, memberPhone})
+    return response
+}
+
+/**
+ * 비밀번호 재설정 (비밀번호 찾기 Step 2)
+ * @param {{memberEmail: string, memberName: string, memberPhone: string, memberPw: string}} data
+ * @returns {Promise}
+ */
+export const resetPw = async (data) => {
+    const response = await axios.patch('http://localhost:8080/members/reset-pw', data)
+    return response
+}
