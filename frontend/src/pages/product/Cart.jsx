@@ -58,11 +58,12 @@ const Cart = () => {
 
   // -버튼 클릭시
   const minusCnt = (e, item) => {
+    if (item.cartItemQty <= 1) return
     setCntAndCartNum({
-      cartItemQty : item.cartItemQty - 1,
-      cartItemId : item.cartItemId
+        cartItemQty: item.cartItemQty - 1,
+        cartItemId: item.cartItemId
     })
-  }
+}
   //+버튼 클릭시
   const plusCnt = (e, item) => {
     setCntAndCartNum({

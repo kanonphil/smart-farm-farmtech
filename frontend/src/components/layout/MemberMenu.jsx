@@ -15,7 +15,7 @@ const MemberMenu = () => {
         <img src={logo} onClick={e => nav('/')}/>
       </div>
       <div className={styles.profile}>
-        <p className={styles.name}>{decoded.sub}님</p>
+        <p className={styles.name}>{decoded?.sub}님</p>
         <p className={styles.welcome}>안녕하세요 👋</p>
       </div>
       <ul className={styles.menu_list}>

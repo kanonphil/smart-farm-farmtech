@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styles from './ProductDetail.module.css'
-import { getProduct, insertCartItem } from '../../api/product/product';
+import { getProduct, insertCartItem, insertOrder } from '../../api/product/product';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import Button from '../../components/common/Button'
-import { decodeToken } from '../../utils/tokenUtils';
 
 const ProductDetail = () => {
   const nav = useNavigate();
   const {productId} = useParams();
-
-  const decoded = decodeToken(localStorage.getItem('token'))
-  const memEmail = decoded.sub
-
 
   //상품 상세 정보 저장 state 변수
   const [product, setProduct] = useState({})
@@ -39,11 +34,11 @@ const ProductDetail = () => {
   }
   //+버튼 클릭시
   const plusCnt = e => {
-    setCnt(prev => prev >= 99 ? 99 : prev + 1)
-    if(cnt >= 99) {
-      alert('최대 구매 수량은 99개입니다.')
-      return
+    if (cnt >= 99) {
+        alert('최대 구매 수량은 99개입니다.')
+        return
     }
+    setCnt(prev => prev + 1)
   }
 
   //상품 조회 및 저장된 이미지이름 저장 함수
@@ -89,8 +84,22 @@ const ProductDetail = () => {
     }
   }
 
-  console.log(product)
-
+  //바로 구매 클릭 시 실행함수
+  const buyNow = async () => {
+    const data = {
+        'orderDTO': {
+            'orderTotalPrice': product.productPrice * cnt
+        },
+        'orderItemDTOList': [{
+            'productId': product.productId,
+            'orderItemQty': cnt,
+            'orderItemPrice': product.productPrice
+        }]
+    }
+    await insertOrder(data)
+    alert('주문서 작성 페이지로 이동합니다.')
+    nav('/order')
+  }
 
   return (
     <div className={styles.container}>
@@ -142,6 +151,7 @@ const ProductDetail = () => {
           <div className={styles.btn_div}>
             <Button
               variant='success'
+              onClick={buyNow}
             >
               바로 구매
             </Button>

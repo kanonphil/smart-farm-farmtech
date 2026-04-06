@@ -32,4 +32,9 @@ public class OrderService {
   public OrderDTO getOrder(int memberId){
     return orderMapper.getOrder(memberId);
   }
+
+  //내 주문 내역 조회 기능
+  public List<OrderDTO> getOrderList(int memberId, String startDate, String endDate) {
+    return orderMapper.getOrderList(memberId, startDate, endDate);
+  }
 }
