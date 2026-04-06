@@ -10,6 +10,7 @@
         <result column="SENSOR_TYPE" property="sensorType"/>
         <result column="VALUE"       property="value"/>
         <result column="THRESHOLD"   property="threshold"/>
+        <result column="THRESHOLD_TYPE"   property="thresholdType"/>
         <result column="CREATED_AT"  property="createdAt"/>
     </resultMap>
 

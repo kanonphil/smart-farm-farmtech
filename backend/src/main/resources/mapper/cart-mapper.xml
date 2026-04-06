@@ -60,7 +60,7 @@
             , p.PRODUCT_ID
             , P.PRODUCT_NAME
             , P.PRODUCT_PRICE
-            , P.PRODUCT_STOCKe
+            , P.PRODUCT_STOCK
             , I.IMAGE_SAVED_NAME
         FROM CART_ITEM C
             LEFT JOIN PRODUCT P ON C.PRODUCT_ID = P.PRODUCT_ID

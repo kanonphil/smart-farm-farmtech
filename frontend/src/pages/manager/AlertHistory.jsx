@@ -9,6 +9,7 @@ const SENSOR_LABEL = {
   temperature: '온도',
   humidity: '습도',
   air: '대기질',
+  lux: '조도',
 }
 
 const AlertHistory = () => {
@@ -27,10 +28,11 @@ const AlertHistory = () => {
   }, [])
 
   const headers = [[
-    { label: '센서', styles: { width: '20%' } },
+    { label: '센서', styles: { width: '15%' } },
+    { label: '이탈 방향', styles: { width: '15%' } },
     { label: '측정값', styles: { width: '20%' }  },
     { label: '임계값', styles: { width: '20%' }  },
-    { label: '발생 시각', styles: { width: '20%' }  },
+    { label: '발생 시각', styles: { width: '30%' }  },
   ]]
 
   return (
@@ -42,10 +44,26 @@ const AlertHistory = () => {
         data={alerts}
         renderRow={(alert) => (
           <>
+          {/* 센서 종류 뱃지 */}
             <td>
               <span className={styles.sensorBadge}>
                 {SENSOR_LABEL[alert.sensorType] ?? alert.sensorType}
               </span>
+            </td>
+
+            {/* 하한 이탈 / 상한 초과 뱃지 */}
+            <td>
+              {alert.thresholdType === 'LOW' ? (
+                <span className={`${styles.typeBadge} ${styles.typeLow}`}>
+                  하한 이탈
+                </span>
+              ) : alert.thresholdType === 'HIGH' ? (
+                <span className={`${styles.typeBadge} ${styles.typeHigh}`}>
+                  상한 초과
+                </span>
+              ) : (
+                <span className={styles.typeBadge}>-</span>
+              )}
             </td>
             <td className={styles.valueCell}>{alert.value}</td>
             <td className={styles.thresholdCell}>{alert.threshold}</td>
