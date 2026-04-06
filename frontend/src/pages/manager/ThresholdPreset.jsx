@@ -9,11 +9,14 @@ import Input from '../../components/common/Input'
 // 폼 초기값
 const EMPTY_FORM = {
   name: '',
+  tempLow: '',
   tempHigh: '',
+  humLow: '',
   humHigh: '',
+  airPpmLow: '',
   airPpmBad: '',
-  luxHigh: '',
   luxLow: '',
+  luxHigh: '',
 }
 
 const ThresholdPreset = () => {
@@ -53,11 +56,14 @@ const ThresholdPreset = () => {
     setEditingId(preset.id)
     setForm({
       name: preset.name,
+      tempLow: preset.tempLow,
       tempHigh: preset.tempHigh,
+      humLow: preset.humLow,
       humHigh: preset.humHigh,
+      airPpmLow: preset.airPpmLow,
       airPpmBad: preset.airPpmBad,
+      luxLow: preset.luxLow,
       luxHigh: preset.luxHigh,
-      luxLow: preset.luxLow
     })
     setShowForm(true)
   }
@@ -88,14 +94,18 @@ const ThresholdPreset = () => {
   }
 
   const headers = [[
-    { label: '프리셋 이름' },
-    { label: '온도 상한 (℃)' },
-    { label: '습도 상한 (%)' },
-    { label: '대기질 (ppm)' },
-    { label: '조도 상한 (lux)' },
-    { label: '조도 하한 (lux)' },
-    { label: '상태', style: { width: '80px' } },
-    { label: '관리' },
+    { label: '프리셋 이름', rowSpan: 2, style: { verticalAlign: 'middle' } },
+    { label: '온도 (℃)', colSpan: 2 },
+    { label: '습도 (%)', colSpan: 2 },
+    { label: '대기질 (ppm)', colSpan: 2 },
+    { label: '조도 (lux)', colSpan: 2 },
+    { label: '상태', rowSpan: 2, style: { width: '80px', verticalAlign: 'middle' } },
+    { label: '관리', rowSpan: 2, style: { verticalAlign: 'middle' } },
+  ],[
+    { label: '하한' }, { label: '상한' },
+    { label: '하한' }, { label: '상한' },
+    { label: '하한' }, { label: '상한' },
+    { label: '하한' }, { label: '상한' },
   ]]
   
   return (
@@ -113,11 +123,14 @@ const ThresholdPreset = () => {
         renderRow={(preset) => (
           <>
             <td>{preset.name}</td>
+            <td>{preset.tempLow}</td>
             <td>{preset.tempHigh}</td>
+            <td>{preset.humLow}</td>
             <td>{preset.humHigh}</td>
+            <td>{preset.airPpmLow}</td>
             <td>{preset.airPpmBad}</td>
-            <td>{preset.luxHigh}</td>
             <td>{preset.luxLow}</td>
+            <td>{preset.luxHigh}</td>
             <td>
               <span className={`${styles.badge} ${preset.active ? styles.badgeActive : styles.badgeInactive}`}>
                 {preset.active ? '적용중' : '미적용'}
@@ -159,11 +172,14 @@ const ThresholdPreset = () => {
           <h2 className={styles.formTitle}>{editingId !== null ? '프리셋 수정' : '프리셋 추가'}</h2>
           <div className={styles.formGrid}>
             <Input label='프리셋 이름' labelStyle={{ color: '#000000' }} name='name' value={form.name} onChange={handleChange} />
+            <Input label='온도 하한 (℃)' labelStyle={{ color: '#000000' }} name='tempLow' type='number' value={form.tempLow} onChange={handleChange} />
             <Input label='온도 상한 (℃)' labelStyle={{ color: '#000000' }} name='tempHigh' type='number' value={form.tempHigh} onChange={handleChange} />
+            <Input label='습도 하한 (%)' labelStyle={{ color: '#000000' }} name='humLow' type='number' value={form.humLow} onChange={handleChange} />
             <Input label='습도 상한 (%)' labelStyle={{ color: '#000000' }} name='humHigh' type='number' value={form.humHigh} onChange={handleChange} />
-            <Input label='대기질 (ppm)' labelStyle={{ color: '#000000' }} name='airPpmBad' type='number' value={form.airPpmBad} onChange={handleChange} />
-            <Input label='조도 상한 (lux)' labelStyle={{ color: '#000000' }} name='luxHigh' type='number' value={form.luxHigh} onChange={handleChange} />
+            <Input label='대기질 하한 (ppm)' labelStyle={{ color: '#000000' }} name='airPpmLow' type='number' value={form.airPpmLow} onChange={handleChange} />
+            <Input label='대기질 상한 (ppm)' labelStyle={{ color: '#000000' }} name='airPpmBad' type='number' value={form.airPpmBad} onChange={handleChange} />
             <Input label='조도 하한 (lux)' labelStyle={{ color: '#000000' }} name='luxLow' type='number' value={form.luxLow} onChange={handleChange} />
+            <Input label='조도 상한 (lux)' labelStyle={{ color: '#000000' }} name='luxHigh' type='number' value={form.luxHigh} onChange={handleChange} />
           </div>
           <div className={styles.formButtons}>
             <Button onClick={handleSubmit} variant='primary'>저장</Button>

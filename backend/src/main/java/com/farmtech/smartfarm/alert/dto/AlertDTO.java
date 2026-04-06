@@ -14,5 +14,6 @@ public class AlertDTO {
   private String sensorType;
   private double value;
   private double threshold;
+  private String thresholdType;
   private LocalDateTime createdAt;
 }

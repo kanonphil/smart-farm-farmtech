@@ -28,3 +28,26 @@
   color: #64748b;
   font-size: 0.85rem;
 }
+
+/* 이탈 방향 뱃지 공통 */
+.typeBadge {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* 하한 이탈 - 파란색 계열 */
+.typeLow {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* 상한 초과 - 빨간색 계열 */
+.typeHigh {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}

@@ -7,11 +7,14 @@
     <resultMap id="preset" type="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
         <result column="ID"          property="id"/>
         <result column="NAME"        property="name"/>
+        <result column="TEMP_LOW"   property="tempLow"/>
         <result column="TEMP_HIGH"   property="tempHigh"/>
+        <result column="HUM_LOW"    property="humLow"/>
         <result column="HUM_HIGH"    property="humHigh"/>
+        <result column="AIR_PPM_LOW" property="airPpmLow"/>
         <result column="AIR_PPM_BAD" property="airPpmBad"/>
-        <result column="LUX_HIGH"    property="luxHigh"/>
         <result column="LUX_LOW"     property="luxLow"/>
+        <result column="LUX_HIGH"    property="luxHigh"/>
         <result column="IS_ACTIVE"   property="isActive"/>
         <result column="CREATED_AT"  property="createdAt"/>
     </resultMap>
@@ -25,15 +28,34 @@
     </select>
 
     <insert id="insertPreset" parameterType="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
-        INSERT INTO THRESHOLD_PRESET (NAME, TEMP_HIGH, HUM_HIGH, AIR_PPM_BAD, LUX_HIGH, LUX_LOW)
-        VALUES (#{name}, #{tempHigh}, #{humHigh}, #{airPpmBad}, #{luxHigh}, #{luxLow})
+        INSERT INTO THRESHOLD_PRESET (
+            NAME,
+            TEMP_LOW, TEMP_HIGH,
+            HUM_LOW, HUM_HIGH,
+            AIR_PPM_LOW, AIR_PPM_BAD,
+            LUX_LOW, LUX_HIGH
+        )
+        VALUES (
+                   #{name},
+                   #{tempLow}, #{tempHigh},
+                   #{humLow}, #{humHigh},
+                   #{airPpmLow}, #{airPpmBad},
+                   #{luxLow}, #{luxHigh}
+               )
     </insert>
 
     <update id="updatePreset" parameterType="com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO">
         UPDATE THRESHOLD_PRESET
-        SET NAME=#{name}, TEMP_HIGH=#{tempHigh}, HUM_HIGH=#{humHigh},
-            AIR_PPM_BAD=#{airPpmBad}, LUX_HIGH=#{luxHigh}, LUX_LOW=#{luxLow}
-        WHERE ID=#{id}
+        SET NAME       = #{name},
+            TEMP_LOW   = #{tempLow},
+            TEMP_HIGH  = #{tempHigh},
+            HUM_LOW    = #{humLow},
+            HUM_HIGH   = #{humHigh},
+            AIR_PPM_LOW = #{airPpmLow},
+            AIR_PPM_BAD = #{airPpmBad},
+            LUX_LOW    = #{luxLow},
+            LUX_HIGH   = #{luxHigh}
+        WHERE ID = #{id}
     </update>
 
     <delete id="deletePreset">

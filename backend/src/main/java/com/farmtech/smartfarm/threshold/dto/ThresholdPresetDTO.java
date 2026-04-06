@@ -12,11 +12,14 @@ import java.time.LocalDateTime;
 public class ThresholdPresetDTO {
   private int id;
   private String name;
+  private double tempLow;
   private double tempHigh;
+  private double humLow;
   private double humHigh;
+  private int airPpmLow;
   private int airPpmBad;
-  private int luxHigh;
   private int luxLow;
+  private int luxHigh;
   private boolean isActive;
   private LocalDateTime createdAt;
 }
