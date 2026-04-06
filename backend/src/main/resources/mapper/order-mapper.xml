@@ -80,4 +80,21 @@
         AND ORDER_STATUS = 'READY'
     </select>
 
+<!--  주문 내역 조회 쿼리  -->
+    <select id="">
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TOTAL_PRICE,
+            I.ORDER_ITEM_ID,
+            I.ORDER_ITEM_PRICE,
+            I.ORDER_ITEM_QTY,
+            P.PRODUCT_NAME,
+            PI.IMAGE_SAVED_NAME
+        FROM ORDERS O
+        JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
+        JOIN PRODUCT P ON I.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN PRODUCT_IMAGE PI ON P.PRODUCT_ID = PI.PRODUCT_ID
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
 </mapper>
