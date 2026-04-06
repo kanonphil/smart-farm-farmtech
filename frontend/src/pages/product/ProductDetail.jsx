@@ -12,8 +12,6 @@ const ProductDetail = () => {
   const {productId} = useParams();
 
   const decoded = decodeToken(localStorage.getItem('token'))
-  const memEmail = decoded.sub
-
 
   //상품 상세 정보 저장 state 변수
   const [product, setProduct] = useState({})

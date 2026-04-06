@@ -1,5 +1,5 @@
 import { ANONYMOUS, loadTossPayments } from "@tosspayments/tosspayments-sdk";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import styles from "./Payments.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
 
