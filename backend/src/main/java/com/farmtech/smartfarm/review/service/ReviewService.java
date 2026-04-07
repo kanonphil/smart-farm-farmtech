@@ -1,6 +1,7 @@
 package com.farmtech.smartfarm.review.service;
 
 import com.farmtech.smartfarm.review.dto.ReviewDTO;
+import com.farmtech.smartfarm.review.dto.UnreviewedItemDTO;
 import com.farmtech.smartfarm.review.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,24 @@ public class ReviewService {
    */
   public List<ReviewDTO> getReviewsByProductId(int productId) {
     return reviewMapper.getReviewsByProductId(productId);
+  }
+
+  // 작성한 리븆 조회 기능
+  public List<ReviewDTO> getMyReviews(int memberId, String startDate, String endDate) {
+    return reviewMapper.getMyReviews(memberId, startDate, endDate);
+  }
+  // 아직 작성하지 않은 리뷰 조회 기능
+  public List<UnreviewedItemDTO> getUnreviewedOrderItems(int memberId, String startDate, String endDate) {
+    return reviewMapper.getUnreviewedOrderItems(memberId, startDate, endDate);
+  }
+
+  //리뷰 수정 기능
+  public void updateReview(ReviewDTO reviewDTO) {
+    reviewMapper.updateReview(reviewDTO);
+  }
+
+  //리뷰 삭제 기능
+  public void deleteReview(int reviewId, int memberId) {
+    reviewMapper.deleteReview(reviewId, memberId);
   }
 }
