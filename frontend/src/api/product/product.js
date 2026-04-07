@@ -115,6 +115,24 @@ export const getProductListManager = async() => {
   return response;
 }
 
+/**
+ * PUT /products/{productId}
+ * @returns 상품 수정
+ */
+export const putProduct = async(productId, data) => {
+  const response = await axiosInstance.put(`/products/${productId}`, data)
+  return response;
+}
+
+/**
+ * DELETE /products/{productId}
+ * @returns 상품 삭제
+ */
+export const delProduct = async(productId) => {
+  const response = await axiosInstance.delete(`/products/${productId}`)
+  return response;
+}
+
 export const getOrder = async () => {
   const response = await axiosInstance.get('/orders')
   return response
