@@ -208,6 +208,12 @@
   border: 1px solid #eee;
   padding: 32px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .fallbackBanner {
@@ -283,6 +289,8 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
+  padding-left: 10px;
+  border-left: 3px solid #c9a84c;
 }
 
 .sectionBody {
@@ -315,16 +323,35 @@
 
 /* ── 조리 순서 ── */
 .stepList {
-  padding-left: 20px;
+  list-style: none;
+  padding-left: 0;
   margin: 0;
 }
 
 .stepItem {
+  display: flex;
+  align-items: flex-start;
   font-size: 0.92rem;
   color: #444;
   line-height: 1.7;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
+
+.stepNumber {
+  display: inline-block;
+  min-width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  background-color: #c9a84c;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
 
 /* ── 팁 ── */
 .tipList {
@@ -333,6 +360,15 @@
   color: #555;
   font-size: 0.92rem;
   line-height: 1.8;
+}
+
+.tipItem {
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  color: #444;
+  line-height: 1.7;
+  margin-bottom: 6px;
 }
 
 /* ── 상품 목록 ── */
@@ -529,3 +565,15 @@
 
 .divider::before { left: 0; }
 .divider::after { right: 0; }
+
+.tipList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.tipList li::before {
+  content: '✓';
+  color: #c9a84c;
+  font-weight: 700;
+  margin-right: 8px;
+}
