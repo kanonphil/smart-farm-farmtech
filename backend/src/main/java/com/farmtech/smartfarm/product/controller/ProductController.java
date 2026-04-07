@@ -70,9 +70,10 @@ public class ProductController {
   // 상품 목록 조회 api
   @GetMapping("")
   public ResponseEntity<?> getProductList(
-          @RequestParam(value = "sort", required = false) String sort) {
+          @RequestParam(value = "sort", required = false) String sort, @RequestParam(value = "keyword", required = false) String keyword) {
     try {
-      List<ProductListDTO> productList = productService.getProductList(sort);
+      log.info("keyword: {}", keyword);
+      List<ProductListDTO> productList = productService.getProductList(sort, keyword);
       return ResponseEntity.status(HttpStatus.OK).body(productList);
     } catch (Exception e) {
       log.error("상품 목록 조회 api 오류", e);

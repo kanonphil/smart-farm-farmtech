@@ -93,6 +93,9 @@
             MAIN_IMAGE,
             SALES_COUNT
         FROM V_PRODUCT_LIST
+        <if test="keyword != null and keyword != ''">
+            WHERE PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
         <choose>
             <!-- 판매량 높은 순 -->
             <when test="sort == 'sales_desc'">
