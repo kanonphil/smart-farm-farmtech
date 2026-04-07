@@ -1,6 +1,7 @@
 import axios from "axios"
 import { axiosInstance } from "../axiosInstance";
 
+//상품 등록 api
 export const regProductAPI = async(productData) => {
   try{
     const fileConfig = {
@@ -13,6 +14,7 @@ export const regProductAPI = async(productData) => {
   }
 }
 
+//카테고리 조회 api
 export const getCategory = async() => {
   try{
     const reponse = await axios.get('http://localhost:8080/products/category')
@@ -103,6 +105,34 @@ export const insertOrder = async (data) => {
   return response
 }
 
+/**
+ * 매니저 상품 전체 목록 조회 (ACTIVE + INACTIVE)
+ * GET /manager/products
+ * @returns 전체 상품 목록 배열
+ */
+export const getProductListManager = async() => {
+  const response = await axiosInstance.get('/products/manager');
+  return response;
+}
+
+/**
+ * PUT /products/{productId}
+ * @returns 상품 수정
+ */
+export const putProduct = async(productId, data) => {
+  const response = await axiosInstance.put(`/products/${productId}`, data)
+  return response;
+}
+
+/**
+ * DELETE /products/{productId}
+ * @returns 상품 삭제
+ */
+export const delProduct = async(productId) => {
+  const response = await axiosInstance.delete(`/products/${productId}`)
+  return response;
+}
+
 export const getOrder = async () => {
   const response = await axiosInstance.get('/orders')
   return response
@@ -110,13 +140,14 @@ export const getOrder = async () => {
 
 /**
  * 내 주문 내역
- * @param {*} startDate 
- * @param {*} endDate 
- * @returns 
+ * @param {*} startDate
+ * @param {*} endDate
+ * @returns
  */
 export const getOrderList = async (startDate, endDate) => {
     const response = await axiosInstance.get('/orders/list', {
         params: { startDate, endDate }
     })
     return response
+
 }

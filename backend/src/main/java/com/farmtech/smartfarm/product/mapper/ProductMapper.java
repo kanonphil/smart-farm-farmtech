@@ -26,4 +26,18 @@ public interface ProductMapper {
 
   // 상세 상품 조회 메서드
   ProductDTO getProductDetail(int productId);
+
+  // 상품 목록 조회
+  List<ProductListDTO> selectProductListManager();
+
+  // 상품 수정
+  void updateProduct(ProductDTO productDTO);
+
+  // 상품 삭제
+  void deleteProduct(int productId);
+  void deleteProductImage(int productId);
+
+  // 재고가 있는 전체 활성 상품 목록 조회 (AI 매칭용)
+  // productId와 productName만 가져와 Gemini 프롬프트에 포함시킨다.
+  List<ProductListDTO> selectActiveProducts();
 }

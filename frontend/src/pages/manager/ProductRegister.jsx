@@ -9,7 +9,7 @@ import Select from '../../components/common/Select';
 const ProductRegister = () => {
   //카테고리 저장 데이터
   const [cateList, setCateList] = useState([]);
-
+ 
   //상품 저장 데이터
   const [productData,setProductData] = useState({
     productName : '',
@@ -29,6 +29,9 @@ const ProductRegister = () => {
   const [mainImgPreviews ,setmainImgPreviews] = useState(null);
   const [subImgsPreviews ,setSubImgsPreviews] = useState([]);
   const [detailPreviews, setDetailPreviews] = useState(null);
+
+  // 파일 input 초기화용 key (등록 성공 시 증가 → input 재마운트)
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   useEffect(()=>{
     getCategoryData();
@@ -88,8 +91,11 @@ const ProductRegister = () => {
       setmainImgPreviews(null);
       setSubImgsPreviews([]);
       setDetailPreviews(null);
+      setFileInputKey(prev => prev + 1); // 파일 input 실제 초기화
     }
   }
+
+
   return (
     <div className={styles.container}>
       
@@ -116,7 +122,8 @@ const ProductRegister = () => {
       <div className={styles.imageSelecter}>
         <div>
           <p>대표 이미지를 선택해주세요.</p>
-          <Input 
+          <Input
+            key={`main-${fileInputKey}`}
             type='file'
             onChange={e => {
               setMainImg(e.target.files[0]);
@@ -127,7 +134,9 @@ const ProductRegister = () => {
         </div>
         <div>
           <p>상세이미지를 선택해주세요. </p>
-          <Input 
+          
+          <Input
+              key={`sub-${fileInputKey}`}
               type='file'
               multiple={true}
               onChange={e => {
@@ -143,7 +152,8 @@ const ProductRegister = () => {
         </div>
         <div>
           <p>상세페이지 이미지를 선택해주세요.</p>
-          <Input 
+          <Input
+            key={`detail-${fileInputKey}`}
             type='file'
             onChange={e => {
               setdetailImgs(e.target.files[0]);

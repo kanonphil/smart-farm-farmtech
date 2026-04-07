@@ -90,4 +90,6 @@
         DELETE FROM CART_ITEM
         WHERE CART_ID = #{cartId}
     </delete>
+
+
 </mapper>
