@@ -1,6 +1,7 @@
 import axios from "axios"
 import { axiosInstance } from "../axiosInstance";
 
+//상품 등록 api
 export const regProductAPI = async(productData) => {
   try{
     const fileConfig = {
@@ -13,6 +14,7 @@ export const regProductAPI = async(productData) => {
   }
 }
 
+//카테고리 조회 api
 export const getCategory = async() => {
   try{
     const reponse = await axios.get('http://localhost:8080/products/category')
@@ -101,4 +103,33 @@ export const deleteAllItem = async () => {
 export const insertOrder = async (data) => {
   const response = await axiosInstance.post('/orders', data)
   return response
+}
+
+/**
+ * 매니저 상품 전체 목록 조회 (ACTIVE + INACTIVE)
+ * GET /manager/products
+ * @returns 전체 상품 목록 배열
+ */
+export const getProductListManager = async() => {
+  const response = await axiosInstance.get('/products/manager');
+  return response;
+}
+
+export const getOrder = async () => {
+  const response = await axiosInstance.get('/orders')
+  return response
+}
+
+/**
+ * 내 주문 내역
+ * @param {*} startDate
+ * @param {*} endDate
+ * @returns
+ */
+export const getOrderList = async (startDate, endDate) => {
+    const response = await axiosInstance.get('/orders/list', {
+        params: { startDate, endDate }
+    })
+    return response
+
 }

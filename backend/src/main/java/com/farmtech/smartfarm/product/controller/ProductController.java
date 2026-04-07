@@ -104,4 +104,30 @@ public class ProductController {
     }
   }
 
+  // 상품 수정 api
+  @PutMapping("/{productId}")
+  public ResponseEntity<?> updateProduct(@PathVariable("productId") int productId,
+                                         @RequestBody ProductDTO productDTO) {
+    try {
+      productDTO.setProductId(productId);
+      productService.updateProduct(productDTO);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (Exception e) {
+      log.error("상품 수정 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  //상품 삭제 api
+  @DeleteMapping("/{productId}")
+  public ResponseEntity<?> deleteProduct(@PathVariable("productId") int productId){
+    try {
+      productService.deleteProduct(productId);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    }catch (Exception e){
+      log.error("상품 삭제 오류",e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
 }

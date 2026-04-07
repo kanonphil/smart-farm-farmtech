@@ -23,6 +23,7 @@ import ProductList from "./pages/product/ProductList"
 import ProductDetail from "./pages/product/ProductDetail"
 import Cart from "./pages/product/Cart"
 import Order from "./pages/product/Order"
+import Products from "./pages/manager/Products"
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path='actuator' element={<ActuatorControl />} />
           <Route path='threshold' element={<ThresholdPreset />} />
           <Route path='alerts' element={<AlertHistory />} />
+          <Route path='products' element={<Products/>} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}

@@ -30,7 +30,10 @@ public interface ProductMapper {
   // 상품 목록 조회
   List<ProductListDTO> selectProductListManager();
 
-  // 상품 목록 삭제
-  List<ProductListDTO> deleteProduct(int productId);
-  List<ProductImageDTO> deleteProductImage(int productId);
+  // 상품 수정
+  void updateProduct(ProductDTO productDTO);
+
+  // 상품 삭제
+  void deleteProduct(int productId);
+  void deleteProductImage(int productId);
 }

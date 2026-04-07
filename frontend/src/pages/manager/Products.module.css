@@ -42,3 +42,47 @@
 .tableWrap td{
   vertical-align: middle;
 }
+
+/* 수정 모달 - 라이트 테마 배경 */
+.darkModal {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+.darkModal h2 {
+  color: #1a1a1a;
+}
+
+/* 수정 모달 폼 */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 4px;
+}
+
+/* Input/Select 공통 컴포넌트 라이트 오버라이드 */
+.editForm label {
+  color: #1a1a1a !important;
+}
+
+.editForm input,
+.editForm select {
+  background-color: #f8f9fa !important;
+  color: #1a1a1a !important;
+  border-color: #d0d0d0 !important;
+}
+
+.editForm input:focus,
+.editForm select:focus {
+  border-color: #4a9eff !important;
+}
+
+.editForm .formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #eeeeee;
+}

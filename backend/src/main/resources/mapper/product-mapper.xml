@@ -148,4 +148,15 @@
         WHERE PRODUCT_ID = #{productId}
     </delete>
 
+    <update id="updateProduct">
+        UPDATE PRODUCT
+        SET CATEGORY_ID    = #{categoryId},
+            PRODUCT_NAME   = #{productName},
+            PRODUCT_PRICE  = #{productPrice},
+            PRODUCT_STOCK  = #{productStock},
+            PRODUCT_STATUS = #{productStatus}
+        WHERE PRODUCT_ID = #{productId}
+    </update>
+
+
 </mapper>
