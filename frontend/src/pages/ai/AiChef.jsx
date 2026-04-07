@@ -59,6 +59,8 @@ const AiChef = () => {
   const [previousRecipes, setPreviousRecipes] = useState([])
   /** 자유 검색어 */
   const [freeText, setFreeText] = useState('')
+  /** 마지막으로 검색한 자유 검색어 (다른 추천 보기용) */
+  const [lastFreeText, setLastFreeText] = useState('')
 
   // ─────────────────────────────────────────────────────────────────
   // 추천 요청
@@ -130,23 +132,39 @@ const AiChef = () => {
    * 현재 선택된 조건으로 다시 요청하되 이전 추천 목록을 함께 전달한다.
    */
   const handleAnotherRecommend = async () => {
-    if (!situation || !style) { handleRecommend(); return }
-    handleRecommend()
-  }
+    if (lastFreeText) {
+      handleFreeSearchWith(lastFreeText)
+    } else {
+      handleRecommend()
+    }
+}
 
   /**
    * 자유 검색어로 레시피 추천 요청
    */
   const handleFreeSearch = async () => {
     if (!freeText.trim()) { alert('검색어를 입력해주세요.'); return }
+    const searchText = freeText.trim()
+    setFreeText('')
+    handleFreeSearchWith(searchText)
+  }
+
+  /**
+ * 자유 검색어를 파라미터로 받아 추천 요청
+ * handleFreeSearch와 handleAnotherRecommend 에서 공용으로 사용
+ *
+ * @param {string} text - 검색어
+ */
+  const handleFreeSearchWith = async (text) => {
     setIsLoading(true)
     setError(null)
     try {
       const data = await requestAiChefRecommendation({
-        freeText,
+        freeText: text,
         previousRecipes,
       })
       setResult(data)
+      setLastFreeText(text)
       if (data.recipe?.recipeName) {
         setPreviousRecipes(prev => [...prev, data.recipe.recipeName])
       }
@@ -156,7 +174,6 @@ const AiChef = () => {
       setIsLoading(false)
     }
   }
-
 
   // ─────────────────────────────────────────────────────────────────
   // 장바구니 담기
@@ -236,7 +253,7 @@ const AiChef = () => {
             <button
               key={opt.value}
               className={`${styles.optionBtn} ${situation === opt.value ? styles.selected : ''}`}
-              onClick={() => setSituation(opt.value)}
+              onClick={() => setSituation(prev => prev === opt.value ? null : opt.value)}
             >
               {opt.label}
             </button>
@@ -250,7 +267,7 @@ const AiChef = () => {
             <button
               key={opt.value}
               className={`${styles.optionBtn} ${style === opt.value ? styles.selected : ''}`}
-              onClick={() => setStyle(opt.value)}
+              onClick={() => setStyle(prev => prev === opt.value ? null : opt.value)}
             >
               {opt.label}
             </button>
@@ -324,18 +341,10 @@ const AiChef = () => {
             {/* 기본 정보 태그 */}
             {result.recipe?.recipeDescription && (
               <div className={styles.tagRow}>
-                <span className={styles.tag}>
-                  난이도 {result.recipe.recipeDescription.difficulty}
-                </span>
-                <span className={styles.tag}>
-                  {result.recipe.recipeDescription.cookingMethod}
-                </span>
-                <span className={styles.tag}>
-                  ⏱ {result.recipe.recipeDescription.estimatedTimeMinutes}분
-                </span>
-                <span className={styles.tag}>
-                  {result.recipe.recipeDescription.mood}
-                </span>
+                <span className={styles.tag}>🔥 난이도 {result.recipe.recipeDescription.difficulty}</span>
+                <span className={styles.tag}>🍳 {result.recipe.recipeDescription.cookingMethod}</span>
+                <span className={styles.tag}>⏱ {result.recipe.recipeDescription.estimatedTimeMinutes}분</span>
+                <span className={styles.tag}>🌙 {result.recipe.recipeDescription.mood}</span>
               </div>
             )}
 
@@ -367,7 +376,10 @@ const AiChef = () => {
                 <div className={styles.sectionTitle}>조리 순서</div>
                 <ol className={styles.stepList}>
                   {result.recipe.steps.map((step, i) => (
-                    <li key={i} className={styles.stepItem}>{step}</li>
+                    <li key={i} className={styles.stepItem}>
+                      <span className={styles.stepNumber}>{i + 1}</span>
+                      {step}
+                    </li>
                   ))}
                 </ol>
               </div>
@@ -379,7 +391,7 @@ const AiChef = () => {
                 <div className={styles.sectionTitle}>💡 셰프 팁</div>
                 <ul className={styles.tipList}>
                   {result.recipe.servingTips.map((tip, i) => (
-                    <li key={i}>{tip}</li>
+                    <li key={i} className={styles.tipItem}>{tip}</li>
                   ))}
                 </ul>
               </div>
