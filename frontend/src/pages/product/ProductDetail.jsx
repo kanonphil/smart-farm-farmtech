@@ -10,6 +10,8 @@ const ProductDetail = () => {
   const nav = useNavigate();
   const {productId} = useParams();
 
+  const decoded = decodeToken(localStorage.getItem('token'))
+
   //상품 상세 정보 저장 state 변수
   const [product, setProduct] = useState({})
 

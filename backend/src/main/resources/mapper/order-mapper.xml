@@ -31,10 +31,14 @@
             MEMBER_ID
             , ORDER_ID
             , ORDER_TOTAL_PRICE
+            , ORDER_STATUS
+            , TOSS_ORDER_ID
         )VALUES(
             #{memberId}
             , #{orderId}
             , #{orderTotalPrice}
+            , 'READY'
+            , #{tossOrderId}
         )
     </insert>
 

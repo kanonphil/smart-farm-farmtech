@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -29,8 +30,9 @@ public class OrderController {
       List<OrderItemDTO> orderItemDTOList = orderRequestDTO.getOrderItemDTOList();
 
       int memberId = userDetails.getMemberDTO().getMemberId();
-      orderService.insertOrder(orderDTO, orderItemDTOList, memberId);
-      return ResponseEntity.status(HttpStatus.OK).build();
+      String tossOrderId = orderService.insertOrder(orderDTO, orderItemDTOList, memberId);
+
+      return ResponseEntity.ok(Map.of("tossOrderId", tossOrderId));
     }catch (Exception e){
       log.error("주문 저장 오류", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
