@@ -47,4 +47,8 @@ public class RecipeDTO {
   // 보조 검색 키워드
   // matchingCuts로 상품을 못 찾을 때 보조 검색에 사용됨
   private List<String> searchKeywords;
+
+  // Gemini가 우리 DB 상품 목록에서 직접 선택한 productId 목록
+  // 1~3개, 없으면 빈 배열
+  private List<Integer> matchingProductIds;
 }

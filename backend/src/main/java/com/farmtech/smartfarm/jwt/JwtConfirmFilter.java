@@ -45,7 +45,15 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
 
         //필터 진행 후 다음 코드 이어서 진행하는 코드
         // filterChain.doFilter(request, response);
-        boolean isExpired = jwtUtil.isExpired(token);
+        boolean isExpired;
+        try {
+          isExpired = jwtUtil.isExpired(token);
+        } catch (Exception e) {
+          // 서명 불일치 등 토큰 검증 실패 시 토큰 없는 것으로 처리하고 계속 진행
+          log.warn("토큰 검증 실패 (무효한 토큰): {}", e.getMessage());
+          filterChain.doFilter(request, response);
+          return;
+        }
 
         //토큰 만료기간이 지났으면
         if(isExpired){

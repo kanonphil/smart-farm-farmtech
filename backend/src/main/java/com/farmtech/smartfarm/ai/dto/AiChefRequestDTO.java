@@ -25,4 +25,8 @@ public class AiChefRequestDTO {
   // 이전에 추천된 레시피명 목록
   // "다른 추천 보기" 클릭 시 중복 추천 방지를 위해 Gemini 프롬프트에 포함됨
   private List<String> previousRecipes;
+
+  // 자유 검색어 (예: "불고기", "스테이크")
+  // 입력 시 상황/스타일 선택 없이 레시피 검색 가능
+  private String freeText;
 }
