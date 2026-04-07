@@ -17,4 +17,6 @@ public class ReviewDTO {
   private int rating;
   private String content;
   private LocalDateTime createdAt;
+  private String productName;
+  private int productPrice;
 }
