@@ -77,7 +77,8 @@ const ProductDetail = () => {
     }
     const response = await insertCartItem(cartItem)
     if(response.status === 200){
-      alert('장바구니 저장 완료')
+      const result = confirm('장바구니 저장 완료! 장바구니로 이동 하시겠습니까?')
+      if(result) {nav('/cart')}
     }
     else{
       alert('실패')
@@ -86,20 +87,21 @@ const ProductDetail = () => {
 
   //바로 구매 클릭 시 실행함수
   const buyNow = async () => {
-    const data = {
-        'orderDTO': {
-            'orderTotalPrice': product.productPrice * cnt
-        },
-        'orderItemDTOList': [{
-            'productId': product.productId,
-            'orderItemQty': cnt,
-            'orderItemPrice': product.productPrice
-        }]
-    }
-    await insertOrder(data)
     alert('주문서 작성 페이지로 이동합니다.')
-    nav('/order')
-  }
+    nav('/order', {
+      state: {
+        orderItems: [{
+          productId: product.productId,
+          productName: product.productName,
+          productPrice: product.productPrice,
+          cartItemQty: cnt,
+          cartItemId: null,
+          img: mainImg
+        }],
+        totalPrice: product.productPrice * cnt
+      }
+    })
+}
 
   return (
     <div className={styles.container}>

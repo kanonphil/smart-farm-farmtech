@@ -23,6 +23,7 @@
         <result property="orderItemPrice" column="order_item_price"/>
         <result property="productName"      column="product_name"/>
         <result property="imageSavedName" column="image_saved_name"/>
+        <result property="hasReview" column="has_review"/>
     </resultMap>
 
 <!--  주문 정보 저장 쿼리  -->
@@ -93,17 +94,22 @@
             O.ORDER_TOTAL_PRICE,
             O.ORDER_CREATED_AT,
             I.ORDER_ITEM_ID,
+            I.PRODUCT_ID,
             I.ORDER_ITEM_PRICE,
             I.ORDER_ITEM_QTY,
             P.PRODUCT_NAME,
-            PI.IMAGE_SAVED_NAME
+            PI.IMAGE_SAVED_NAME,
+            -- 리뷰 존재 여부 (1이면 작성됨, null이면 미작성)
+            CASE WHEN R.REVIEW_ID IS NOT NULL THEN TRUE ELSE FALSE END AS has_review
         FROM ORDERS O
-        JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
-        JOIN PRODUCT P ON I.PRODUCT_ID = P.PRODUCT_ID
-        LEFT JOIN PRODUCT_IMAGE PI ON P.PRODUCT_ID = PI.PRODUCT_ID
+                 JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
+                 JOIN PRODUCT P ON I.PRODUCT_ID = P.PRODUCT_ID
+                 LEFT JOIN PRODUCT_IMAGE PI ON P.PRODUCT_ID = PI.PRODUCT_ID
+                 LEFT JOIN REVIEW R ON I.ORDER_ITEM_ID = R.ORDER_ITEM_ID
         WHERE O.MEMBER_ID = #{memberId}
-        AND O.ORDER_CREATED_AT BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+          AND O.ORDER_CREATED_AT BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         ORDER BY O.ORDER_CREATED_AT DESC
+
     </select>
 
     <update id="cancelOrder" parameterType="map">
