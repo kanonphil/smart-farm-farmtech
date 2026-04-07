@@ -4,10 +4,16 @@ import styles from './MemberMenu.module.css'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { FaTrash } from 'react-icons/fa'
 import { decodeToken } from '../../utils/tokenUtils'
+import useAuthStore from '../../store/authStore'
+
 
 const MemberMenu = () => {
   const nav = useNavigate();
-  const decoded = decodeToken(localStorage.getItem('token'))
+  
+  // store에서 token 가져오기
+  const { token } = useAuthStore()
+
+  const decoded = decodeToken(token)
 
   return (
     <div className={styles.container}>

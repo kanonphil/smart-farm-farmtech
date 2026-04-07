@@ -90,22 +90,31 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //JWT 토큰 생성
         String token = jwtUtil.createJwt(userEmail, role, memberId, 1000 * 60 * 60); //1000 = 1초
 
-        // Refresh Token - autoLogin 체크 시에만 발급
+        // 자동로그인 여부와 관계없이 항상 Refresh Token 발급
+        // 자동로그인 OFF → 짧은 유효기간 + 세션 쿠키 (브라우저 닫으면 삭제)
+        // 자동로그인 ON  → 긴 유효기간 + 영구 쿠키 (30일 유지)
+        String refreshToken = jwtUtil.createRefreshToken(
+                userEmail,
+                loginVo.isAutoLogin() ? 1000L*60*60*24*30 : 1000L*60*60*24
+        );
+
+        //DB에 Refresh Token 저장
+        MemberDTO dto = new MemberDTO();
+        dto.setMemberEmail(userEmail);
+        dto.setRefreshToken(refreshToken);
+        dto.setRefreshTokenExpiry(LocalDateTime.now().plusDays(loginVo.isAutoLogin() ? 30 : 1));
+        memberService.saveRefreshToken(dto);
+
+        //쿠키에 Refresh Token 저장
+        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
         if (loginVo.isAutoLogin()) {
-            String refreshToken = jwtUtil.createRefreshToken(userEmail);
-
-            MemberDTO dto = new MemberDTO();
-            dto.setMemberEmail(userEmail);
-            dto.setRefreshToken(refreshToken);
-            dto.setRefreshTokenExpiry(LocalDateTime.now().plusDays(7));
-            memberService.saveRefreshToken(dto);
-
-            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setPath("/");
-            refreshCookie.setMaxAge(7*24*60*60);
-            response.addCookie(refreshCookie);
+            refreshCookie.setMaxAge(30 * 24 * 60 * 60); //30일 영구 쿠키
+        } else {
+            refreshCookie.setMaxAge(-1); //세션 쿠키
         }
+        response.addCookie(refreshCookie);
 
         //생성한 토큰을 응답 헤더에 담아 React에 전달
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
