@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './PaymentFail.module.css'
+import { cancelOrder } from '../../api/orderApi'
 
 const PaymentFail = () => {
   const [searchParams] = useSearchParams()
@@ -8,6 +9,14 @@ const PaymentFail = () => {
 
   const errorCode = searchParams.get("code") || "ERROR"
   const errorMessage = searchParams.get("message") || "결제 실패 정보가 없습니다."
+
+  const orderId = searchParams.get('orderId')
+
+  useEffect(() => {
+    if (orderId) {
+      cancelOrder(orderId)
+    }
+  }, [])
   
   return (
     <div className={`${styles.wrapper} ${styles.w100}`}>

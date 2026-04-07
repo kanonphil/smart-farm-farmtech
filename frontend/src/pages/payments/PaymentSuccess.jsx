@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { confirmPaymentApi } from '../../api/paymentApi'
 import styles from './PaymentSuccess.module.css'
+import { deleteItem } from '../../api/product/product'
 
 const PaymentSuccess = () => {
   const navigate = useNavigate()
@@ -31,6 +32,12 @@ const PaymentSuccess = () => {
 
       if (response.status === 200) {
         setIsConfirmed(true)
+        // 장바구니 삭제
+        const cartItemIds = JSON.parse(sessionStorage.getItem('pendingCartItemIds') || '[]')
+        if (cartItemIds.length > 0) {
+          await deleteItem(cartItemIds)
+          sessionStorage.removeItem('pendingCartItemIds')
+        }
       }
     } catch (error) {
       console.error("결제 승인 실패", error)
@@ -39,6 +46,10 @@ const PaymentSuccess = () => {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    confirmPayment()
+  }, [])
 
   // 결제 완료 후 3초 뒤 메인으로 자동 이동
   useEffect(() => {
