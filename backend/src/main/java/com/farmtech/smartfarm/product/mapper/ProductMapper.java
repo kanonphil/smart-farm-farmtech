@@ -22,7 +22,7 @@ public interface ProductMapper {
   List<ProductCategoryDTO> selectCategory();
 
   // 상품 목록 조회
-  List<ProductListDTO> selectProductList(@Param("sort") String sort);
+  List<ProductListDTO> selectProductList(@Param("sort") String sort, @Param("keyword") String keyword);
 
   // 상세 상품 조회 메서드
   ProductDTO getProductDetail(int productId);

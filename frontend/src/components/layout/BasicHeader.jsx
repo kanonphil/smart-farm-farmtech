@@ -4,6 +4,7 @@ import { RiSearchLine } from "react-icons/ri";
 import { Link, useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/tokenUtils';
 import { logoutAPI } from '../../api/member/memberApi';
+import { useState } from 'react';
 
 const BasicHeader = () => {
   const nav = useNavigate();
@@ -26,6 +27,12 @@ const BasicHeader = () => {
   }
   
   //검색 내용 저장 state변수
+  const [keyword, setKeyword] = useState('')
+
+  //검색창 함수
+  const handleSearch = () => {
+    nav(`/products?keyword=${keyword.trim()}`)
+  }
   
 
   return (
@@ -59,7 +66,7 @@ const BasicHeader = () => {
           <ul>
             <Link to='/about'><li>한우마루 소개</li></Link>
             <li>공지사항</li>
-            <li>베스트상품</li>
+            <Link to='/ai-chef'><li>AI셰프</li></Link>
             <Link to='/products'><li>한우</li></Link>
             <li>세트상품</li>
           </ul>
@@ -68,9 +75,12 @@ const BasicHeader = () => {
           <input 
             type="text" 
             className={styles.search} 
-            placeholder='상품 입력'  
+            placeholder='상품 입력'
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
           />
-          <RiSearchLine/>
+          <RiSearchLine onClick={handleSearch}/>
         </div>
       </div>
     </div>
