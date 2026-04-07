@@ -45,4 +45,21 @@ public class ProductService {
   public ProductDTO getProductDetail(int productId){
     return productMapper.getProductDetail(productId);
   }
+
+  // 상품 목록 조회(매니저)
+  public List<ProductListDTO> selectProductListManager(){
+    return productMapper.selectProductListManager();
+  }
+
+  // 상품 수정
+  public void updateProduct(ProductDTO productDTO) {
+    productMapper.updateProduct(productDTO);
+  }
+
+  // 상품 삭제
+  @Transactional
+  public void deleteProduct(int productId){
+    productMapper.deleteProductImage(productId); // 이미지 먼저
+    productMapper.deleteProduct(productId);       // 상품 삭제
+  }
 }
