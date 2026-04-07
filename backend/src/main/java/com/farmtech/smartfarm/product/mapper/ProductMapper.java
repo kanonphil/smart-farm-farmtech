@@ -36,4 +36,10 @@ public interface ProductMapper {
   // 상품 삭제
   void deleteProduct(int productId);
   void deleteProductImage(int productId);
+
+  // 상품 이미지 업데이트
+  void updateProductImage(@Param("img") ProductImageDTO img);
+
+  void deleteProductImageByType(@Param("productId") int productId,
+                                @Param("imageType") String imageType);
 }

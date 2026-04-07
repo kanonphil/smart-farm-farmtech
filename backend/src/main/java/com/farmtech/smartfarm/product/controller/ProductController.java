@@ -106,12 +106,15 @@ public class ProductController {
   }
 
   // 상품 수정 api
-  @PutMapping("/{productId}")
+  @PutMapping(value = "/{productId}", consumes = "multipart/form-data")
   public ResponseEntity<?> updateProduct(@PathVariable("productId") int productId,
-                                         @RequestBody ProductDTO productDTO) {
+                                         ProductDTO productDTO,
+                                         @RequestParam(value = "mainImg", required = false) MultipartFile mainImgFile,
+                                         @RequestParam(value = "subImgs", required = false) MultipartFile[] subImgFiles,
+                                         @RequestParam(value = "detailImg", required = false) MultipartFile detailImgFile) {
     try {
       productDTO.setProductId(productId);
-      productService.updateProduct(productDTO);
+      productService.updateProduct(productDTO,mainImgFile,subImgFiles,detailImgFile);
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (Exception e) {
       log.error("상품 수정 오류", e);

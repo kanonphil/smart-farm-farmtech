@@ -128,6 +128,7 @@
             MAIN_IMAGE,
             SALES_COUNT
         FROM V_MANAGER_PRODUCT_LIST
+        WHERE PRODUCT_STATUS != 'DELETED'
         ORDER BY PRODUCT_ID DESC
     </select>
 
@@ -139,11 +140,12 @@
         AND P.PRODUCT_ID = #{productId}
     </select>
 
-    <!--  상품 삭제 (단건) -->
-    <delete id="deleteProduct">
-        DELETE FROM PRODUCT
+    <!--  상품 삭제 (단건) ..소프트삭제.. -->
+    <update id="deleteProduct">
+        UPDATE PRODUCT
+        SET PRODUCT_STATUS = 'DELETED'
         WHERE PRODUCT_ID = #{productId}
-    </delete>
+    </update>
 
     <!--  상품 이미지 삭제-->
     <delete id="deleteProductImage">
@@ -160,6 +162,23 @@
             PRODUCT_STATUS = #{productStatus}
         WHERE PRODUCT_ID = #{productId}
     </update>
+
+
+    <!-- 상품 삭제  -->
+    <update id="updateProductImage">
+        UPDATE PRODUCT_IMAGE
+        SET IMAGE_SAVED_NAME  = #{img.imageSavedName},
+        IMAGE_ORIGIN_NAME = #{img.imageOriginName}
+        WHERE PRODUCT_ID = #{img.productId}
+        AND IMAGE_TYPE  = #{img.imageType}
+    </update>
+
+    <!-- 서브 이미지만 삭제   -->
+    <delete id="deleteProductImageByType">
+        DELETE FROM PRODUCT_IMAGE
+        WHERE PRODUCT_ID = #{productId}
+          AND IMAGE_TYPE = #{imageType}
+    </delete>
 
 
 </mapper>

@@ -7,9 +7,15 @@ import Modal from '../../components/common/Modal'
 import Input from '../../components/common/Input'
 import Select from '../../components/common/Select'
 import { useNavigate } from 'react-router-dom';
+import { axiosInstance } from '../../api/axiosInstance';
 
 const Products = () => {
   const nav = useNavigate();
+  //이미지파일 저장 변수
+  const [mainImgFile,   setMainImgFile]   = useState(null);
+  const [subImgFiles,   setSubImgFiles]   = useState([]);
+  const [detailImgFile, setDetailImgFile] = useState(null);
+
   //상품 조회
   const [products, setProducts] = useState([]);
   //카테고리 조회
@@ -34,10 +40,34 @@ const Products = () => {
 
   //수정 완료 시 전달 api 전달함수
   const handleSave = async() => {
-   await putProduct(selectProduct.productId, form);
-   setIsModalOpen(false);
-   fetchProducts();
-   alert("수정이 완료되었습니다");
+    const data = new FormData();
+    //데이터 폼
+    data.append('categoryId',    form.categoryId);
+    data.append('productName',   form.productName);
+    data.append('productPrice',  form.productPrice);
+    data.append('productStock',  form.productStock);
+    data.append('productStatus', form.productStatus);
+
+    //메인 이미지
+    if(mainImgFile) data.append('mainImg', mainImgFile);
+
+    //서브 이미지 여러개
+    if(subImgFiles && subImgFiles.length > 0){
+      subImgFiles.forEach(f => {
+        data.append("subImgs",f)
+      })
+    }
+    //상세 페이지 이미지
+    if(detailImgFile) data.append('detailImg',detailImgFile);
+
+    await putProduct(selectProduct.productId, data);
+
+    setIsModalOpen(false);
+    setMainImgFile(null);
+    setSubImgFiles([]);
+    setDetailImgFile(null);
+    fetchProducts();
+    alert("수정이 완료되었습니다");
   }
   
   //모달창에서 상태값
@@ -106,6 +136,7 @@ const Products = () => {
     { label: '상태' },
     { label: '관리' },
   ]]
+
   console.log(products);
   return (
     <div className={styles.container}>
@@ -201,6 +232,25 @@ const Products = () => {
             value={form.productStatus}
             onChange={handleFormChange}
             options={STATUS_OPTIONS}
+          />
+          <p>메인 이미지</p>
+          <Input 
+            type="file"
+            accept="image/*"
+            onChange={e => setMainImgFile(e.target.files[0] || null)}
+          />
+          <p>서브 이미지</p>
+          <Input 
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={e => setSubImgFiles(Array.from(e.target.files))}
+          />
+          <p>상세페이지</p>
+          <Input 
+            type="file"
+            accept="image/*"
+            onChange={e => setDetailImgFile(e.target.files[0] || null)}
           />
           <div className={styles.formActions}>
             <Button
