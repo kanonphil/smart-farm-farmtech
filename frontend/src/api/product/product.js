@@ -120,6 +120,7 @@ export const getProductListManager = async() => {
  * @returns 상품 수정
  */
 export const putProduct = async(productId, data) => {
+  
   const response = await axiosInstance.put(`/products/${productId}`, data)
   return response;
 }

@@ -5,16 +5,20 @@ import com.farmtech.smartfarm.product.dto.ProductDTO;
 import com.farmtech.smartfarm.product.dto.ProductImageDTO;
 import com.farmtech.smartfarm.product.dto.ProductListDTO;
 import com.farmtech.smartfarm.product.mapper.ProductMapper;
+import com.farmtech.smartfarm.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class ProductService {
   private final ProductMapper productMapper;
+  private final UploadUtil uploadUtil;
 
   // 상품 + 이미지 등록
   @Transactional
@@ -52,14 +56,42 @@ public class ProductService {
   }
 
   // 상품 수정
-  public void updateProduct(ProductDTO productDTO) {
+  @Transactional
+  public void updateProduct(ProductDTO productDTO,
+                            MultipartFile mainImgFile,
+                            MultipartFile[] subImgFiles,
+                            MultipartFile detailFile) throws IOException {
+    // 텍스트 정보 항상 업데이트
     productMapper.updateProduct(productDTO);
-  }
 
+    // 대표 이미지 (선택했을 때만)
+    if(mainImgFile != null && !mainImgFile.isEmpty()){
+      ProductImageDTO mainImg = uploadUtil.fileUpload(mainImgFile);
+      mainImg.setProductId(productDTO.getProductId());
+      mainImg.setImageType("MAIN");
+      productMapper.updateProductImage(mainImg);
+    }
+    // 서브 이미지 (선택했을 때만 -> 기존 삭제 후 새로 INSERT)
+    if(subImgFiles != null && subImgFiles.length > 0 && !subImgFiles[0].isEmpty()){
+      productMapper.deleteProductImageByType(productDTO.getProductId(), "SUB");
+      List<ProductImageDTO> sub = uploadUtil.multipleFileUpload(subImgFiles);
+      for (ProductImageDTO subimg : sub){
+        subimg.setProductId(productDTO.getProductId());
+      }
+      productMapper.insertImage(sub);
+    }
+    // 상세 페이지 이미지 (선택했을 때만)
+    if(detailFile != null && !detailFile.isEmpty()){
+      ProductImageDTO detailImg = uploadUtil.fileUpload(detailFile);
+      detailImg.setProductId(productDTO.getProductId());
+      detailImg.setImageType("DETAIL");
+      productMapper.updateProductImage(detailImg);
+    }
+
+  }
   // 상품 삭제
   @Transactional
   public void deleteProduct(int productId){
-    productMapper.deleteProductImage(productId); // 이미지 먼저
     productMapper.deleteProduct(productId);       // 상품 삭제
   }
 }
