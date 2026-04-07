@@ -25,6 +25,8 @@ const BasicHeader = () => {
     }
   }
   
+  //검색 내용 저장 state변수
+  
 
   return (
     <div>

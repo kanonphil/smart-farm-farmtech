@@ -26,7 +26,7 @@ const OrderList = () => {
 
   //내 주문 내역 저장 state변수
   const [orders, setOrders] = useState([])
-
+  
   //주문 조회 함수
   const fetchOrders = async () => {
     const response = await getOrderList(startDate, endDate)
@@ -38,9 +38,24 @@ const OrderList = () => {
       if (startDate && endDate) fetchOrders()
   }, [startDate, endDate])
 
-
+  //상태 건수 확인 함수
   const statusCount = (status) => orders.filter(o => o.orderStatus === status).length
 
+  //상태 변환 함수
+  const changeStatus = (status) => {
+    if(status === 'PAID'){
+      return '결제완료'
+    }
+    else if(status === 'SHIPPED'){
+      return '배송완료'
+    }
+    else if(status === 'DONE'){
+      return '구매확정'
+    }
+    else if(status === 'CANCEL'){
+      return '구매취소'
+    }
+  }
 
 
 
@@ -85,9 +100,9 @@ const OrderList = () => {
       <div className={styles.statusCards}>
         {[
           { label: '결제완료', key: 'PAID', color: '#4caf50' },
-          { label: '상품준비중', key: 'PREPARING', color: '#ff9800' },
-          { label: '배송중', key: 'SHIPPING', color: '#2196f3' },
-          { label: '배송완료', key: 'DELIVERED', color: '#9c27b0' },
+          { label: '배송완료', key: 'SHIPPED', color: '#ff9800' },
+          { label: '구매확정', key: 'DONE', color: '#2196f3' },
+          { label: '구매취소', key: 'CANCEL', color: '#9c27b0' },
         ].map(({ label, key, color }) => (
           <div key={key} className={styles.statusCard}>
             <p className={styles.statusLabel} style={{ color }}>{label}</p>
@@ -115,14 +130,14 @@ const OrderList = () => {
                 <td colSpan={6} className={styles.empty}>주문 내역이 없습니다.</td>
               </tr>
             ) : (
-              orders.map(order => (
+              orders.map((order, i) => (
                 <tr key={order.orderId}>
-                  <td>{order.orderId}</td>
+                  <td>{orders.length - i}</td>
                   <td>{order.orderCreatedAt}</td>
                   <td>{order.orderItemDTOList?.[0]?.productName}</td>
                   <td>{order.orderItemDTOList?.[0]?.orderItemQty}</td>
                   <td>{order.orderTotalPrice?.toLocaleString()}원</td>
-                  <td>{order.orderStatus}</td>
+                  <td>{changeStatus(order.orderStatus)}</td>
                 </tr>
               ))
             )}

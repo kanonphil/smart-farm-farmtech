@@ -44,8 +44,11 @@ const Home = () => {
           <h2 className={styles.sectionTitle}>추천 상품</h2>
         </div>
         <Swiper
-          modules={[Navigation]}
-          navigation
+          modules={[Autoplay]}
+          autoplay={{ 
+            delay: 3000,
+            disableOnInteraction: false
+          }}
           slidesPerView={4}
           spaceBetween={20}
         >
