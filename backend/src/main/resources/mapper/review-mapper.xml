@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.review.mapper.ReviewMapper">
+	<resultMap id="reviewMap" type="com.farmtech.smartfarm.review.dto.ReviewDTO">
+        <id column="REVIEW_ID" property="reviewId" />
+        <result column="MEMBER_ID" property="memberId" />
+        <result column="PRODUCT_ID" property="productId" />
+        <result column="ORDER_ITEM_ID" property="orderItemId" />
+        <result column="RATING" property="rating" />
+        <result column="CONTENT" property="content" />
+        <result column="CREATED_AT" property="createdAt" />
+    </resultMap>
+
+    <!-- 리뷰 등록 쿼리 -->
+    <insert id="insertReview">
+        INSERT INTO REVIEW
+            (MEMBER_ID,
+             PRODUCT_ID,
+             ORDER_ITEM_ID,
+             RATING,
+             CONTENT)
+        VALUES (
+                #{memberId},
+                #{productId},
+                #{orderItemId},
+                #{rating},
+                #{content}
+               )
+    </insert>
+
+    <!-- 주문 상품 ID로 리뷰 존재 여부 확인 (중복 리뷰 방지) -->
+    <select id="existsByOrderItemId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM REVIEW
+        WHERE ORDER_ITEM_ID = #{orderItemId}
+    </select>
+
+    <!-- 상품 ID로 리뷰 목록 조회 (최신순) -->
+    <select id="getReviewsByProductId" resultMap="reviewMap">
+        SELECT REVIEW_ID,
+               MEMBER_ID,
+               PRODUCT_ID,
+               ORDER_ITEM_ID,
+               RATING,
+               CONTENT,
+               CREATED_AT
+        FROM REVIEW
+        WHERE PRODUCT_ID = #{productId}
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- 주문 상품 ID로 상품 ID 조회 -->
+    <select id="getProductIdByOrderItemId" resultType="int">
+        SELECT PRODUCT_ID
+        FROM ORDER_ITEM
+        WHERE ORDER_ITEM_ID = #{orderItemId}
+    </select>
+</mapper>

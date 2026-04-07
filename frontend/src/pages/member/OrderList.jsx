@@ -5,6 +5,7 @@ import { cancelPaymentApi } from '../../api/paymentApi'
 import Button from '../../components/common/Button'
 import Modal from '../../components/common/Modal'
 import Textarea from '../../components/common/Textarea'
+import { insertReview } from '../../api/reviewApi'
 
 const OrderList = () => {
   //조회 시작 날짜 저장변수
@@ -16,6 +17,10 @@ const OrderList = () => {
 
   const [cancelModal, setCancelModal] = useState({ isOpen: false, orderId: null })
   const [cancelReason, setCancelReason] = useState('')
+  const [reviewModal, setReviewModal] = useState({ isOpen: false, orderItemId: null})
+  const [rating, setRating] = useState(0)
+  const [reviewContent, setReviewContent] = useState('')
+
 
   //버튼 클릭 시 날짜변경
   const handlePeriod = (days) => {
@@ -81,6 +86,25 @@ const OrderList = () => {
     fetchOrders()
   }
 
+  const handleReviewClick = (orderItemId) => {
+    setReviewModal({ isOpen: true, orderItemId })
+    setRating(0)
+    setReviewContent('')
+  }
+
+  const handleReviewSubmit = async () => {
+    if (rating === 0) { alert('별점을 선택해주세요.'); return }
+    if (!reviewContent.trim()) { alert('리뷰 내용을 입력해주세요.'); return }
+    await insertReview({
+      orderItemId: reviewModal.orderItemId,
+      rating,
+      content: reviewContent
+    })
+    setReviewModal({ isOpen: false, orderItemId: null, productId: null })
+    alert('리뷰가 등록되었습니다.')
+  }
+
+
   return (
     <div className={styles.container}>
       <h2>주문 내역</h2 >
@@ -145,37 +169,100 @@ const OrderList = () => {
               <th>금액</th>
               <th>상태</th>
               <th>취소</th>
+              <th>리뷰</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={6} className={styles.empty}>주문 내역이 없습니다.</td>
+                <td colSpan={8} className={styles.empty}>주문 내역이 없습니다.</td>
               </tr>
             ) : (
-              orders.map((order, i) => (
-                <tr key={order.orderId}>
-                  <td>{orders.length - i}</td>
-                  <td>{order.orderCreatedAt}</td>
-                  <td>{order.orderItemDTOList?.[0]?.productName}</td>
-                  <td>{order.orderItemDTOList?.[0]?.orderItemQty}</td>
-                  <td>{order.orderTotalPrice?.toLocaleString()}원</td>
-                  <td>{changeStatus(order.orderStatus)}</td>
-                  <td>{order.orderStatus === 'PAID' && (
-                    <Button 
-                      variant='danger'
-                      size='small'
-                      onClick={() => handleCancelClick(order.orderId)}
-                    >
-                      주문 취소
-                    </Button>
-                  )}</td>
-                </tr>
-              ))
+              orders.map((order, i) =>
+                order.orderItemDTOList?.map((item, itemIndex) => (
+                  <tr 
+                    key={`${order.orderId}-${item.orderItemId}`}
+                    style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff' }}
+                  >
+                    {/* 주문번호, 주문일은 첫 번째 상품 행에만 표시 (rowSpan으로 병합) */}
+                    {itemIndex === 0 && (
+                      <>
+                        <td 
+                          rowSpan={order.orderItemDTOList.length}
+                          style={{verticalAlign: 'middle'}}
+                        >
+                          {orders.length - i}
+                        </td>
+                        <td
+                          rowSpan={order.orderItemDTOList.length}
+                          style={{verticalAlign: 'middle'}}
+                        >
+                          {order.orderCreatedAt?.split('T')[0]}
+                        </td>
+                      </>
+                    )}
+
+                    {/* 상품별 행 */}
+                    <td
+                      style={{verticalAlign: 'middle'}}
+                    >{item.productName}</td>
+                    <td
+                      style={{verticalAlign: 'middle'}}
+                    >{item.orderItemQty}</td>
+
+                    {/* 금액, 상태, 취소는 첫 번째 상품 행에만 표시 (rowSpan으로 병합) */}
+                    {itemIndex === 0 && (
+                      <>
+                        <td 
+                          rowSpan={order.orderItemDTOList.length}
+                          style={{verticalAlign: 'middle'}}
+                        >
+                          {order.orderTotalPrice?.toLocaleString()}원
+                        </td>
+                        <td 
+                          rowSpan={order.orderItemDTOList.length}
+                          style={{verticalAlign: 'middle'}}
+                        >
+                          {changeStatus(order.orderStatus)}
+                        </td>
+                        <td 
+                          rowSpan={order.orderItemDTOList.length}
+                          style={{verticalAlign: 'middle'}}
+                        >
+                          {order.orderStatus === 'PAID' && (
+                            <Button
+                              variant='danger'
+                              size='small'
+                              onClick={() => handleCancelClick(order.orderId)}
+                            >
+                              주문 취소
+                            </Button>
+                          )}
+                        </td>
+                      </>
+                    )}
+
+                    {/* 리뷰 버튼은 상품별로 각각 표시 */}
+                    <td>
+                      {order.orderStatus === 'DONE' && (
+                        <Button
+                          variant='primary'
+                          size='small'
+                          onClick={() => handleReviewClick(item.orderItemId)}
+                          disabled={item.hasReview}
+                        >
+                          {item.hasReview ? '작성완료' : '리뷰 작성'}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )
             )}
           </tbody>
         </table>
       </div>
+
       <Modal
         isOpen={cancelModal.isOpen}
         onClose={() => setCancelModal({ isOpen: false, orderId: null })}
@@ -197,6 +284,39 @@ const OrderList = () => {
           </Button>
         </div>
       </Modal>
+
+      <Modal
+        isOpen={reviewModal.isOpen}
+        onClose={() => setReviewModal({ isOpen: false, orderItemId: null, productId: null })}
+        title='리뷰 작성'
+        width='480px'
+      >
+        <p style={{ marginBottom: '8px' }}>별점</p>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', fontSize: '28px' }}>
+          {[1, 2, 3, 4, 5].map(star => (
+            <span
+              key={star}
+              style={{ cursor: 'pointer', color: star <= rating ? '#fbbf24' : '#d1d5db' }}
+              onClick={() => setRating(star)}
+            >★</span>
+          ))}
+        </div>
+        <Textarea
+          label='리뷰 내용'
+          value={reviewContent}
+          onChange={e => setReviewContent(e.target.value)}
+          placeholder='상품에 대한 솔직한 리뷰를 남겨주세요.'
+        />
+        <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
+          <Button variant='secondary' size='small' onClick={() => setReviewModal({ isOpen: false, orderItemId: null})}>
+            닫기
+          </Button>
+          <Button variant='primary' size='small' onClick={handleReviewSubmit}>
+            등록
+          </Button>
+        </div>
+      </Modal>
+
     </div>
   )
 }

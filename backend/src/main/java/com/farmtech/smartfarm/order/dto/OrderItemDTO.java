@@ -17,4 +17,5 @@ public class OrderItemDTO {
   private BigDecimal orderItemPrice;
   private String productName;
   private String imageSavedName;
+  private boolean hasReview;
 }
