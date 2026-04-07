@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getProductList } from '../../api/product/product'
 import styles from './ProductList.module.css'
 
@@ -11,6 +11,10 @@ import styles from './ProductList.module.css'
  */
 const ProductList = () => {
   const navigate = useNavigate()
+  // 검색창 keyword 받아오는 함수
+  const [searchParams] = useSearchParams()
+  // 검색 내용 저장 변수
+  const keyword = searchParams.get('keyword') 
 
   /**
    * @type {[Array, Function]} 상품 목록 상태
@@ -27,14 +31,14 @@ const ProductList = () => {
    * 상품 목록 조회 함수
    * @param {string|null} sortValue - 정렬 기준
    */
-  const fetchProducts = async (sortValue) => {
-    const data = await getProductList(sortValue)
+  const fetchProducts = async (sortValue, keyword) => {
+    const data = await getProductList(sortValue, keyword)
     if (data) setProducts(data)
   }
 
   useEffect(() => {
-    fetchProducts(sort)
-  }, [sort])
+    fetchProducts(sort, keyword)
+  }, [sort, keyword])
 
   /**
    * 정렬 선택 변경 핸들러
@@ -45,6 +49,8 @@ const ProductList = () => {
     const value = e.target.value === "" ? null : e.target.value
     setSort(value)
   }
+
+
   
   return (
     <div className={styles.container}>
