@@ -84,4 +84,27 @@
         AND ORDER_STATUS = 'READY'
     </select>
 
+<!--  주문 내역 조회 쿼리  -->
+    <select id="getOrderList" resultMap="orderResultMap">
+        SELECT
+            O.ORDER_ID,
+            O.MEMBER_ID,
+            O.ORDER_STATUS,
+            O.ORDER_TOTAL_PRICE,
+            O.ORDER_CREATED_AT,
+            I.ORDER_ITEM_ID,
+            I.ORDER_ITEM_PRICE,
+            I.ORDER_ITEM_QTY,
+            P.PRODUCT_NAME,
+            PI.IMAGE_SAVED_NAME
+        FROM ORDERS O
+        JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
+        JOIN PRODUCT P ON I.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN PRODUCT_IMAGE PI ON P.PRODUCT_ID = PI.PRODUCT_ID
+        WHERE O.MEMBER_ID = #{memberId}
+        AND O.ORDER_CREATED_AT BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+        ORDER BY O.ORDER_CREATED_AT DESC
+    </select>
+
+
 </mapper>

@@ -51,4 +51,17 @@ public class OrderController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  //내 주문 내역 조회 api
+  @GetMapping("/list")
+  public ResponseEntity<?> getOrderList(@RequestParam String startDate, @RequestParam String endDate, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    try {
+      int memberId = userDetails.getMemberDTO().getMemberId();
+      List<OrderDTO> orderList = orderService.getOrderList(memberId, startDate, endDate);
+      return ResponseEntity.status(HttpStatus.OK).body(orderList);
+    } catch (Exception e) {
+      log.error("주문 내역 조회 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }

@@ -4,15 +4,19 @@ import React from 'react'
 import styles from './BasicLayout.module.css'
 import BasicHeader from './BasicHeader'
 import { Outlet } from 'react-router-dom'
+import BasicFooter from './BasicFooter'
 
 const BasicLayout = () => {
   return (
-    <div className={styles.container}>
-      <BasicHeader/>
-      <div>
-        <Outlet/>
+    <>
+      <div className={styles.container}>
+        <BasicHeader/>
+        <div>
+          <Outlet/>
+        </div>
       </div>
-    </div>
+        <BasicFooter/>
+    </>
   )
 }
 

@@ -1,9 +1,134 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import styles from './OrderList.module.css'
+import { getOrderList } from '../../api/product/product'    
 
 const OrderList = () => {
+  //조회 시작 날짜 저장변수
+  const[startDate, setStartDate] = useState('')
+  //조회 엔드 날짜 저장변수
+  const[endDate, setEndDate] = useState('')
+  
+  const[activeBtn, setActiveBtn] = useState(30)
+
+  //버튼 클릭 시 날짜변경
+  const handlePeriod = (days) => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - days)
+    setEndDate(end.toISOString().split('T')[0])
+    setStartDate(start.toISOString().split('T')[0])
+    setActiveBtn(days)
+  }
+
+  useEffect(()=>{
+    handlePeriod(30)
+  }, [])
+
+  //내 주문 내역 저장 state변수
+  const [orders, setOrders] = useState([])
+
+  //주문 조회 함수
+  const fetchOrders = async () => {
+    const response = await getOrderList(startDate, endDate)
+    setOrders(response.data)
+  }
+
+  //시작일, 마지막일 변경 시 주문 조회
+  useEffect(() => {
+      if (startDate && endDate) fetchOrders()
+  }, [startDate, endDate])
+
+
+  const statusCount = (status) => orders.filter(o => o.orderStatus === status).length
+
+
+
+
   return (
-    <div>
-      
+    <div className={styles.container}>
+      <h2>주문 내역</h2 >
+      <div className={styles.head}>
+        <div className={styles.periodBtns}>
+          {[
+            { label: '1주일', days: 7 },
+            { label: '15일', days: 15 },
+            { label: '1개월', days: 30 },
+            { label: '3개월', days: 90 },
+            { label: '6개월', days: 180 },
+          ].map(({ label, days }) => (
+            <button
+              key={days}
+              className={`${styles.periodBtn} ${activeBtn === days ? styles.active : ''}`}
+              onClick={() => handlePeriod(days)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className={styles.dateRange}>
+          <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          <span className={styles.dateSeparator}>~</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            className={styles.dateInput}
+          />
+        </div>
+      </div>
+     
+      <div className={styles.statusCards}>
+        {[
+          { label: '결제완료', key: 'PAID', color: '#4caf50' },
+          { label: '상품준비중', key: 'PREPARING', color: '#ff9800' },
+          { label: '배송중', key: 'SHIPPING', color: '#2196f3' },
+          { label: '배송완료', key: 'DELIVERED', color: '#9c27b0' },
+        ].map(({ label, key, color }) => (
+          <div key={key} className={styles.statusCard}>
+            <p className={styles.statusLabel} style={{ color }}>{label}</p>
+            <p className={styles.statusCount}>{statusCount(key)}건</p>
+          </div>
+        ))}
+      </div>
+      {/* 주문 내역 테이블 */}
+      <h3 className={styles.title}>주문 내역</h3>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>주문번호</th>
+              <th>주문일</th>
+              <th>상품</th>
+              <th>수량</th>
+              <th>금액</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan={6} className={styles.empty}>주문 내역이 없습니다.</td>
+              </tr>
+            ) : (
+              orders.map(order => (
+                <tr key={order.orderId}>
+                  <td>{order.orderId}</td>
+                  <td>{order.orderCreatedAt}</td>
+                  <td>{order.orderItemDTOList?.[0]?.productName}</td>
+                  <td>{order.orderItemDTOList?.[0]?.orderItemQty}</td>
+                  <td>{order.orderTotalPrice?.toLocaleString()}원</td>
+                  <td>{order.orderStatus}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

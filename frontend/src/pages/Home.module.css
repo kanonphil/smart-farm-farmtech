@@ -1,0 +1,75 @@
+.section {
+  width: 1200px;
+  margin: 60px auto;
+}
+
+.sectionHeader {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.sectionTitle::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 3px;
+  background: #c00;
+  margin-top: 6px;
+}
+
+.card {
+  cursor: pointer;
+}
+
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.card:hover .image {
+  transform: scale(1.04);
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #aaa;
+}
+
+.info {
+  padding: 12px 4px;
+}
+
+.name {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
