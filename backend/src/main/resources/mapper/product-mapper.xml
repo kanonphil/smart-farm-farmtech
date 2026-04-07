@@ -116,6 +116,21 @@
         </choose>
     </select>
 
+    <!-- 매니저 상품 전체 목록 조회 (V_MANAGER_PRODUCT_LIST VIEW 사용, 상태 필터 없음) -->
+    <select id="selectProductListManager" resultMap="productListMap">
+        SELECT
+            PRODUCT_ID,
+            CATEGORY_ID,
+            PRODUCT_NAME,
+            PRODUCT_PRICE,
+            PRODUCT_STOCK,
+            PRODUCT_STATUS,
+            MAIN_IMAGE,
+            SALES_COUNT
+        FROM V_MANAGER_PRODUCT_LIST
+        ORDER BY PRODUCT_ID DESC
+    </select>
+
     <!--  상품 상세 정보 조회  -->
     <select id="getProductDetail" resultMap="productResultMap">
         SELECT *
@@ -123,5 +138,28 @@
         WHERE P.PRODUCT_ID = I.PRODUCT_ID
         AND P.PRODUCT_ID = #{productId}
     </select>
+
+    <!--  상품 삭제 (단건) -->
+    <delete id="deleteProduct">
+        DELETE FROM PRODUCT
+        WHERE PRODUCT_ID = #{productId}
+    </delete>
+
+    <!--  상품 이미지 삭제-->
+    <delete id="deleteProductImage">
+        DELETE FROM PRODUCT_IMAGE
+        WHERE PRODUCT_ID = #{productId}
+    </delete>
+
+    <update id="updateProduct">
+        UPDATE PRODUCT
+        SET CATEGORY_ID    = #{categoryId},
+            PRODUCT_NAME   = #{productName},
+            PRODUCT_PRICE  = #{productPrice},
+            PRODUCT_STOCK  = #{productStock},
+            PRODUCT_STATUS = #{productStatus}
+        WHERE PRODUCT_ID = #{productId}
+    </update>
+
 
 </mapper>
