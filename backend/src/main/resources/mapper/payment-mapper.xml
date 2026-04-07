@@ -32,4 +32,25 @@
             PAYMENT_KEY = #{paymentKey}
         WHERE TOSS_ORDER_ID = #{orderId}
     </update>
+    
+    <!-- orderId(int)로 주문 조회 -->
+    <select id="selectOrderByOrderId" resultMap="payment">
+        SELECT ORDER_ID,
+               MEMBER_ID,
+               ORDER_STATUS,
+               ORDER_TOTAL_PRICE,
+               TOSS_ORDER_ID,
+               PAYMENT_KEY
+        FROM ORDERS
+        WHERE ORDER_ID = #{orderId}
+    </select>
+
+    <!-- 환불 완료 상태 변경 -->
+    <update id="updateOrderRefunded">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'REFUNDED',
+            CANCEL_REASON = #{cancelReason}
+        WHERE ORDER_ID = #{orderId}
+          AND ORDER_STATUS = 'PAID'
+    </update>
 </mapper>

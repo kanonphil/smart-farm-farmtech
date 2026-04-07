@@ -25,4 +25,7 @@ public interface OrderMapper {
   // 내 주문 내역 조회 메서드
   List<OrderDTO> getOrderList(int memberId, String startDate, String endDate);
 
+  // 주문 취소 메서드
+  void cancelOrder(@Param("tossOrderId") String tossOrderId, @Param("cancelReason") String cancelReason);
+
 }

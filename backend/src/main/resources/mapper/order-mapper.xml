@@ -106,5 +106,10 @@
         ORDER BY O.ORDER_CREATED_AT DESC
     </select>
 
-
+    <update id="cancelOrder" parameterType="map">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'REFUNDED',
+            CANCEL_REASON = #{cancelReason}
+        WHERE TOSS_ORDER_ID = #{tossOrderId}
+    </update>
 </mapper>

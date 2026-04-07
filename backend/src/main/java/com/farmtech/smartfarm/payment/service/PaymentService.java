@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
@@ -147,7 +148,7 @@ public class PaymentService {
     // ------------------------------------------
     // 토스는 "secretKey:" 문자열을 Base64 인코딩해서
     // Authorization: Basic xxx 형태로 보낸다.
-    System.out.println("secretKey: " + secretKey);
+    // System.out.println("secretKey: " + secretKey);
 
     String encodedAuth = Base64.getEncoder().encodeToString(
             (secretKey + ":").getBytes(StandardCharsets.UTF_8)
@@ -208,4 +209,52 @@ public class PaymentService {
       throw new IllegalArgumentException("amount 값이 올바르지 않습니다.");
     }
   }
+
+  @Value("${toss.payments.cancel-base-url}")
+  private String cancelBaseUrl;
+
+  @Transactional
+  public void cancelPayment(int orderId, String cancelReason) {
+    // 1. 주문 조회
+    PaymentDTO dto = paymentMapper.selectOrderByOrderId(orderId);
+    if (dto == null) throw new IllegalArgumentException("해당 주문을 찾을 수 없습니다.");
+
+    // 2. 상태 확인
+    if (!"PAID".equals(dto.getOrderStatus())) {
+      throw new IllegalArgumentException("환불 가능한 주문 상태가 아닙니다.");
+    }
+
+    // 3. Toss 취소 API 호출
+    String encodedAuth = Base64.getEncoder().encodeToString(
+            (secretKey + ":").getBytes(StandardCharsets.UTF_8)
+    );
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set("Authorization", "Basic " + encodedAuth);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("cancelReason", cancelReason);
+
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+    RestTemplate restTemplate = new RestTemplate();
+
+    try {
+      restTemplate.exchange(
+              cancelBaseUrl + dto.getPaymentKey() + "/cancel",
+              HttpMethod.POST,
+              entity,
+              Map.class
+      );
+    } catch (HttpClientErrorException e) {
+      if (!e.getResponseBodyAsString().contains("ALREADY_CANCELED_PAYMENT")) {
+        throw e;
+      }
+    }
+
+    // 4. 상태 변경
+    int result = paymentMapper.updateOrderRefunded(orderId, cancelReason);
+    if (result != 1) throw new IllegalArgumentException("주문 상태 업데이트에 실패했습니다.");
+  }
+
 }

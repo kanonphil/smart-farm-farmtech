@@ -4,11 +4,15 @@ import com.farmtech.smartfarm.payment.dto.PaymentConfirmRequestDTO;
 import com.farmtech.smartfarm.payment.dto.TossConfirmResponseDTO;
 import com.farmtech.smartfarm.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * 결제 관련 요청을 받는 컨트롤러
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * paymentKey, orderId, amount를 전달하면
  * 이 컨트롤러가 받아서 Service로 넘긴다
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
@@ -49,5 +54,20 @@ public class PaymentController {
 
     // 성공 시 200 OK + 응답 데이터 반환
     return ResponseEntity.ok(responseDTO);
+  }
+
+  @PostMapping("/cancel")
+  public ResponseEntity<?> cencelPayment(@RequestBody Map<String, Object> request) {
+    try {
+      int orderId = (int) request.get("orderId");
+      String cancelReason = (String) request.getOrDefault("cancelReason", "고객 변심");
+      paymentService.cancelPayment(orderId, cancelReason);
+      return ResponseEntity.ok().build();
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+      log.error("결제 취소 오류",e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 }
