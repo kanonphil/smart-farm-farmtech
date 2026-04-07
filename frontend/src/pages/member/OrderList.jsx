@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styles from './OrderList.module.css'
 import { getOrderList } from '../../api/product/product'    
+import { cancelPaymentApi } from '../../api/paymentApi'
+import Button from '../../components/common/Button'
+import Modal from '../../components/common/Modal'
+import Textarea from '../../components/common/Textarea'
 
 const OrderList = () => {
   //조회 시작 날짜 저장변수
@@ -9,6 +13,9 @@ const OrderList = () => {
   const[endDate, setEndDate] = useState('')
   
   const[activeBtn, setActiveBtn] = useState(30)
+
+  const [cancelModal, setCancelModal] = useState({ isOpen: false, orderId: null })
+  const [cancelReason, setCancelReason] = useState('')
 
   //버튼 클릭 시 날짜변경
   const handlePeriod = (days) => {
@@ -57,7 +64,22 @@ const OrderList = () => {
     }
   }
 
+  // 버튼 클릭 핸들러
+  const handleCancelClick = (orderId) => {
+    setCancelModal({ isOpen: true, orderId })
+    setCancelReason('')
+  }
 
+  const handleCancelConfirm = async () => {
+    if (!cancelReason.trim()) {
+      alert('환불 사유를 입력해주세요')
+      return
+    }
+    await cancelPaymentApi(cancelModal.orderId, cancelReason)
+    setCancelModal({ isOpen: false, orderId: null })
+    // 목록 새로고침
+    fetchOrders()
+  }
 
   return (
     <div className={styles.container}>
@@ -122,6 +144,7 @@ const OrderList = () => {
               <th>수량</th>
               <th>금액</th>
               <th>상태</th>
+              <th>취소</th>
             </tr>
           </thead>
           <tbody>
@@ -138,12 +161,42 @@ const OrderList = () => {
                   <td>{order.orderItemDTOList?.[0]?.orderItemQty}</td>
                   <td>{order.orderTotalPrice?.toLocaleString()}원</td>
                   <td>{changeStatus(order.orderStatus)}</td>
+                  <td>{order.orderStatus === 'PAID' && (
+                    <Button 
+                      variant='danger'
+                      size='small'
+                      onClick={() => handleCancelClick(order.orderId)}
+                    >
+                      주문 취소
+                    </Button>
+                  )}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+      <Modal
+        isOpen={cancelModal.isOpen}
+        onClose={() => setCancelModal({ isOpen: false, orderId: null })}
+        title='주문 취소 (환불)'
+        width='480px'
+      >
+        <p style={{ marginBottom: '12px', color: '#555' }}>환불 사유를 입력해주세요.</p>
+        <Textarea
+          value={cancelReason}
+          onChange={e => setCancelReason(e.target.value)}
+          placeholder='환불 사유를 입력하세요.'
+        />
+        <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
+          <Button variant='secondary' size='small' onClick={() => setCancelModal({ isOpen: false, orderId: null })}>
+            닫기
+          </Button>
+          <Button variant='danger' size='small' onClick={handleCancelConfirm}>
+            환불 신청
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }

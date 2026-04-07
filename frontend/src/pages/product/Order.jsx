@@ -6,7 +6,7 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import Textarea from '../../components/common/Textarea'
 import { FaCcAmazonPay } from "react-icons/fa6";
-import { insertOrder } from '../../api/product/product'
+import { insertOrder } from '../../api/orderApi'
 import { getAllInfos } from '../../api/member/memberApi'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ANONYMOUS, loadTossPayments } from '@tosspayments/tosspayments-sdk'
@@ -182,6 +182,10 @@ const Order = () => {
       }))
     })
     const tossOrderId = response.data.tossOrderId
+
+    // sessionStrage에 cartItemIds 저장
+    const cartItemIds = state.orderItems.map(item => item.cartItemId)
+    sessionStorage.setItem('pendingCartItemIds', JSON.stringify(cartItemIds))
 
     // 2. TossPayments 직접 호출
     const tossPayments = await loadTossPayments(CLIENT_KEY)
