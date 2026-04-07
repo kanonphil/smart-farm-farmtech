@@ -47,4 +47,46 @@ public class ReviewController {
   public ResponseEntity<List<ReviewDTO>> getReviews(@PathVariable int productId) {
     return ResponseEntity.ok(reviewService.getReviewsByProductId(productId));
   }
+
+  //작성한 리뷰 조회 api
+  @GetMapping("/my")
+  public ResponseEntity<?> getMyReviews(
+          @RequestParam String startDate,
+          @RequestParam String endDate,
+          @AuthenticationPrincipal CustomUserDetails userDetail) {
+    int memberId = userDetail.getMemberDTO().getMemberId();
+    return ResponseEntity.ok(reviewService.getMyReviews(memberId, startDate, endDate));
+  }
+
+  //아직 작성하지 않은 리뷰 조회 api
+  @GetMapping("/unreviewed")
+  public ResponseEntity<?> getUnreviewedItems(
+          @RequestParam String startDate,
+          @RequestParam String endDate,
+          @AuthenticationPrincipal CustomUserDetails userDetail) {
+    int memberId = userDetail.getMemberDTO().getMemberId();
+    return ResponseEntity.ok(reviewService.getUnreviewedOrderItems(memberId, startDate, endDate));
+  }
+
+  //리뷰 수정 api
+  @PutMapping("/{reviewId}")
+  public ResponseEntity<?> updateReview(
+          @PathVariable int reviewId,
+          @RequestBody ReviewDTO reviewDTO,
+          @AuthenticationPrincipal CustomUserDetails userDetail) {
+    reviewDTO.setReviewId(reviewId);
+    reviewDTO.setMemberId(userDetail.getMemberDTO().getMemberId());
+    reviewService.updateReview(reviewDTO);
+    return ResponseEntity.ok().build();
+  }
+
+  //리뷰 삭제 api
+  @DeleteMapping("/{reviewId}")
+  public ResponseEntity<?> deleteReview(
+          @PathVariable int reviewId,
+          @AuthenticationPrincipal CustomUserDetails userDetail) {
+    int memberId = userDetail.getMemberDTO().getMemberId();
+    reviewService.deleteReview(reviewId, memberId);
+    return ResponseEntity.ok().build();
+  }
 }

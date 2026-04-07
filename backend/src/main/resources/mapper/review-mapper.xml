@@ -12,6 +12,17 @@
         <result column="RATING" property="rating" />
         <result column="CONTENT" property="content" />
         <result column="CREATED_AT" property="createdAt" />
+        <result column="PRODUCT_NAME" property="productName" />
+        <result column="PRODUCT_PRICE" property="productPrice" />
+    </resultMap>
+
+    <resultMap id="unreviewedItemMap" type="com.farmtech.smartfarm.review.dto.UnreviewedItemDTO">
+        <id column="ORDER_ITEM_ID" property="orderItemId" />
+        <result column="PRODUCT_ID" property="productId" />
+        <result column="ORDER_ITEM_QTY" property="orderItemQty" />
+        <result column="ORDER_ITEM_PRICE" property="orderItemPrice" />
+        <result column="PRODUCT_NAME" property="productName" />
+        <result column="orderDate" property="orderDate" />
     </resultMap>
 
     <!-- 리뷰 등록 쿼리 -->
@@ -58,4 +69,60 @@
         FROM ORDER_ITEM
         WHERE ORDER_ITEM_ID = #{orderItemId}
     </select>
+
+<!--  내가 작성한 리뷰 목록  -->
+    <select id="getMyReviews" resultMap="reviewMap">
+        SELECT
+            r.REVIEW_ID,
+            r.MEMBER_ID,
+            r.PRODUCT_ID,
+            r.ORDER_ITEM_ID,
+            r.RATING,
+            r.CONTENT,
+            r.CREATED_AT,
+            p.PRODUCT_NAME,
+            p.PRODUCT_PRICE
+        FROM REVIEW r
+        JOIN PRODUCT p ON r.PRODUCT_ID = p.PRODUCT_ID
+        WHERE r.MEMBER_ID = #{memberId}
+        AND r.CREATED_AT BETWEEN #{startDate} AND #{endDate} + INTERVAL 1 DAY
+        ORDER BY r.CREATED_AT DESC
+    </select>
+
+<!--  리뷰 미작성 주문 상품 목록  -->
+    <select id="getUnreviewedOrderItems" resultMap="unreviewedItemMap">
+        SELECT
+            oi.ORDER_ITEM_ID,
+            oi.PRODUCT_ID,
+            oi.ORDER_ITEM_QTY,
+            oi.ORDER_ITEM_PRICE,
+            p.PRODUCT_NAME,
+            o.ORDER_CREATED_AT AS orderDate
+        FROM ORDER_ITEM oi
+        JOIN ORDERS o ON oi.ORDER_ID = o.ORDER_ID
+        JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
+        WHERE o.MEMBER_ID = #{memberId}
+        AND o.ORDER_CREATED_AT BETWEEN #{startDate} AND #{endDate} + INTERVAL 1 DAY
+        AND o.ORDER_STATUS = 'DONE'
+        AND NOT EXISTS (
+            SELECT 1 FROM REVIEW r WHERE r.ORDER_ITEM_ID = oi.ORDER_ITEM_ID
+        )
+        ORDER BY o.ORDER_CREATED_AT DESC
+    </select>
+
+    <!-- 리뷰 수정 -->
+    <update id="updateReview">
+        UPDATE REVIEW
+        SET RATING = #{rating},
+        CONTENT = #{content}
+        WHERE REVIEW_ID = #{reviewId}
+        AND MEMBER_ID = #{memberId}
+    </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteReview">
+        DELETE FROM REVIEW
+        WHERE REVIEW_ID = #{reviewId}
+        AND MEMBER_ID = #{memberId}
+    </delete>
 </mapper>

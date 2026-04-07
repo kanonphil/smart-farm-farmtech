@@ -42,4 +42,7 @@ public interface ProductMapper {
 
   void deleteProductImageByType(@Param("productId") int productId,
                                 @Param("imageType") String imageType);
+  // 재고가 있는 전체 활성 상품 목록 조회 (AI 매칭용)
+  // productId와 productName만 가져와 Gemini 프롬프트에 포함시킨다.
+  List<ProductListDTO> selectActiveProducts();
 }
