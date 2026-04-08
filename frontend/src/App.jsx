@@ -26,6 +26,7 @@ import Order from "./pages/product/Order"
 import Products from "./pages/manager/Products"
 import FindAccount from "./pages/member/FindAccount"
 import AiChef from "./pages/ai/AiChef"
+import UserReview from "./pages/info/UserReview"
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="order" element={<Order/>}/>
           <Route path="find-account" element={<FindAccount />} />
           <Route path="ai-chef" element={<AiChef/>} />
+          <Route path="user-reviews" element={<UserReview/>} />
         </Route>
 
         {/* 관리자 페이지 */}

@@ -68,7 +68,7 @@ const BasicHeader = () => {
             <li>공지사항</li>
             <Link to='/ai-chef'><li>AI셰프</li></Link>
             <Link to='/products'><li>한우</li></Link>
-            <li>세트상품</li>
+            <Link to='/user-reviews'><li>고객리뷰</li></Link>
           </ul>
         </div>
         <div className={styles.search_div}>
