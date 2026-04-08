@@ -124,13 +124,9 @@ public class PaymentService {
     }
 
     // ---------------------------
-    // 8. 재고 차감 (선택)
+    // 8. 재고 차감
     // ---------------------------
-    // 지금은 공부 단계니까 일단 보류 가능
-    // 나중에 여기서 order_item 조회 후 product 재고 차감하면 됨
-    //
-    // 예:
-    // paymentMapper.decreaseProductStockByOrderId(requestDto.getOrderId());
+    paymentMapper.decreaseProductStock(dto.getOrderId());
 
     // 최종적으로 토스 응답을 그대로 반환
     return tossResponse;
@@ -255,6 +251,10 @@ public class PaymentService {
     // 4. 상태 변경
     int result = paymentMapper.updateOrderRefunded(orderId, cancelReason);
     if (result != 1) throw new IllegalArgumentException("주문 상태 업데이트에 실패했습니다.");
+
+    // 5. 재고 복구
+    paymentMapper.restoreProductStock(orderId);
+
   }
 
 }

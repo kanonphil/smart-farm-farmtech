@@ -4,12 +4,13 @@ import styles from './Login.module.css'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import { goLogin } from '../../api/member/memberApi'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { decodeToken } from '../../utils/tokenUtils'
 import useAuthStore from '../../store/authStore'
 
 const Login = () => {
   const nav = useNavigate();
+  const location = useLocation()
 
   // store에서 setToken 함수 가져오기
   // 로그인 성공 시 이 함수로 토큰을 전역 상태에 저장할 것
@@ -105,7 +106,7 @@ const Login = () => {
           return;
         }
         // 아닐경우 메인페이지 이동
-        nav('/')
+        nav(location.state?.from ||  '/')
       }
     }catch{
       alert('이메일 또는 비밀번호를 확인해주세요.')
