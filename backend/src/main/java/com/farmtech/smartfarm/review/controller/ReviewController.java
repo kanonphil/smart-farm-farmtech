@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/reviews")
@@ -26,14 +29,15 @@ public class ReviewController {
    * @param userDetail JWT 인증 정보
    * @return 200 OK
    */
-  @PostMapping("")
+  @PostMapping(consumes = "multipart/form-data")
   public ResponseEntity<?> insertReview(
-          @RequestBody ReviewDTO reviewDTO,
-          @AuthenticationPrincipal CustomUserDetails userDetail
-  ) {
+          @ModelAttribute ReviewDTO reviewDTO,
+          @AuthenticationPrincipal CustomUserDetails userDetail,
+          @RequestParam(value = "imgFile", required = false)MultipartFile imgFile
+          ) throws IOException {
     // JWT에서 memberId 주입 (프론트에서 받지 않음)
     reviewDTO.setMemberId(userDetail.getMemberDTO().getMemberId());
-    reviewService.insertReview(reviewDTO);
+    reviewService.insertReview(reviewDTO,imgFile);
     return ResponseEntity.ok().build();
   }
 
@@ -88,5 +92,19 @@ public class ReviewController {
     int memberId = userDetail.getMemberDTO().getMemberId();
     reviewService.deleteReview(reviewId, memberId);
     return ResponseEntity.ok().build();
+  }
+
+  //고객 리뷰 조회
+  @GetMapping("/customer")
+  public ResponseEntity<?> selectReviewCustomer(){
+    List<ReviewDTO> list = reviewService.selectReviewCustomer();
+    return ResponseEntity.ok().body(list);
+  }
+
+  //고객 총 리뷰수, 평균평점, 7일, 30일(리뷰,평점)
+  @GetMapping("/ratingAndReviews")
+  public ResponseEntity<?> ratingAndReviews(){
+    Map<String,Object> list = reviewService.ratingAndReviews();
+    return ResponseEntity.ok().body(list);
   }
 }

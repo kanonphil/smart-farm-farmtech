@@ -64,3 +64,15 @@ export const deleteReview = async (reviewId) => {
   const response = await axiosInstance.delete(`/reviews/${reviewId}`)
   return response
 }
+
+// 고객 리뷰 최신순 각각 조회
+export const getReviews = async() => {
+  const response = await axiosInstance.get("reviews/customer")
+  return response;
+}
+
+// 고객 별점, 리뷰수 조회
+export const getReviewRating = async() => {
+  const response = await axiosInstance.get('reviews/ratingAndReviews')
+  return response;
+}
