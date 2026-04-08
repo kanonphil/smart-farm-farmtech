@@ -29,10 +29,12 @@
     <update id="updateOrderPaid">
         UPDATE ORDERS
         SET ORDER_STATUS = 'PAID',
-            PAYMENT_KEY = #{paymentKey}
+            PAYMENT_KEY  = #{paymentKey},
+            PAID_AT      = NOW()
         WHERE TOSS_ORDER_ID = #{orderId}
     </update>
-    
+
+
     <!-- orderId(int)로 주문 조회 -->
     <select id="selectOrderByOrderId" resultMap="payment">
         SELECT ORDER_ID,
