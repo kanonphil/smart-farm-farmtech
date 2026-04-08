@@ -6,12 +6,17 @@ import Button from '../../components/common/Button'
 import Modal from '../../components/common/Modal'
 import Textarea from '../../components/common/Textarea'
 import { insertReview } from '../../api/reviewApi'
+import Input from '../../components/common/Input'
 
 const OrderList = () => {
   //조회 시작 날짜 저장변수
   const[startDate, setStartDate] = useState('')
   //조회 엔드 날짜 저장변수
   const[endDate, setEndDate] = useState('')
+  //이미지등록 포토리뷰 저장변수 
+  const [reviewImage, setReviewImage] = useState();
+  //이미지등록 프리뷰
+  const [preview,setPreview] =useState();
   
   const[activeBtn, setActiveBtn] = useState(30)
 
@@ -90,17 +95,22 @@ const OrderList = () => {
     setReviewModal({ isOpen: true, orderItemId })
     setRating(0)
     setReviewContent('')
+    setReviewImage();
+    setPreview();
   }
 
   const handleReviewSubmit = async () => {
     if (rating === 0) { alert('별점을 선택해주세요.'); return }
     if (!reviewContent.trim()) { alert('리뷰 내용을 입력해주세요.'); return }
-    await insertReview({
-      orderItemId: reviewModal.orderItemId,
-      rating,
-      content: reviewContent
-    })
-    setReviewModal({ isOpen: false, orderItemId: null, productId: null })
+
+    const formData = new FormData()
+    formData.append('orderItemId', reviewModal.orderItemId);
+    formData.append('rating', rating);
+    formData.append('content', reviewContent);
+    if(reviewImage) formData.append('imgFile',reviewImage);
+
+    await insertReview(formData);
+    setReviewModal({ isOpen: false, orderItemId: null})
     alert('리뷰가 등록되었습니다.')
   }
 
@@ -291,21 +301,45 @@ const OrderList = () => {
         title='리뷰 작성'
         width='480px'
       >
-        <p style={{ marginBottom: '8px' }}>별점</p>
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', fontSize: '28px' }}>
-          {[1, 2, 3, 4, 5].map(star => (
-            <span
-              key={star}
-              style={{ cursor: 'pointer', color: star <= rating ? '#fbbf24' : '#d1d5db' }}
-              onClick={() => setRating(star)}
-            >★</span>
-          ))}
+        <div className={styles.reviewContent}>
+          <div>
+            <p style={{ marginBottom: '8px' }}>별점</p>
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', fontSize: '28px' }}>
+              {[1, 2, 3, 4, 5].map(star => (
+                <span
+                  key={star}
+                  style={{ cursor: 'pointer', color: star <= rating ? '#fbbf24' : '#d1d5db' }}
+                  onClick={() => setRating(star)}
+                >★</span>
+              ))}
+            </div>
+          </div>
+          <div className={styles.reviewPreview}>
+            {preview && <img src={preview} style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              borderRadius: '8px',    // 이미지 둥근 테두리
+              objectFit: 'contain',   // 비율 유지하며 박스 안에 맞춤
+              display: 'block',
+            }}/>}
+          </div>
         </div>
+        
         <Textarea
           label='리뷰 내용'
           value={reviewContent}
           onChange={e => setReviewContent(e.target.value)}
           placeholder='상품에 대한 솔직한 리뷰를 남겨주세요.'
+        />
+        <p style={{marginBottom:'10px'}}>사진을 선택해주세요.</p>
+        <Input
+          type='file'
+          accept='image/*'
+          onChange={e => {
+            const file = e.target.files[0]
+            setReviewImage(file);
+            setPreview(file ? URL.createObjectURL(file) : null);
+          }}
         />
         <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
           <Button variant='secondary' size='small' onClick={() => setReviewModal({ isOpen: false, orderItemId: null})}>

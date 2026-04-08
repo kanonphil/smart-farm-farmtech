@@ -128,3 +128,18 @@
   color: #aaa;
   padding: 40px 0;
 }
+.reviewContent{
+  display: flex;
+}
+.reviewPreview {
+   width: 150px;
+  height: 150px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+
+  margin-left: 100px;  
+  margin-right: 12px;
+}
