@@ -27,7 +27,7 @@ public class OrderScheduler {
   /**
    * 스케줄러 1: 배송 완료 자동 처리
    * 매 시간 정각 실행
-   * SHIPPING 상태 중 expectedDeliveredAt이 현재 시각 이전인 주문을 SHIPPED로 변경
+   * SHIPPING 상태 중 shippingStartedAt 기준 2일 경과한 주문을 SHIPPED로 변경
    */
   @Scheduled(cron = "0 0 * * * *")
   @Transactional
@@ -57,10 +57,7 @@ public class OrderScheduler {
   /**
    * 스케줄러 2: 구매 확정 자동 처리
    * 매 시간 30분에 실행 (스케줄러 1과 분산)
-   * SHIPPED 상태 중 paidAt + 7일이 현재 시각 이전인 주문을 DONE으로 변경
-   *
-   * B안 적용: SHIPPED 상태에서만 자동 구매 확정
-   * 이유: 배송 완료 이전에 구매 확정하면 UX 혼란 발생
+   * SHIPPED 상태 중 shippedAt 기준 5일 경과한 주문을 DONE으로 변경
    */
   @Scheduled(cron = "0 30 * * * *")
   @Transactional

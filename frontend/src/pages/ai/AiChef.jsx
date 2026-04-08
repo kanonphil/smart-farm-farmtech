@@ -389,7 +389,7 @@ const AiChef = () => {
                 <ol className={styles.stepList}>
                   {result.recipe.steps.map((step, i) => (
                     <li key={i} className={styles.stepItem}>
-                      <span className={styles.stepNumber}>{i + 1}</span>
+                      {/* <span className={styles.stepNumber}>{i + 1}</span> */}
                       {step}
                     </li>
                   ))}

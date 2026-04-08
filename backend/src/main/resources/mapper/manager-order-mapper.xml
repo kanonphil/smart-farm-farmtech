@@ -64,11 +64,12 @@
     </update>
 
     <!-- 자동 배송 완료 대상 조회 -->
+    <!-- SHIPPING 상태 중 SHIPPING_STARTED_AT 기준 2일 경과한 주문 -->
     <select id="selectAutoShipTargets" resultMap="managerOrderMap">
-        SELECT ORDER_ID, ORDER_STATUS, EXPECTED_DELIVERED_AT
+        SELECT ORDER_ID, ORDER_STATUS, SHIPPING_STARTED_AT
         FROM ORDERS
-        WHERE ORDER_STATUS          = 'SHIPPING'
-          AND EXPECTED_DELIVERED_AT &lt;= #{now}
+        WHERE ORDER_STATUS = 'SHIPPING'
+          AND DATE_ADD(SHIPPING_STARTED_AT, INTERVAL 2 DAY) &lt;= #{now}
     </select>
 
     <!-- 배송 완료 처리 (SHIPPING → SHIPPED) -->
@@ -80,12 +81,12 @@
           AND ORDER_STATUS = 'SHIPPING'
     </update>
 
-    <!-- 자동 구매 확정 대상 조회 (SHIPPED + paidAt + 7일 경과) -->
+    <!-- 자동 구매 확정 대상 조회 (SHIPPED 상태 중 SHIPPED_AT 기준 5일 경과) -->
     <select id="selectAutoConfirmTargets" resultMap="managerOrderMap">
-        SELECT ORDER_ID, ORDER_STATUS, PAID_AT
+        SELECT ORDER_ID, ORDER_STATUS, SHIPPED_AT
         FROM ORDERS
         WHERE ORDER_STATUS = 'SHIPPED'
-          AND DATE_ADD(PAID_AT, INTERVAL 7 DAY) &lt;= #{now}
+          AND DATE_ADD(SHIPPED_AT, INTERVAL 5 DAY) &lt;= #{now}
     </select>
 
     <!-- 구매 확정 처리 (→ DONE) -->

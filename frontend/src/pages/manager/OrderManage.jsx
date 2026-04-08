@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { getManagerOrderList, startShipping } from '../../api/orderApi'
+import Pagination from '../../components/common/Pagination'
 import styles from './OrderManage.module.css'
 
 /**
@@ -17,6 +18,11 @@ const OrderManage = () => {
   const [errorMsg, setErrorMsg] = useState('')
   /** 배송 시작 처리 중인 주문 ID */
   const [shippingLoadingId, setShippingLoadingId] = useState(null)
+  /** 현재 페이지 (0-based) */
+  const [currentPage, setCurrentPage] = useState(0)
+
+  /** 페이지당 항목 수 */
+  const PAGE_SIZE = 10
 
   /**
    * 주문 목록 조회
@@ -37,6 +43,17 @@ const OrderManage = () => {
   useEffect(() => {
     fetchOrders()
   }, [fetchOrders])
+
+  /** 주문 목록 변경 시 첫 페이지로 초기화 */
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [orders])
+
+  /** 전체 페이지 수 */
+  const totalPages = Math.ceil(orders.length / PAGE_SIZE)
+
+  /** 현재 페이지에 표시할 주문 목록 */
+  const displayedOrders = orders.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
 
   /**
    * 배송 시작 버튼 클릭 핸들러
@@ -93,7 +110,7 @@ const OrderManage = () => {
       {/* 헤더 */}
       <div className={styles.header}>
         <h1 className={styles.title}>주문 관리</h1>
-        <p className={styles.subtitle}>전체 {orders.length}건</p>
+        <p className={styles.subtitle}>전체 {orders.length}건 ({currentPage + 1} / {totalPages || 1} 페이지)</p>
       </div>
 
       {/* 상태 요약 */}
@@ -145,12 +162,12 @@ const OrderManage = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.length === 0 ? (
+              {displayedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={9} className={styles.empty}>주문 내역이 없습니다.</td>
                 </tr>
               ) : (
-                orders.map(order => (
+                displayedOrders.map(order => (
                   <tr key={order.orderId}>
                     <td className={styles.idCell}>#{order.orderId}</td>
                     <td>{order.memberId}</td>
@@ -193,6 +210,15 @@ const OrderManage = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* 페이지네이션 */}
+      {!isLoading && !errorMsg && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
     </div>
   )
