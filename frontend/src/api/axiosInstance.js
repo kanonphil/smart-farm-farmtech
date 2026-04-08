@@ -1,4 +1,6 @@
 import axios from "axios";
+import useAuthStore from '../store/authStore'
+
 
 //axios 객체 생성 -> 앞으로 모든 통신은 해당 객체로 진행
 export const axiosInstance = axios.create({
@@ -11,7 +13,10 @@ export const axiosInstance = axios.create({
 //두번째 매개변수 : 요청 중 오류 발생 시 내용, 화살표 함수
 axiosInstance.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token');
+    // Zustand store에서 토큰 읽기
+    // getState()는 훅 없이 store 값을 직접 꺼내는 방법
+    // React 컴포넌트 밖에서 store에 접근할 때 사용
+    const token = useAuthStore.getState().token
 
     if(token){
       config.headers.Authorization = token
@@ -45,11 +50,11 @@ axiosInstance.interceptors.response.use(
       try{
         const response = await axiosInstance.post('/members/refresh')
         const newToken = response.headers['authorization']
-        localStorage.setItem('token', newToken)
+        useAuthStore.getState().setToken(newToken)
         error.config.headers['Authorization'] = newToken
         return axiosInstance(error.config)
       } catch (e) {
-        localStorage.removeItem('token')
+        useAuthStore.getState().clearToken()
         alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
         window.location.href = '/login'
       } finally {

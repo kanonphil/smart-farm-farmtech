@@ -5,12 +5,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/tokenUtils';
 import { logoutAPI } from '../../api/member/memberApi';
 import { useState } from 'react';
+import useAuthStore from '../../store/authStore';
 
 const BasicHeader = () => {
   const nav = useNavigate();
 
-  const decoded = decodeToken(localStorage.getItem('token'))
-  console.log(decoded)
+  // store에서 token 가져오기
+  // token이 바뀌면 이 컴포넌트가 자동으로 리렌더링됨
+  const { token, clearToken } = useAuthStore()
+
+  const decoded = decodeToken(token)
 
 
   //로그아웃 함수
@@ -20,7 +24,8 @@ const BasicHeader = () => {
     }catch(e){
       console.error('로그아웃 오류', e)
     }finally{
-      localStorage.removeItem('token')
+      //store에서 토큰 삭제
+      clearToken()
       alert('로그아웃 되었습니다')
       nav('/')
     }
@@ -68,7 +73,7 @@ const BasicHeader = () => {
             <li>공지사항</li>
             <Link to='/ai-chef'><li>AI셰프</li></Link>
             <Link to='/products'><li>한우</li></Link>
-            <li>세트상품</li>
+            <Link to='/user-reviews'><li>고객리뷰</li></Link>
           </ul>
         </div>
         <div className={styles.search_div}>

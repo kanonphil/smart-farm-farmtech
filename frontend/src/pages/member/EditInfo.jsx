@@ -6,12 +6,14 @@ import { decodeToken } from '../../utils/tokenUtils'
 import { getAllInfo, setInfo } from '../../api/member/memberApi'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/common/Button'
+import useAuthStore from '../../store/authStore'
+
 
 const EditInfo = () => {
   const nav = useNavigate()
   
-  //로그인 회원 토큰 정보 저장 변수
-  const decoded = decodeToken(localStorage.getItem('token'))
+  const { token } = useAuthStore()
+  const decoded = decodeToken(token)
 
   //로그인 한 회원 전체 정보 저장 state 변수
   const [memberInfo, setMemberInfo] = useState({})
@@ -60,7 +62,6 @@ const EditInfo = () => {
     }
   },[])
 
-  console.log(memberInfo)
 
   //입력값 변경 핸들러
   const handleChange = (field) => (e) => {

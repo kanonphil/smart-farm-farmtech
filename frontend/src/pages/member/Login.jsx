@@ -6,9 +6,14 @@ import Button from '../../components/common/Button'
 import { goLogin } from '../../api/member/memberApi'
 import { Link, useNavigate } from 'react-router-dom'
 import { decodeToken } from '../../utils/tokenUtils'
+import useAuthStore from '../../store/authStore'
 
 const Login = () => {
   const nav = useNavigate();
+
+  // store에서 setToken 함수 가져오기
+  // 로그인 성공 시 이 함수로 토큰을 전역 상태에 저장할 것
+  const { setToken } = useAuthStore()
 
   // 자동 로그인 체크박스 state 변수
   const [autoLogin, setAutoLogin] = useState(false)
@@ -89,7 +94,8 @@ const Login = () => {
       const response = await goLogin({...loginData, autoLogin})
       console.log(response)
       if(response.status === 200){
-        localStorage.setItem('token', response.headers.authorization)
+        // Zustand store에 저장
+        setToken(response.headers.authorization)
         alert('로그인 성공')
         // 토큰 복호화하여 저장
         const decoded = decodeToken(response.headers.authorization)
