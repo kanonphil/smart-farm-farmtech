@@ -15,6 +15,7 @@ import OrderList from "./pages/member/OrderList"
 import Reviews from "./pages/member/Reviews"
 import Home from './pages/Home'
 import About from './pages/Info/About'
+import UserReview from './pages/Info/UserReview'
 import EditPassword from './pages/member/EditPassword'
 import Payments from './pages/payments/Payments'
 import PaymentSuccess from './pages/payments/PaymentSuccess'

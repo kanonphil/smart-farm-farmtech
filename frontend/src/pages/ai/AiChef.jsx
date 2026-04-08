@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styles from './AiChef.module.css'
 import { requestAiChefRecommendation } from '../../api/aiChefApi'
 import { insertCartItem } from '../../api/product/product'
+import useAuthStore from '../../store/authStore'
 
 // ─────────────────────────────────────────────────────────────────
 // 선택 옵션 상수
@@ -187,7 +188,7 @@ const AiChef = () => {
    */
   const handleAddToCart = async (productId) => {
     // 로그인 여부 확인
-    const token = localStorage.getItem('token')
+    const { token } = useAuthStore()
     if (!token) {
       if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동할까요?')) {
         navigate('/login')
