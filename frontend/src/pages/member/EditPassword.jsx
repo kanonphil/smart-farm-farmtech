@@ -5,10 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import { decodeToken } from '../../utils/tokenUtils'
 import { setPw } from '../../api/member/memberApi'
+import useAuthStore from '../../store/authStore'
+
 
 const EditPassword = () => {
   const nav = useNavigate();
-  const decoded = decodeToken(localStorage.getItem('token'))
+  const { token } = useAuthStore()
+  const decoded = decodeToken(token)
 
   // 새로운 비밀번호 저장 state변수
   const [newPw, setNewPw] = useState({
