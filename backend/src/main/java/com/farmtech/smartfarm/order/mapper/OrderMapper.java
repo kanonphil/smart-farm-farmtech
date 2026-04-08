@@ -5,6 +5,7 @@ import com.farmtech.smartfarm.order.dto.OrderItemDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -27,5 +28,10 @@ public interface OrderMapper {
 
   // 주문 취소 메서드
   void cancelOrder(@Param("tossOrderId") String tossOrderId, @Param("cancelReason") String cancelReason);
+
+  /** 회원 구매 확정 처리 */
+  int confirmOrder(@Param("orderId") int orderId,
+                   @Param("memberId") int memberId,
+                   @Param("confirmedAt") LocalDateTime confirmedAt);
 
 }
