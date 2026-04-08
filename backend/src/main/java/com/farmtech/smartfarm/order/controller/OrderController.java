@@ -1,6 +1,7 @@
 package com.farmtech.smartfarm.order.controller;
 
 import com.farmtech.smartfarm.member.dto.CustomUserDetails;
+import com.farmtech.smartfarm.order.dto.ConfirmOrderResponseDTO;
 import com.farmtech.smartfarm.order.dto.OrderDTO;
 import com.farmtech.smartfarm.order.dto.OrderItemDTO;
 import com.farmtech.smartfarm.order.dto.OrderRequestDTO;
@@ -64,4 +65,29 @@ public class OrderController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  /**
+   * 회원 구매 확정 API
+   * PATCH /orders/{orderId}/confirm
+   *
+   * @param orderId     구매 확정할 주문 ID
+   * @param userDetails 로그인 회원 정보
+   */
+  @PatchMapping("/{orderId}/confirm")
+  public ResponseEntity<?> confirmOrder(
+          @PathVariable int orderId,
+          @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
+    try {
+      int memberId = userDetails.getMemberDTO().getMemberId();
+      ConfirmOrderResponseDTO response = orderService.confirmOrder(orderId, memberId);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+      log.error("구매 확정 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("구매 확정 처리 중 오류가 발생했습니다.");
+    }
+  }
+
 }

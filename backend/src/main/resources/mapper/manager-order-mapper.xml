@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.order.mapper.ManagerOrderMapper">
+
+    <!-- ManagerOrderDTO resultMap -->
+    <resultMap id="managerOrderMap"
+               type="com.farmtech.smartfarm.order.dto.ManagerOrderDTO">
+        <id     property="orderId"              column="order_id"/>
+        <result property="memberId"             column="member_id"/>
+        <result property="orderStatus"          column="order_status"/>
+        <result property="orderTotalPrice"      column="order_total_price"/>
+        <result property="orderCreatedAt"       column="order_created_at"/>
+        <result property="paidAt"               column="paid_at"/>
+        <result property="shippingStartedAt"    column="shipping_started_at"/>
+        <result property="expectedDeliveredAt"  column="expected_delivered_at"/>
+        <result property="shippedAt"            column="shipped_at"/>
+        <result property="confirmedAt"          column="confirmed_at"/>
+    </resultMap>
+
+    <!-- 관리자 전체 주문 목록 (READY/REFUNDED 제외) -->
+    <select id="selectManagerOrderList" resultMap="managerOrderMap">
+        SELECT ORDER_ID,
+               MEMBER_ID,
+               ORDER_STATUS,
+               ORDER_TOTAL_PRICE,
+               ORDER_CREATED_AT,
+               PAID_AT,
+               SHIPPING_STARTED_AT,
+               EXPECTED_DELIVERED_AT,
+               SHIPPED_AT,
+               CONFIRMED_AT
+        FROM ORDERS
+        WHERE ORDER_STATUS NOT IN ('READY', 'REFUNDED')
+        ORDER BY ORDER_CREATED_AT DESC
+    </select>
+
+    <!-- 단건 주문 조회 -->
+    <select id="selectOrderById" resultMap="managerOrderMap">
+        SELECT ORDER_ID,
+               MEMBER_ID,
+               ORDER_STATUS,
+               ORDER_TOTAL_PRICE,
+               ORDER_CREATED_AT,
+               PAID_AT,
+               SHIPPING_STARTED_AT,
+               EXPECTED_DELIVERED_AT,
+               SHIPPED_AT,
+               CONFIRMED_AT
+        FROM ORDERS
+        WHERE ORDER_ID = #{orderId}
+    </select>
+
+    <!-- 배송 시작 처리 (PAID → SHIPPING) -->
+    <update id="updateToShipping">
+        UPDATE ORDERS
+        SET ORDER_STATUS          = 'SHIPPING',
+            SHIPPING_STARTED_AT   = #{shippingStartedAt},
+            EXPECTED_DELIVERED_AT = #{expectedDeliveredAt}
+        WHERE ORDER_ID     = #{orderId}
+          AND ORDER_STATUS = 'PAID'
+    </update>
+
+    <!-- 자동 배송 완료 대상 조회 -->
+    <!-- SHIPPING 상태 중 SHIPPING_STARTED_AT 기준 2일 경과한 주문 -->
+    <select id="selectAutoShipTargets" resultMap="managerOrderMap">
+        SELECT ORDER_ID, ORDER_STATUS, SHIPPING_STARTED_AT
+        FROM ORDERS
+        WHERE ORDER_STATUS = 'SHIPPING'
+          AND DATE_ADD(SHIPPING_STARTED_AT, INTERVAL 2 DAY) &lt;= #{now}
+    </select>
+
+    <!-- 배송 완료 처리 (SHIPPING → SHIPPED) -->
+    <update id="updateToShipped">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'SHIPPED',
+            SHIPPED_AT   = #{shippedAt}
+        WHERE ORDER_ID     = #{orderId}
+          AND ORDER_STATUS = 'SHIPPING'
+    </update>
+
+    <!-- 자동 구매 확정 대상 조회 (SHIPPED 상태 중 SHIPPED_AT 기준 5일 경과) -->
+    <select id="selectAutoConfirmTargets" resultMap="managerOrderMap">
+        SELECT ORDER_ID, ORDER_STATUS, SHIPPED_AT
+        FROM ORDERS
+        WHERE ORDER_STATUS = 'SHIPPED'
+          AND DATE_ADD(SHIPPED_AT, INTERVAL 5 DAY) &lt;= #{now}
+    </select>
+
+    <!-- 구매 확정 처리 (→ DONE) -->
+    <update id="updateToDone">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'DONE',
+            CONFIRMED_AT = #{confirmedAt}
+        WHERE ORDER_ID     = #{orderId}
+          AND ORDER_STATUS = 'SHIPPED'
+    </update>
+
+</mapper>

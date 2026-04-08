@@ -14,6 +14,7 @@
         <result column="CREATED_AT" property="createdAt" />
         <result column="PRODUCT_NAME" property="productName" />
         <result column="PRODUCT_PRICE" property="productPrice" />
+        <result column="IMAGE_URL" property="imageUrl" />
     </resultMap>
 
     <resultMap id="unreviewedItemMap" type="com.farmtech.smartfarm.review.dto.UnreviewedItemDTO">
@@ -32,13 +33,16 @@
              PRODUCT_ID,
              ORDER_ITEM_ID,
              RATING,
-             CONTENT)
+             CONTENT,
+             IMAGE_URL
+            )
         VALUES (
                 #{memberId},
                 #{productId},
                 #{orderItemId},
                 #{rating},
-                #{content}
+                #{content},
+                #{imageUrl}
                )
     </insert>
 
@@ -125,4 +129,40 @@
         WHERE REVIEW_ID = #{reviewId}
         AND MEMBER_ID = #{memberId}
     </delete>
+
+    <!-- 고객 리뷰 조회   -->
+    <select id="selectReviewCustomer" resultMap="reviewMap">
+        SELECT
+        R.REVIEW_ID,
+        M.MEMBER_ID,
+        P.PRODUCT_ID,
+        O.ORDER_ITEM_ID,
+        R.RATING,
+        R.CONTENT,
+        R.CREATED_AT,
+        P.PRODUCT_NAME,
+        P.PRODUCT_PRICE,
+        R.IMAGE_URL
+        FROM REVIEW R
+        INNER JOIN ORDER_ITEM O
+        ON R.ORDER_ITEM_ID = O.ORDER_ITEM_ID
+        INNER JOIN MEMBER M
+        ON R.MEMBER_ID = M.MEMBER_ID
+        INNER JOIN PRODUCT P
+        ON R.PRODUCT_ID = P.PRODUCT_ID
+        ORDER BY R.CREATED_AT DESC
+    </select>
+
+    <!-- 고객 평균평점, 주문수, 7일, 30일 조회  -->
+    <select id="ratingAndReviews" resultType="map">
+        SELECT
+        COUNT(1) AS TOTAL,
+        AVG(RATING) AS AVG_RATING,
+        AVG(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 7 DAY)  THEN R.RATING END) AS AVG_7RATING,
+        AVG(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN R.RATING END) AS AVG_30RATING,
+        COUNT(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 7 DAY)  THEN 1 END) AS COUNT_7,
+        COUNT(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) AS COUNT_30
+        FROM REVIEW R
+    </select>
+
 </mapper>

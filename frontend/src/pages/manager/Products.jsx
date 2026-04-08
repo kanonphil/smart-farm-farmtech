@@ -7,7 +7,6 @@ import Modal from '../../components/common/Modal'
 import Input from '../../components/common/Input'
 import Select from '../../components/common/Select'
 import { useNavigate } from 'react-router-dom';
-import { axiosInstance } from '../../api/axiosInstance';
 
 const Products = () => {
   const nav = useNavigate();
@@ -60,14 +59,19 @@ const Products = () => {
     //상세 페이지 이미지
     if(detailImgFile) data.append('detailImg',detailImgFile);
 
-    await putProduct(selectProduct.productId, data);
+    try{
+      await putProduct(selectProduct.productId, data);
 
-    setIsModalOpen(false);
-    setMainImgFile(null);
-    setSubImgFiles([]);
-    setDetailImgFile(null);
-    fetchProducts();
-    alert("수정이 완료되었습니다");
+      setIsModalOpen(false);
+      setMainImgFile(null);
+      setSubImgFiles([]);
+      setDetailImgFile(null);
+      fetchProducts();
+      alert("수정이 완료되었습니다");
+
+    }catch(e){
+      alert("수정 중 오류가 발생했습니다.")
+    }
   }
   
   //모달창에서 상태값

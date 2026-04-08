@@ -40,6 +40,22 @@ const ManagerMenu = () => {
         </li>
         <li>
           <NavLink
+            to='stock'
+            className={(param) => param.isActive ? styles.active : ''}
+          >
+            재고 관리
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to='orders'
+            className={(param) => param.isActive ? styles.active : ''}
+          >
+            주문 관리
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
             to='actuator'
             className={(param) => param.isActive ? styles.active : ''}
           >

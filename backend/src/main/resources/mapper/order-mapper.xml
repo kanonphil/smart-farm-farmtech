@@ -5,13 +5,18 @@
 <!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
 <mapper namespace="com.farmtech.smartfarm.order.mapper.OrderMapper">
     <resultMap id="orderResultMap" type="com.farmtech.smartfarm.order.dto.OrderDTO">
-        <id     property="orderId"          column="order_id"/>
-        <result property="memberId"         column="member_id"/>
-        <result property="orderStatus"      column="order_status"/>
-        <result property="orderTotalPrice"  column="order_total_price"/>
-        <result property="orderCreatedAt"   column="order_created_at"/>
-        <result property="tossOrderId"      column="toss_order_id"/>
-        <result property="paymentKey"       column="payment_key"/>
+        <id     property="orderId"              column="order_id"/>
+        <result property="memberId"             column="member_id"/>
+        <result property="orderStatus"          column="order_status"/>
+        <result property="orderTotalPrice"      column="order_total_price"/>
+        <result property="orderCreatedAt"       column="order_created_at"/>
+        <result property="tossOrderId"          column="toss_order_id"/>
+        <result property="paymentKey"           column="payment_key"/>
+        <result property="paidAt"               column="paid_at"/>
+        <result property="shippingStartedAt"    column="shipping_started_at"/>
+        <result property="expectedDeliveredAt"  column="expected_delivered_at"/>
+        <result property="shippedAt"            column="shipped_at"/>
+        <result property="confirmedAt"          column="confirmed_at"/>
         <collection property="orderItemDTOList" resultMap="orderItemResultMap"/>
     </resultMap>
 
@@ -93,13 +98,17 @@
             O.ORDER_STATUS,
             O.ORDER_TOTAL_PRICE,
             O.ORDER_CREATED_AT,
+            O.PAID_AT,
+            O.SHIPPING_STARTED_AT,
+            O.EXPECTED_DELIVERED_AT,
+            O.SHIPPED_AT,
+            O.CONFIRMED_AT,
             I.ORDER_ITEM_ID,
             I.PRODUCT_ID,
             I.ORDER_ITEM_PRICE,
             I.ORDER_ITEM_QTY,
             P.PRODUCT_NAME,
             PI.IMAGE_SAVED_NAME,
-            -- 리뷰 존재 여부 (1이면 작성됨, null이면 미작성)
             CASE WHEN R.REVIEW_ID IS NOT NULL THEN TRUE ELSE FALSE END AS has_review
         FROM ORDERS O
                  JOIN ORDER_ITEM I ON O.ORDER_ID = I.ORDER_ID
@@ -109,7 +118,6 @@
         WHERE O.MEMBER_ID = #{memberId}
           AND O.ORDER_CREATED_AT BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         ORDER BY O.ORDER_CREATED_AT DESC
-
     </select>
 
     <update id="cancelOrder" parameterType="map">
@@ -118,4 +126,15 @@
             CANCEL_REASON = #{cancelReason}
         WHERE TOSS_ORDER_ID = #{tossOrderId}
     </update>
+
+    <!-- 회원 구매 확정 (SHIPPED → DONE, 본인 주문만) -->
+    <update id="confirmOrder">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'DONE',
+            CONFIRMED_AT = #{confirmedAt}
+        WHERE ORDER_ID     = #{orderId}
+          AND MEMBER_ID    = #{memberId}
+          AND ORDER_STATUS = 'SHIPPED'
+    </update>
+
 </mapper>

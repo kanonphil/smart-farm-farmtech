@@ -41,3 +41,22 @@ export const getAlerts = async () => {
   const response = await axiosInstance.get('/alerts')
   return response.data
 }
+
+/**
+ * 관리자 재고 목록 조회
+ * @param {{ page: number, size: number }} params - 페이지 파라미터
+ */
+export const getManagerProductStocks = async (params) => {
+  const response = await axiosInstance.get('/manager/products/stocks', {params})
+  return response
+}
+
+/**
+ * 관리자 재고 수정
+ * @param {number} productId - 수정할 상품 ID
+ * @param {{ stock: number }} payload - 변경할 재고 수량
+ */
+export const updateManagerProductStock = async (productId, payload) => {
+  const response = await axiosInstance.patch(`/manager/products/${productId}/stock`, payload)
+  return response
+}
