@@ -7,6 +7,7 @@ import Modal from '../../components/common/Modal'
 import Textarea from '../../components/common/Textarea'
 import { insertReview } from '../../api/reviewApi'
 import { confirmOrder } from '../../api/orderApi'
+import Pagination from '../../components/common/Pagination'
 
 const OrderList = () => {
   //조회 시작 날짜 저장변수
@@ -21,8 +22,26 @@ const OrderList = () => {
   const [reviewModal, setReviewModal] = useState({ isOpen: false, orderItemId: null})
   const [rating, setRating] = useState(0)
   const [reviewContent, setReviewContent] = useState('')
+  //내 주문 내역 저장 state변수
+  const [orders, setOrders] = useState([])
   /** 구매 확정 처리 중인 주문 ID */
   const [confirmingId, setConfirmingId] = useState(null)
+
+  /** 현재 페이지 (0-based) */
+  const [currentPage, setCurrentPage] = useState(0)
+  /** 페이지당 주문 수 */
+  const PAGE_SIZE = 10
+  /** 전체 페이지 수 */
+  const totalPages = Math.ceil(orders.length / PAGE_SIZE)
+
+  /** 현재 페이지에 표시할 주문 목록 */
+  const displayedOrders = orders.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
+
+  /** 주문 목록 변경(날짜 필터 포함) 시 첫 페이지로 초기화 */
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [orders])
+
 
   //버튼 클릭 시 날짜변경
   const handlePeriod = (days) => {
@@ -37,9 +56,6 @@ const OrderList = () => {
   useEffect(()=>{
     handlePeriod(30)
   }, [])
-
-  //내 주문 내역 저장 state변수
-  const [orders, setOrders] = useState([])
   
   //주문 조회 함수
   const fetchOrders = async () => {
@@ -195,7 +211,7 @@ const OrderList = () => {
                 <td colSpan={8} className={styles.empty}>주문 내역이 없습니다.</td>
               </tr>
             ) : (
-              orders.map((order, i) =>
+              displayedOrders.map((order, i) =>
                 order.orderItemDTOList?.map((item, itemIndex) => (
                   <tr 
                     key={`${order.orderId}-${item.orderItemId}`}
@@ -208,7 +224,7 @@ const OrderList = () => {
                           rowSpan={order.orderItemDTOList.length}
                           style={{verticalAlign: 'middle'}}
                         >
-                          {orders.length - i}
+                          {orders.length - (currentPage * PAGE_SIZE + i)}
                         </td>
                         <td
                           rowSpan={order.orderItemDTOList.length}
@@ -303,6 +319,12 @@ const OrderList = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={cancelModal.isOpen}
