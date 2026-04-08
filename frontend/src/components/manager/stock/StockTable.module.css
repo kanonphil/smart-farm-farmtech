@@ -1,0 +1,104 @@
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.thead tr {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.thead th {
+  padding: 13px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* 재고 위험 행 */
+.dangerRow {
+  background: #fff8f8 !important;
+}
+
+.dangerRow:hover {
+  background: #ffeaea !important;
+}
+
+/* 재고 주의 행 */
+.warningRow {
+  background: #fffdf0 !important;
+}
+
+.warningRow:hover {
+  background: #fff8d6 !important;
+}
+
+td {
+  padding: 13px 16px;
+  color: #333;
+  vertical-align: middle;
+}
+
+.idCell {
+  color: #aaa;
+  font-size: 0.82rem;
+}
+
+.nameCell {
+  font-weight: 600;
+  color: #1a1a1a;
+  min-width: 160px;
+}
+
+.numCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 재고 수치 강조 */
+.stockCell {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.stockCol {
+  text-align: right;
+}
+
+.activeTag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.inactiveTag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f5f5f5;
+  color: #999;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
