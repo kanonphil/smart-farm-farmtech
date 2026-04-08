@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.stock.mapper.StockMapper">
+	<resultMap id="stockMap" type="com.farmtech.smartfarm.stock.dto.StockListDTO">
+        <id column="PRODUCT_ID" property="productId" />
+        <result column="PRODUCT_NAME" property="productName" />
+        <result column="CATEGORY_NAME" property="categoryName" />
+        <result column="PRODUCT_PRICE" property="productPrice" />
+        <result column="PRODUCT_STOCK" property="productStock" />
+        <result column="PRODUCT_STATUS" property="productStatus" />
+        <result column="MAIN_IMAGE" property="mainImage" />
+    </resultMap>
+
+    <!-- 재고 목록 조회 (재고 오름차순, 페이지네이션) -->
+    <select id="selectStockList" resultMap="stockMap">
+        SELECT *
+        FROM V_ADMIN_STOCK
+        WHERE PRODUCT_STATUS != 'DELETED'
+        ORDER BY PRODUCT_STOCK ASC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 전체 상품 수 조회 -->
+    <select id="countProducts" resultType="int">
+        SELECT COUNT(*)
+        FROM PRODUCT
+        WHERE PRODUCT_STATUS != 'DELETED'
+    </select>
+
+    <!-- 단건 상품 조회 -->
+    <select id="selectProductById" resultMap="stockMap">
+        SELECT *
+        FROM V_ADMIN_STOCK
+        WHERE PRODUCT_ID = #{productId}
+          AND PRODUCT_STATUS != 'DELETED'
+    </select>
+
+    <!-- 재고 수정 -->
+    <update id="updateProductStock">
+        UPDATE PRODUCT
+        SET PRODUCT_STOCK = #{stock}
+        WHERE PRODUCT_ID = #{productId}
+    </update>
+
+    <select id="countDanger" resultType="int">
+        SELECT COUNT(*) FROM PRODUCT
+        WHERE PRODUCT_STATUS != 'DELETED'
+      AND PRODUCT_STOCK BETWEEN 0 AND 9
+    </select>
+
+    <select id="countWarning" resultType="int">
+        SELECT COUNT(*) FROM PRODUCT
+        WHERE PRODUCT_STATUS != 'DELETED'
+      AND PRODUCT_STOCK BETWEEN 10 AND 49
+    </select>
+
+    <select id="countSafe" resultType="int">
+        SELECT COUNT(*) FROM PRODUCT
+        WHERE PRODUCT_STATUS != 'DELETED'
+      AND PRODUCT_STOCK >= 50
+    </select>
+
+</mapper>
