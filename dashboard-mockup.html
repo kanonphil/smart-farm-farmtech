@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>관리자 대시보드 목업</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* 사이드바 */
+    .sidebar {
+      width: 220px; background: #1e293b; color: #cbd5e1;
+      display: flex; flex-direction: column; padding: 24px 0; flex-shrink: 0;
+    }
+    .sidebar .logo { padding: 0 24px 28px; font-size: 18px; font-weight: 700; color: #fff; border-bottom: 1px solid #334155; }
+    .sidebar .logo span { color: #38bdf8; }
+    .sidebar ul { list-style: none; margin-top: 16px; }
+    .sidebar ul li { padding: 12px 24px; font-size: 14px; cursor: pointer; border-left: 3px solid transparent; }
+    .sidebar ul li.active { background: #0f172a; color: #38bdf8; border-left-color: #38bdf8; font-weight: 600; }
+    .sidebar ul li:hover:not(.active) { background: #273449; color: #fff; }
+
+    /* 메인 */
+    .main { flex: 1; padding: 28px; overflow-y: auto; }
+    .page-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; color: #0f172a; }
+    .page-title span { font-size: 13px; font-weight: 400; color: #94a3b8; margin-left: 8px; }
+
+    /* 카드 그리드 */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: #fff; border-radius: 12px; padding: 20px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      border-left: 4px solid #38bdf8;
+    }
+    .stat-card.green { border-left-color: #22c55e; }
+    .stat-card.purple { border-left-color: #a855f7; }
+    .stat-card.orange { border-left-color: #f97316; }
+    .stat-card .label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; }
+    .stat-card .value { font-size: 26px; font-weight: 700; color: #0f172a; }
+    .stat-card .sub { font-size: 12px; color: #22c55e; margin-top: 4px; }
+    .stat-card .sub.down { color: #ef4444; }
+
+    /* 2열 그리드 */
+    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+    .card {
+      background: #fff; border-radius: 12px; padding: 20px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .card-title {
+      font-size: 14px; font-weight: 700; color: #0f172a;
+      margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-title select, .card-title input[type=date] {
+      font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 4px 8px; color: #475569; outline: none;
+    }
+
+    /* 주문 상태 */
+    .status-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    .status-item { text-align: center; padding: 14px 8px; border-radius: 10px; }
+    .status-item.pending { background: #fef9c3; }
+    .status-item.paid { background: #dbeafe; }
+    .status-item.done { background: #dcfce7; }
+    .status-item.cancel { background: #fee2e2; }
+    .status-item .s-label { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+    .status-item .s-value { font-size: 22px; font-weight: 700; }
+    .status-item.pending .s-value { color: #ca8a04; }
+    .status-item.paid .s-value { color: #2563eb; }
+    .status-item.done .s-value { color: #16a34a; }
+    .status-item.cancel .s-value { color: #dc2626; }
+
+    /* 테이블 */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* 뱃지 */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge.pending { background: #fef9c3; color: #ca8a04; }
+    .badge.paid { background: #dbeafe; color: #2563eb; }
+    .badge.done { background: #dcfce7; color: #16a34a; }
+    .badge.cancel { background: #fee2e2; color: #dc2626; }
+
+    /* 회원 순위 */
+    .rank-list { list-style: none; }
+    .rank-list li { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .rank-list li:last-child { border-bottom: none; }
+    .rank-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #64748b; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rank-num.gold { background: #fde68a; color: #92400e; }
+    .rank-num.silver { background: #e2e8f0; color: #475569; }
+    .rank-num.bronze { background: #fed7aa; color: #9a3412; }
+    .rank-name { flex: 1; font-weight: 500; }
+    .rank-amount { font-weight: 700; color: #0f172a; font-size: 13px; }
+
+    /* 재고 경고 */
+    .stock-list { list-style: none; }
+    .stock-list li { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .stock-list li:last-child { border-bottom: none; }
+    .stock-name { flex: 1; }
+    .stock-qty { font-weight: 700; color: #ef4444; }
+    .stock-warn { font-size: 11px; background: #fee2e2; color: #dc2626; padding: 2px 7px; border-radius: 20px; margin-left: 8px; }
+
+    /* 상품 판매 TOP */
+    .top-product li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .top-product li:last-child { border-bottom: none; }
+    .bar-wrap { flex: 1; }
+    .bar-bg { background: #f1f5f9; border-radius: 4px; height: 8px; }
+    .bar-fill { background: #38bdf8; border-radius: 4px; height: 8px; }
+    .bar-label { font-size: 12px; color: #64748b; margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <div class="sidebar">
+    <div class="logo">🌿 <span>Smart</span>Farm</div>
+    <ul>
+      <li class="active">📊 대시보드</li>
+      <li>📦 상품 등록</li>
+      <li>🎛 액츄에이터 제어</li>
+      <li>⚙️ 임계값 설정</li>
+      <li>🔔 알림 이력</li>
+      <li>🛒 상품 관리</li>
+    </ul>
+  </div>
+
+  <!-- 메인 -->
+  <div class="main">
+    <div class="page-title">관리자 대시보드 <span>2026년 04월 08일</span></div>
+
+    <!-- 1. 핵심 지표 카드 -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">오늘 매출</div>
+        <div class="value">1,240,000원</div>
+        <div class="sub">▲ 어제보다 12% 증가</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">이번 주 매출</div>
+        <div class="value">5,830,000원</div>
+        <div class="sub">▲ 지난 주보다 8% 증가</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="label">오늘 신규 주문</div>
+        <div class="value">24건</div>
+        <div class="sub down">▼ 어제보다 3건 감소</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="label">전체 회원 수</div>
+        <div class="value">1,082명</div>
+        <div class="sub">▲ 이번달 +47명</div>
+      </div>
+    </div>
+
+    <!-- 2. 월별 수익 그래프 + 주문 상태 -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">
+          📈 월별 판매 수익
+          <select>
+            <option>2026년</option>
+            <option>2025년</option>
+          </select>
+        </div>
+        <canvas id="revenueChart" height="110"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 주문 상태 현황</div>
+        <div class="status-grid">
+          <div class="status-item pending">
+            <div class="s-label">결제 대기</div>
+            <div class="s-value">8</div>
+          </div>
+          <div class="status-item paid">
+            <div class="s-label">결제 완료</div>
+            <div class="s-value">31</div>
+          </div>
+          <div class="status-item done">
+            <div class="s-label">배송 완료</div>
+            <div class="s-value">156</div>
+          </div>
+          <div class="status-item cancel">
+            <div class="s-label">취소</div>
+            <div class="s-value">5</div>
+          </div>
+        </div>
+        <canvas id="statusChart" height="140" style="margin-top:16px"></canvas>
+      </div>
+    </div>
+
+    <!-- 3. 최근 주문 + 재고 부족 -->
+    <div class="two-col" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">
+          🕐 최근 주문 내역
+          <input type="date" value="2026-04-08"/>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>주문번호</th><th>회원</th><th>상품</th><th>금액</th><th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>#20240408-001</td><td>김민준</td><td>한우 채끝살 1kg</td><td>89,000원</td><td><span class="badge done">배송완료</span></td></tr>
+            <tr><td>#20240408-002</td><td>이서연</td><td>한우 등심 500g</td><td>62,000원</td><td><span class="badge paid">결제완료</span></td></tr>
+            <tr><td>#20240408-003</td><td>박지호</td><td>한우 갈비 2kg</td><td>145,000원</td><td><span class="badge pending">결제대기</span></td></tr>
+            <tr><td>#20240408-004</td><td>최수아</td><td>한우 안심 300g</td><td>54,000원</td><td><span class="badge done">배송완료</span></td></tr>
+            <tr><td>#20240408-005</td><td>정태양</td><td>한우 불고기 1kg</td><td>48,000원</td><td><span class="badge cancel">취소</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚠️ 재고 부족 상품</div>
+        <ul class="stock-list">
+          <li><span class="stock-name">한우 안심 300g</span><span class="stock-qty">3개</span><span class="stock-warn">위험</span></li>
+          <li><span class="stock-name">한우 채끝살 1kg</span><span class="stock-qty">7개</span><span class="stock-warn">부족</span></li>
+          <li><span class="stock-name">한우 등심 500g</span><span class="stock-qty">9개</span><span class="stock-warn">부족</span></li>
+          <li><span class="stock-name">한우 갈비 세트</span><span class="stock-qty">12개</span></li>
+          <li><span class="stock-name">한우 불고기 1kg</span><span class="stock-qty">15개</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4. 회원 순위 + 상품 판매 TOP -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">🏆 회원 구매 순위 TOP 10</div>
+        <ul class="rank-list">
+          <li><div class="rank-num gold">1</div><div class="rank-name">김민준</div><div class="rank-amount">1,240,000원</div></li>
+          <li><div class="rank-num silver">2</div><div class="rank-name">이서연</div><div class="rank-amount">980,000원</div></li>
+          <li><div class="rank-num bronze">3</div><div class="rank-name">박지호</div><div class="rank-amount">870,000원</div></li>
+          <li><div class="rank-num">4</div><div class="rank-name">최수아</div><div class="rank-amount">760,000원</div></li>
+          <li><div class="rank-num">5</div><div class="rank-name">정태양</div><div class="rank-amount">650,000원</div></li>
+          <li><div class="rank-num">6</div><div class="rank-name">한지우</div><div class="rank-amount">540,000원</div></li>
+          <li><div class="rank-num">7</div><div class="rank-name">오세훈</div><div class="rank-amount">480,000원</div></li>
+          <li><div class="rank-num">8</div><div class="rank-name">윤하은</div><div class="rank-amount">420,000원</div></li>
+          <li><div class="rank-num">9</div><div class="rank-name">임도윤</div><div class="rank-amount">380,000원</div></li>
+          <li><div class="rank-num">10</div><div class="rank-name">강나연</div><div class="rank-amount">310,000원</div></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🛒 상품별 판매 TOP 5</div>
+        <ul class="top-product" style="list-style:none">
+          <li>
+            <div style="width:26px;font-size:13px;font-weight:700;color:#0f172a">1</div>
+            <div class="bar-wrap">
+              <div class="bar-label">한우 채끝살 1kg</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap">312개</div>
+          </li>
+          <li>
+            <div style="width:26px;font-size:13px;font-weight:700;color:#0f172a">2</div>
+            <div class="bar-wrap">
+              <div class="bar-label">한우 불고기 1kg</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:78%"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap">243개</div>
+          </li>
+          <li>
+            <div style="width:26px;font-size:13px;font-weight:700;color:#0f172a">3</div>
+            <div class="bar-wrap">
+              <div class="bar-label">한우 등심 500g</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap">187개</div>
+          </li>
+          <li>
+            <div style="width:26px;font-size:13px;font-weight:700;color:#0f172a">4</div>
+            <div class="bar-wrap">
+              <div class="bar-label">한우 갈비 2kg</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:44%"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap">138개</div>
+          </li>
+          <li>
+            <div style="width:26px;font-size:13px;font-weight:700;color:#0f172a">5</div>
+            <div class="bar-wrap">
+              <div class="bar-label">한우 안심 300g</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:29%"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap">91개</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // 월별 수익 그래프
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+      datasets: [{
+        label: '매출 (만원)',
+        data: [320, 280, 410, 390, 450, 500, 480, 520, 430, 460, 510, 620],
+        backgroundColor: '#bfdbfe',
+        borderColor: '#38bdf8',
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  })
+
+  // 주문 상태 도넛
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['결제대기','결제완료','배송완료','취소'],
+      datasets: [{
+        data: [8, 31, 156, 5],
+        backgroundColor: ['#fde68a','#bfdbfe','#bbf7d0','#fecaca'],
+        borderColor: ['#f59e0b','#3b82f6','#22c55e','#ef4444'],
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } }
+      }
+    }
+  })
+</script>
+</body>
+</html>

@@ -23,10 +23,11 @@ const ManagerMenu = () => {
       <ul className={styles.menu_list}>
         <li>
           <NavLink
-            to='dashboard'
+            to=''
+            end
             className={(param) => param.isActive ? styles.active : ''}
           >
-            대시보드
+            홈
           </NavLink>
         </li>
         <li>

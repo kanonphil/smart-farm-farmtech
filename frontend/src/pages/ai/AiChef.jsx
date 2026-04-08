@@ -43,6 +43,7 @@ const STYLE_OPTIONS = [
  */
 const AiChef = () => {
   const navigate = useNavigate()
+  const { token } = useAuthStore()
 
   /** 선택된 식사 상황 */
   const [situation, setSituation] = useState(null)
@@ -188,7 +189,7 @@ const AiChef = () => {
    */
   const handleAddToCart = async (productId) => {
     // 로그인 여부 확인
-    const { token } = useAuthStore()
+    
     if (!token) {
       if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동할까요?')) {
         navigate('/login')
