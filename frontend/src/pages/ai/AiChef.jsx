@@ -43,7 +43,6 @@ const STYLE_OPTIONS = [
  */
 const AiChef = () => {
   const navigate = useNavigate()
-  const { token } = useAuthStore()
 
   /** 선택된 식사 상황 */
   const [situation, setSituation] = useState(null)
