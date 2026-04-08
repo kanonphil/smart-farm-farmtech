@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.dashboard.mapper.DashboardMapper">
+
+<!-- 금일, 전일 회원 수 조회  -->
+    <select id="getTodayMember" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            IFNULL(SUM(CASE WHEN DATE(MEMBER_CREATED_AT) = CURDATE() THEN 1 ELSE 0 END), 0) AS todayCount,
+            IFNULL(SUM(CASE WHEN DATE(MEMBER_CREATED_AT) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN 1 ELSE 0 END), 0) As yesterdayCount
+        FROM MEMBER
+        WHERE DATE(MEMBER_CREATED_AT) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    </select>
+
+<!--  전체 회원 수 조회  -->
+    <select id="getTotalMember" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            COUNT(*) AS totalCount,
+            IFNULL((SELECT COUNT(*)
+            FROM MEMBER
+            WHERE YEAR(MEMBER_CREATED_AT)  = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+            AND MONTH(MEMBER_CREATED_AT) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))), 0)  AS lastMonthCount
+        FROM MEMBER;
+    </select>
+
+<!--  금일, 전일 매출 조회  -->
+    <select id="getTodaySales" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            IFNULL(SUM(CASE WHEN DATE(ORDER_CREATED_AT) = CURDATE() THEN ORDER_TOTAL_PRICE END) ,0) AS todayPrice,
+            IFNULL(SUM(CASE WHEN DATE(ORDER_CREATED_AT) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN ORDER_TOTAL_PRICE END), 0) AS yesterdayPrice
+        FROM ORDERS
+        WHERE ORDER_CREATED_AT >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    </select>
+
+<!--  금일, 전일 주문 수 조회  -->
+    <select id="getTodayOrder" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            IFNULL(COUNT(CASE WHEN DATE(ORDER_CREATED_AT) = CURDATE() THEN 1 END), 0) AS todayOrders,
+            IFNULL(COUNT(CASE WHEN DATE(ORDER_CREATED_AT) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN 1 END), 0) AS yesterdayOrders
+        FROM ORDERS
+        WHERE DATE(ORDER_CREATED_AT) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    </select>
+
+<!--  월별 수입 조회  -->
+    <select id="getMonthSales" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            MONTH(ORDER_CREATED_AT) AS month,
+            IFNULL(SUM(ORDER_TOTAL_PRICE), 0) AS revenue
+        FROM ORDERS
+        WHERE YEAR(ORDER_CREATED_AT) = #{year}
+        AND ORDER_STATUS != 'READY'
+        GROUP BY MONTH(ORDER_CREATED_AT)
+        ORDER BY month ASC;
+    </select>
+</mapper>

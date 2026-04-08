@@ -143,4 +143,6 @@
           AND MEMBER_NAME = #{name}
           AND MEMBER_PHONE = #{phone}
     </select>
+
+
 </mapper>

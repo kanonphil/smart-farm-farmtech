@@ -2,12 +2,12 @@ import { Route, Routes } from "react-router-dom"
 import BasicLayout from "./components/layout/BasicLayout"
 import Join from "./pages/member/Join"
 import Login from './pages/member/Login'
-import Dashboard from "./pages/manager/Dashboard"
 import ActuatorControl from "./pages/manager/ActuatorControl"
 import ManagerLayout from "./components/layout/ManagerLayout"
 import ThresholdPreset from "./pages/manager/ThresholdPreset"
 import ProductRegister from "./pages/manager/ProductRegister"
 import AlertHistory from "./pages/manager/AlertHistory"
+import ManagerHome from "./pages/manager/ManagerHome"
 import PasswordConfirm from "./pages/member/PasswordConfirm"
 import MemberLayout from "./components/layout/MemberLayout"
 import EditInfo from "./pages/member/EditInfo"
@@ -81,7 +81,7 @@ function App() {
 
         {/* 관리자 페이지 */}
         <Route path="/manager" element={<ManagerLayout />}>
-          <Route path='dashboard' element={<Dashboard/>} />
+          <Route index element={<ManagerHome/>} />
           <Route path='reg-product' element={<ProductRegister />} />
           <Route path='actuator' element={<ActuatorControl />} />
           <Route path='threshold' element={<ThresholdPreset />} />
