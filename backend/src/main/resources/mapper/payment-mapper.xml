@@ -53,4 +53,21 @@
         WHERE ORDER_ID = #{orderId}
           AND ORDER_STATUS = 'PAID'
     </update>
+
+    <!-- 결제 확정 시 주문 상품 재고 차감 -->
+    <update id="decreaseProductStock" parameterType="int">
+        UPDATE PRODUCT P
+            JOIN ORDER_ITEM OI ON P.PRODUCT_ID = OI.PRODUCT_ID
+            SET P.PRODUCT_STOCK = P.PRODUCT_STOCK - OI.ORDER_ITEM_QTY
+        WHERE OI.ORDER_ID = #{orderId}
+    </update>
+
+    <!-- 주문 취소 시 상품 재고 복구 -->
+    <update id="restoreProductStock" parameterType="int">
+        UPDATE PRODUCT P
+            JOIN ORDER_ITEM OI ON P.PRODUCT_ID = OI.PRODUCT_ID
+            SET P.PRODUCT_STOCK = P.PRODUCT_STOCK + OI.ORDER_ITEM_QTY
+        WHERE OI.ORDER_ID = #{orderId}
+    </update>
+
 </mapper>
