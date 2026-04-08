@@ -30,6 +30,8 @@ import AiChef from "./pages/ai/AiChef"
 import useAuthStore from "./store/authStore"
 import { useEffect } from "react"
 import { axiosInstance } from "./api/axiosInstance"
+import Stock from "./pages/manager/Stock"
+import OrderManage from './pages/manager/OrderManage'
 
 function App() {
   const { setToken } = useAuthStore()
@@ -85,6 +87,8 @@ function App() {
           <Route path='threshold' element={<ThresholdPreset />} />
           <Route path='alerts' element={<AlertHistory />} />
           <Route path='products' element={<Products/>} />
+          <Route path='stock' element={<Stock />} />
+          <Route path='orders' element={<OrderManage />} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}

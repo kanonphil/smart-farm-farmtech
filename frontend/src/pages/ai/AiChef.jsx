@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AiChef.module.css'
 import { requestAiChefRecommendation } from '../../api/aiChefApi'
@@ -62,6 +62,17 @@ const AiChef = () => {
   const [freeText, setFreeText] = useState('')
   /** 마지막으로 검색한 자유 검색어 (다른 추천 보기용) */
   const [lastFreeText, setLastFreeText] = useState('')
+  /** 로그인 확인 */
+  const { token } = useAuthStore()
+
+  /** 로그인 후 복귀 시 저장된 결과 복원 */
+  useEffect(() => {
+    const saved = sessionStorage.getItem('aiChefSavedResult')
+    if (saved) {
+      setResult(JSON.parse(saved))
+      sessionStorage.removeItem('aiChefSavedResult')
+    }
+  }, [])
 
   // ─────────────────────────────────────────────────────────────────
   // 추천 요청
@@ -188,10 +199,10 @@ const AiChef = () => {
    */
   const handleAddToCart = async (productId) => {
     // 로그인 여부 확인
-    const { token } = useAuthStore()
     if (!token) {
       if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동할까요?')) {
-        navigate('/login')
+        sessionStorage.setItem('aiChefSavedResult', JSON.stringify(result))
+        navigate('/login', {state: {from: '/ai-chef'}})
       }
       return
     }
@@ -378,7 +389,7 @@ const AiChef = () => {
                 <ol className={styles.stepList}>
                   {result.recipe.steps.map((step, i) => (
                     <li key={i} className={styles.stepItem}>
-                      <span className={styles.stepNumber}>{i + 1}</span>
+                      {/* <span className={styles.stepNumber}>{i + 1}</span> */}
                       {step}
                     </li>
                   ))}
