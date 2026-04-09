@@ -54,4 +54,42 @@
         GROUP BY MONTH(ORDER_CREATED_AT)
         ORDER BY month ASC;
     </select>
+
+<!--  주문 상태 조회  -->
+    <select id="getOrderStatus" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            SUM(CASE WHEN ORDER_STATUS = 'PAID' THEN 1 ELSE 0 END) AS paidCount,
+            SUM(CASE WHEN ORDER_STATUS = 'SHIPPED' THEN 1 ELSE 0 END) AS shippedCount,
+            SUM(CASE WHEN ORDER_STATUS = 'DONE' THEN 1 ELSE 0 END) AS doneCount,
+            SUM(CASE WHEN ORDER_STATUS = 'CANCEL' THEN 1 ELSE 0 END) AS cancelCount
+        FROM ORDERS
+    </select>
+
+<!--  회원 별 구매순위 탑 10  -->
+    <select id="getMemberRank" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            M.MEMBER_NAME AS memberName,
+            SUM(O.ORDER_TOTAL_PRICE) AS totalAmount,
+            COUNT(O.ORDER_ID) AS orderCount
+        FROM MEMBER M
+        JOIN ORDERS O ON M.MEMBER_ID = O.MEMBER_ID
+        WHERE O.ORDER_STATUS != 'CANCEL'
+        GROUP BY M.MEMBER_ID, M.MEMBER_NAME
+        ORDER BY totalAmount DESC
+        LIMIT 10;
+    </select>
+
+<!--  상품별 판매 탑5  -->
+    <select id="getProductRank" resultType="com.farmtech.smartfarm.dashboard.dto.DashboardDTO">
+        SELECT
+            P.PRODUCT_NAME AS productName,
+            SUM(OI.ORDER_ITEM_QTY) AS totalQty
+        FROM ORDER_ITEM OI
+        JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+        WHERE O.ORDER_STATUS = 'DONE'
+        GROUP BY P.PRODUCT_ID
+        ORDER BY totalQty DESC
+        LIMIT 5;
+    </select>
 </mapper>

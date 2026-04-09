@@ -118,6 +118,10 @@ const ProductDetail = () => {
                 src={mainImg}
                 className={styles.image}  
               />
+              <img 
+                src={subImg}
+                className={styles.image}  
+              />
             </SwiperSlide>
           </Swiper>
         </div>
@@ -164,6 +168,9 @@ const ProductDetail = () => {
             </Button>
           </div>
         </div>
+      </div>
+      <div>
+        상세설명 랄라라
       </div>
     </div>
   )

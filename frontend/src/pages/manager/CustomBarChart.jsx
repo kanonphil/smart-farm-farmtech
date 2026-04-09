@@ -36,7 +36,7 @@ const CustomBarChart = ({ data }) => {
   const maxRevenue = Math.max(...data.map(d => d.revenue))
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={500}>
       <BarChart data={data} margin={{ top: 28, right: 16, left: 0, bottom: 0 }}>
         <XAxis
           dataKey="month"

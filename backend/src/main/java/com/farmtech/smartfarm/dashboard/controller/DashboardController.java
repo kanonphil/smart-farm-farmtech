@@ -77,4 +77,40 @@ public class DashboardController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  //주문 상태 조회 api
+  @GetMapping("/order-status")
+  public ResponseEntity<?> getOrderStatus(){
+    try {
+      DashboardDTO dto = dashboardService.getOrderStatus();
+      return ResponseEntity.status(HttpStatus.OK).body(dto);
+    }catch (Exception e){
+      log.error("주문 상태 조회 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  //회원 별 구매순위 탑 10 api
+  @GetMapping("/member-rank")
+  public ResponseEntity<?> getMemberRank(){
+    try {
+      List<DashboardDTO> dtos = dashboardService.getMemberRank();
+      return ResponseEntity.status(HttpStatus.OK).body(dtos);
+    }catch (Exception e){
+      log.error("회원 별 구매순위 조회 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  //상품별 탑 5 api
+  @GetMapping("/product-rank")
+  public ResponseEntity<?> getProductRank(){
+    try {
+      List<DashboardDTO> dtos = dashboardService.getProductRank();
+      return ResponseEntity.status(HttpStatus.OK).body(dtos);
+    }catch (Exception e){
+      log.error("상품별 탑5 조회 오륲", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }

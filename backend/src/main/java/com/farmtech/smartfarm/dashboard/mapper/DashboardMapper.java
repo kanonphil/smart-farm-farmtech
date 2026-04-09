@@ -23,6 +23,15 @@ public interface DashboardMapper {
 
   //해당 연도에 월별 매출 조회
   List<DashboardDTO> getMonthSales(int year);
+
+  //주문 상태 조회 메서드
+  DashboardDTO getOrderStatus();
+
+  //회원 별 구매순위 탑 10 메서드
+  List<DashboardDTO> getMemberRank();
+
+  //상품별 탑 5 메서드
+  List<DashboardDTO> getProductRank();
 }
 
 

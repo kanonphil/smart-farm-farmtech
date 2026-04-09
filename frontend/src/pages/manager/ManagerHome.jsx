@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styles from './ManagerHome.module.css'
 import dayjs from 'dayjs'
-import { getMemberCount, getMonthSales, getTodayOrder, getTodayPrice, getTotalMember } from '../../api/dashboardApi'
+import { getMemberCount, getMemberRank, getMonthSales, getOrderStatus, getProductRank, getTodayOrder, getTodayPrice, getTotalMember } from '../../api/dashboardApi'
 import CustomBarChart from './CustomBarChart.jsx'
+import CustomPieChart from './CustomPieChart.jsx'
+import CustomHorizontalBarChart from './CustomHorizontalBarChart.jsx'
 
 const ManagerHome = () => {
   // 금일, 전일 회원 수 저장 state 변수
@@ -17,6 +19,12 @@ const ManagerHome = () => {
   const [year, setYear] = useState(2026)
   // 해당 년도 매출 저장 state 변수
   const [monthSales, setMonthSales] = useState([])
+  // 주문 상태 저장 state변수
+  const [orderStatus, setOrderStatus] = useState({})
+  // 회원 별 구매순위 top10 저장 state변수
+  const [memberRank, setMemberRank] = useState([])
+  // 상품 별 판매순위 top5 저장 state변수
+  const [productRank, setProductRank] = useState([])
 
   // 금일, 전일 회원 수 조회 함수
   const getTodayMember = async () => {
@@ -43,6 +51,21 @@ const ManagerHome = () => {
     const response = await getMonthSales(year)
     setMonthSales(response)
   }
+  // 주문 상태 조회함수
+  const selectOrderStatus = async () => {
+    const response = await getOrderStatus()
+    setOrderStatus(response)
+  }
+  // 회원 별 구매순위 탑10 조회함수
+  const selectMemberRank = async () => {
+    const response = await getMemberRank()
+    setMemberRank(response)
+  }
+  // 상품 별 판매 순위 탑5 조회함수
+  const selectProductRank = async () => {
+    const response = await getProductRank()
+    setProductRank(response)
+  }
 
   useEffect(() => {
     getTodayMember()
@@ -50,7 +73,11 @@ const ManagerHome = () => {
     selectTodayPrice()
     selectTodayOrder()
     selectMonthSales(year)
+    selectOrderStatus()
+    selectMemberRank()
+    selectProductRank()
   }, [])
+  
 
   //연도 변경시 재조회
   useEffect(() => {
@@ -79,7 +106,21 @@ const ManagerHome = () => {
       }
   })
 
+  //랭크 별 다른 스타일 변수
+  const getRankClass = (rank) => {
+    if (rank === 0) return styles.rankGold    
+    if (rank === 1) return styles.rankSilver  
+    if (rank === 2) return styles.rankBronze  
+    return styles.rankDefault
+  }
 
+  //상품별 판매 순위 탑5 차트데이터
+  const productChartData = productRank.map(item => ({
+    'name' : item.productName,
+    'totalQty' : item.totalQty
+  }))
+
+  console.log(todayMemberDiff())
 
   return (
     <div className={styles.container}>
@@ -130,7 +171,7 @@ const ManagerHome = () => {
           <p>전체 회원</p>
           <p>{totalMember.totalCount}명</p>
           {
-            todayMemberDiff() > 0 ?
+            totalMemberDiff() > 0 ?
               <p style={{color : 'green'}}>▲ 지난달보다 {totalMemberDiff()}명 증가</p>
             : totalMemberDiff() === 0 ?
               <p style={{color : 'gray'}}>지난달과 동일함</p>
@@ -157,39 +198,64 @@ const ManagerHome = () => {
           </div>
         </div>
         <div className={styles.order_div}>
-          <p>주문 상태현황</p>
-          <div>
-            <div>결제완료</div>
-            <div>배송완료</div>
-            <div>구매확정</div>
-            <div>구매취소</div>
+          <p className={styles.title_p}>📋 주문 상태 현황</p>
+          <div className={styles.order_state}>
+            <div>
+              <p>결제완료</p>
+              <p>{orderStatus.paidCount}건</p>
+            </div>
+            <div>
+              <p>배송완료</p>
+              <p>{orderStatus.shippedCount}건</p>
+            </div>
+            <div>
+              <p>구매확정</p>
+              <p>{orderStatus.doneCount}건</p>
+            </div>
+            <div>
+              <p>구매취소</p>
+              <p>{orderStatus.cancelCount}건</p>
+            </div>
           </div>
           <div>
-            파이차트
+            <CustomPieChart data={orderStatus}/>
           </div>
         </div>
       </div>
-      <div>
-        <div>
-          <p>최근 주문내역</p>
-          <div>최근 주문 top5 테이블</div>
+      <div className={styles.rank_div}>
+        <div className={styles.member_rank}>
+          <p className={styles.title_p}>🏆 회원 구매 순위 TOP 10</p>
+          <div>
+            <table>
+              <colgroup>
+                <col style={{ width: '5%' }} />
+                <col style={{ width: '25%' }} />
+                <col style={{ width: '70%' }} />
+              </colgroup>
+              <thead></thead>
+              <tbody>
+                {memberRank.map((item, i) => {
+                  return(
+                    <tr>
+                      <td><div
+                        className={getRankClass(i)}
+                      >{i+1}</div></td>
+                      <td className={styles.memName}>{item.memberName} 님</td>
+                      <td className={styles.totalAmount}>{item.totalAmount?.toLocaleString()}원</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div>
-          <p>재고 부족 상품</p>
-          <p>재고 낮은 상품 10개 조회</p>
+        <div className={styles.product_rank}>
+          <div className={styles.title_p}>🛒 상품별 판매 TOP 5</div>
+          <div>
+            <CustomHorizontalBarChart data={productChartData}/>
+          </div>
         </div>
       </div>
-      <div>
-        <div>
-          <p>회원 구매 순위 top 10</p>
-          <div>top 10 테이블</div>
-        </div>
-        <div>
-          <div>상품별 판매 top 5</div>
-          <div>판매 막대그래프(가로)</div>
-        </div>
-      </div>
-      
     </div>
   )
 }
