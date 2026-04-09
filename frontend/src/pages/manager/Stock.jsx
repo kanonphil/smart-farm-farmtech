@@ -91,69 +91,71 @@ const Stock = () => {
   }
   
   return (
-    <div className={styles.container}>
-      {/* 페이지 헤더 */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>재고 관리</h1>
-        <p className={styles.subtitle}>
-          전체 {totalElements}개 상품 · 재고 오름차순 정렬
-        </p>
-      </div>
-
-      {/* 재고 상태 요약 카드 */}
-      <div className={styles.summaryRow}>
-      <div className={`${styles.summaryCard} ${styles.dangerCard}`}>
-        <span className={styles.summaryLabel}>⚠️ 위험 (0~9개)</span>
-        <span className={styles.summaryCount}>{stockSummary.dangerCount}개 상품</span>
-      </div>
-      <div className={`${styles.summaryCard} ${styles.warningCard}`}>
-        <span className={styles.summaryLabel}>🔔 주의 (10~49개)</span>
-        <span className={styles.summaryCount}>{stockSummary.warningCount}개 상품</span>
-      </div>
-      <div className={`${styles.summaryCard} ${styles.safeCard}`}>
-        <span className={styles.summaryLabel}>✅ 안정 (50개 이상)</span>
-        <span className={styles.summaryCount}>{stockSummary.safeCount}개 상품</span>
-      </div>
-    </div>
-
-
-      {/* 로딩 */}
-      {isLoading && (
-        <div className={styles.loadingWrap}>
-          <div className={styles.spinner} />
-          <p>재고 목록을 불러오는 중...</p>
+    <div className={styles.body}>
+      <div className={styles.container}>
+        {/* 페이지 헤더 */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>재고 관리</h1>
+          <p className={styles.subtitle}>
+            전체 {totalElements}개 상품 · 재고 오름차순 정렬
+          </p>
         </div>
-      )}
-
-      {/* 에러 */}
-      {errorMsg && !isLoading && (
-        <div className={styles.errorWrap}>{errorMsg}</div>
-      )}
-
-      {/* 목록 비어있음 */}
-      {!isLoading && !errorMsg && products.length === 0 && (
-        <div className={styles.emptyWrap}>등록된 상품이 없습니다.</div>
-      )}
-
-      {/* 재고 테이블 */}
-      {!isLoading && !errorMsg && products.length > 0 && (
-        <>
-          <StockTable products={products} onEditClick={handleEditClick} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </>
-      )}
-
-      {/* 재고 수정 모달 */}
-      <UpdateStockModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        product={selectedProduct}
-        onSuccess={handleStockUpdateSuccess}
-      />
+  
+        {/* 재고 상태 요약 카드 */}
+        <div className={styles.summaryRow}>
+        <div className={`${styles.summaryCard} ${styles.dangerCard}`}>
+          <span className={styles.summaryLabel}>⚠️ 위험 (0~9개)</span>
+          <span className={styles.summaryCount}>{stockSummary.dangerCount}개 상품</span>
+        </div>
+        <div className={`${styles.summaryCard} ${styles.warningCard}`}>
+          <span className={styles.summaryLabel}>🔔 주의 (10~49개)</span>
+          <span className={styles.summaryCount}>{stockSummary.warningCount}개 상품</span>
+        </div>
+        <div className={`${styles.summaryCard} ${styles.safeCard}`}>
+          <span className={styles.summaryLabel}>✅ 안정 (50개 이상)</span>
+          <span className={styles.summaryCount}>{stockSummary.safeCount}개 상품</span>
+        </div>
+      </div>
+  
+  
+        {/* 로딩 */}
+        {isLoading && (
+          <div className={styles.loadingWrap}>
+            <div className={styles.spinner} />
+            <p>재고 목록을 불러오는 중...</p>
+          </div>
+        )}
+  
+        {/* 에러 */}
+        {errorMsg && !isLoading && (
+          <div className={styles.errorWrap}>{errorMsg}</div>
+        )}
+  
+        {/* 목록 비어있음 */}
+        {!isLoading && !errorMsg && products.length === 0 && (
+          <div className={styles.emptyWrap}>등록된 상품이 없습니다.</div>
+        )}
+  
+        {/* 재고 테이블 */}
+        {!isLoading && !errorMsg && products.length > 0 && (
+          <>
+            <StockTable products={products} onEditClick={handleEditClick} />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
+        )}
+  
+        {/* 재고 수정 모달 */}
+        <UpdateStockModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          product={selectedProduct}
+          onSuccess={handleStockUpdateSuccess}
+        />
+      </div>
     </div>
   )
 }

@@ -36,41 +36,43 @@ const AlertHistory = () => {
   ]]
 
   return (
-    <div className={styles.container}>
-      <PageTitle title='Alert History' />
-
-      <Table
-        headers={headers}
-        data={alerts}
-        renderRow={(alert) => (
-          <>
-          {/* 센서 종류 뱃지 */}
-            <td>
-              <span className={styles.sensorBadge}>
-                {SENSOR_LABEL[alert.sensorType] ?? alert.sensorType}
-              </span>
-            </td>
-
-            {/* 하한 이탈 / 상한 초과 뱃지 */}
-            <td>
-              {alert.thresholdType === 'LOW' ? (
-                <span className={`${styles.typeBadge} ${styles.typeLow}`}>
-                  하한 이탈
+    <div className={styles.body}>
+      <div className={styles.container}>
+        <PageTitle title='Alert History' />
+  
+        <Table
+          headers={headers}
+          data={alerts}
+          renderRow={(alert) => (
+            <>
+            {/* 센서 종류 뱃지 */}
+              <td>
+                <span className={styles.sensorBadge}>
+                  {SENSOR_LABEL[alert.sensorType] ?? alert.sensorType}
                 </span>
-              ) : alert.thresholdType === 'HIGH' ? (
-                <span className={`${styles.typeBadge} ${styles.typeHigh}`}>
-                  상한 초과
-                </span>
-              ) : (
-                <span className={styles.typeBadge}>-</span>
-              )}
-            </td>
-            <td className={styles.valueCell}>{alert.value}</td>
-            <td className={styles.thresholdCell}>{alert.threshold}</td>
-            <td className={styles.timeCell}>{alert.createdAt?.replace('T', ' ').slice(0, 19)}</td>
-          </>
-        )}
-      />
+              </td>
+  
+              {/* 하한 이탈 / 상한 초과 뱃지 */}
+              <td>
+                {alert.thresholdType === 'LOW' ? (
+                  <span className={`${styles.typeBadge} ${styles.typeLow}`}>
+                    하한 이탈
+                  </span>
+                ) : alert.thresholdType === 'HIGH' ? (
+                  <span className={`${styles.typeBadge} ${styles.typeHigh}`}>
+                    상한 초과
+                  </span>
+                ) : (
+                  <span className={styles.typeBadge}>-</span>
+                )}
+              </td>
+              <td className={styles.valueCell}>{alert.value}</td>
+              <td className={styles.thresholdCell}>{alert.threshold}</td>
+              <td className={styles.timeCell}>{alert.createdAt?.replace('T', ' ').slice(0, 19)}</td>
+            </>
+          )}
+        />
+      </div>
     </div>
   )
 }

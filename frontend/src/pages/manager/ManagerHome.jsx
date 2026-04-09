@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styles from './ManagerHome.module.css'
 import dayjs from 'dayjs'
 import { getMemberCount, getMonthSales, getTodayOrder, getTodayPrice, getTotalMember } from '../../api/dashboardApi'
+import CustomBarChart from './CustomBarChart.jsx'
 
 const ManagerHome = () => {
   // 금일, 전일 회원 수 저장 state 변수
@@ -51,6 +52,11 @@ const ManagerHome = () => {
     selectMonthSales(year)
   }, [])
 
+  //연도 변경시 재조회
+  useEffect(() => {
+    selectMonthSales(year)
+  }, [year])
+
   const todayMemberDiff = () => todayMember.todayCount - todayMember.yesterdayCount
   const totalMemberDiff = () => totalMember.totalCount - totalMember.lastMonthCount
   const todayPriceDiff = () => {
@@ -72,6 +78,8 @@ const ManagerHome = () => {
           revenue: found ? found.revenue : 0
       }
   })
+
+
 
   return (
     <div className={styles.container}>
@@ -145,10 +153,10 @@ const ManagerHome = () => {
             </select>
           </div>
           <div className={styles.sales_chart}>
-            막대그래프
+            <CustomBarChart data = { chartData }/>
           </div>
         </div>
-        <div>
+        <div className={styles.order_div}>
           <p>주문 상태현황</p>
           <div>
             <div>결제완료</div>
