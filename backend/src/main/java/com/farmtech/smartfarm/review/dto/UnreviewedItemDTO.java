@@ -15,4 +15,5 @@ public class UnreviewedItemDTO {
   private int orderItemQty;
   private int orderItemPrice;
   private String orderDate;
+  private String imageSavedName;
 }

@@ -7,6 +7,7 @@ import com.farmtech.smartfarm.review.mapper.ReviewMapper;
 import com.farmtech.smartfarm.util.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -69,7 +70,13 @@ public class ReviewService {
   }
 
   //리뷰 수정 기능
-  public void updateReview(ReviewDTO reviewDTO) {
+  @Transactional
+  public void updateReview(ReviewDTO reviewDTO,
+                           MultipartFile imgFile) throws IOException {
+    if (imgFile != null && !imgFile.isEmpty()) {
+      ProductImageDTO img = uploadUtil.fileUpload(imgFile);
+      reviewDTO.setImageUrl(img.getImageSavedName());
+    }
     reviewMapper.updateReview(reviewDTO);
   }
 

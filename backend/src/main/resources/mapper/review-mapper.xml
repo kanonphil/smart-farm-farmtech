@@ -24,6 +24,7 @@
         <result column="ORDER_ITEM_PRICE" property="orderItemPrice" />
         <result column="PRODUCT_NAME" property="productName" />
         <result column="orderDate" property="orderDate" />
+        <result column="IMAGE_SAVED_NAME" property="imageSavedName" />
     </resultMap>
 
     <!-- 리뷰 등록 쿼리 -->
@@ -85,7 +86,7 @@
             r.CONTENT,
             r.CREATED_AT,
             p.PRODUCT_NAME,
-            p.PRODUCT_PRICE
+            r.IMAGE_URL
         FROM REVIEW r
         JOIN PRODUCT p ON r.PRODUCT_ID = p.PRODUCT_ID
         WHERE r.MEMBER_ID = #{memberId}
@@ -101,10 +102,12 @@
             oi.ORDER_ITEM_QTY,
             oi.ORDER_ITEM_PRICE,
             p.PRODUCT_NAME,
-            o.ORDER_CREATED_AT AS orderDate
+            o.ORDER_CREATED_AT AS orderDate,
+            PI.IMAGE_SAVED_NAME
         FROM ORDER_ITEM oi
         JOIN ORDERS o ON oi.ORDER_ID = o.ORDER_ID
         JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
+        LEFT JOIN PRODUCT_IMAGE PI ON p.PRODUCT_ID = PI.PRODUCT_ID AND PI.IMAGE_TYPE = 'MAIN'
         WHERE o.MEMBER_ID = #{memberId}
         AND o.ORDER_CREATED_AT BETWEEN #{startDate} AND #{endDate} + INTERVAL 1 DAY
         AND o.ORDER_STATUS = 'DONE'
@@ -119,6 +122,7 @@
         UPDATE REVIEW
         SET RATING = #{rating},
         CONTENT = #{content}
+        IMAGE_URL = #{imgUrl}
         WHERE REVIEW_ID = #{reviewId}
         AND MEMBER_ID = #{memberId}
     </update>

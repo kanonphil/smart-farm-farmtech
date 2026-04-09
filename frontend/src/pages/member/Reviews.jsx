@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styles from './Reviews.module.css'
 import { deleteReview, getMyReviews, getUnreviewedItems, insertReview, updateReview } from '../../api/reviewApi'
 import { useNavigate } from 'react-router-dom'
+import Input from '../../components/common/Input'
 
 const Reviews = () => {
     const nav = useNavigate();
@@ -21,11 +22,16 @@ const Reviews = () => {
     const [writtenList, setWrittenList] = useState([])
     
     const [reviewForm, setReviewForm] = useState({ rating: 0, content: '' })
+    // 리뷰 이미지 파일 + 미리보기 (등록)
+    const [reviewImage, setReviewImage] = useState(null)
+    const [preview, setPreview] = useState(null)
     // 수정 모드 여부 (reviewId 저장)
     const [editId, setEditId] = useState(null)
     // 수정 입력값
     const [editForm, setEditForm] = useState({ rating: 0, content: '' })
-
+    // 수정 시 이미지 편집,프리뷰
+    const [editImage,setEditImage] = useState();
+    const [editPreview,setEditPreview] = useState();
 
 
 
@@ -62,7 +68,9 @@ const Reviews = () => {
     // 아코디언 열기/닫기 (같은 항목 클릭 시 닫힘)
     const handleAccordion = (id) => {
       setOpenId(prev => prev === id ? null : id)
-      setReviewForm({ rating: 0, content: '' }) // 열 때마다 입력값 초기화
+      setReviewForm({ rating: 0, content: '' })
+      setReviewImage(null)
+      setPreview(null)
     }
 
     // 리뷰 등록 처리
@@ -94,6 +102,7 @@ const Reviews = () => {
       fetchData()
     }
       
+    console.log(writtenList)
 
  return (
     <div className={styles.container}>
@@ -167,20 +176,31 @@ const Reviews = () => {
                 <p>{item.productName}</p>
                 <p>{item.orderDate?.split('T')[0]}</p>
                 <span>{openId === item.orderItemId ? '▲' : '▼'}</span>
+                {item.imageSavedName && (
+                  <img src={item.imageSavedName} className={styles.product_thumb} />
+                )}
               </div>
 
               {/* 아코디언 바디 - 별점 + 내용 입력 */}
               {openId === item.orderItemId && (
                 <div className={styles.accordion_body}>
-                  {/* 별점 선택 */}
-                  <div className={styles.star_div}>
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <span
-                        key={star}
-                        className={star <= reviewForm.rating ? styles.star_on : styles.star_off}
-                        onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
-                      >★</span>
-                    ))}
+                  {/* 별점 + 이미지 프리뷰 */}
+                  <div className={styles.star_preview_row}>
+                    <div className={styles.star_div}>
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <span
+                          key={star}
+                          className={star <= reviewForm.rating ? styles.star_on : styles.star_off}
+                          onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                        >★</span>
+                      ))}
+                    </div>
+                    <div className={styles.review_preview}>
+                      {preview
+                        ? <img src={preview} className={styles.review_preview_img} />
+                        : <span className={styles.review_preview_placeholder}>미리보기</span>
+                      }
+                    </div>
                   </div>
                   {/* 리뷰 내용 입력 */}
                   <textarea
@@ -189,12 +209,23 @@ const Reviews = () => {
                     onChange={e => setReviewForm(prev => ({ ...prev, content: e.target.value }))}
                     className={styles.textarea}
                   />
-                  <button
-                    className={styles.submit_btn}
-                    onClick={() => handleSubmit(item.orderItemId)}
-                  >
-                    등록하기
-                  </button>
+                  <div className={styles.file_row}>
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      onChange={e => {
+                        const file = e.target.files[0]
+                        setReviewImage(file)
+                        setPreview(file ? URL.createObjectURL(file) : null)
+                      }}
+                    />
+                    <button
+                      className={styles.submit_btn}
+                      onClick={() => handleSubmit(item.orderItemId)}
+                    >
+                      등록하기
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -229,13 +260,28 @@ const Reviews = () => {
                     className={styles.product_link}
                     onClick={() => nav(`/products/${item.productId}`)}
                   >
+                    <div>
+                      {item.imageUrl &&
+                      <img
+                       src={item.imageUrl}
+                       style={{
+                        width:'50px',
+                        height:'50px',
+                        objectFit: 'cover',
+                        borderRadius :'4px'
+                       }}
+                      />}
+                    </div>
                     <p>{item.productName}</p>
                     <span>상품 보러가기 →</span>
                   </div>
+            
+                
 
                   {editId === item.reviewId ? (
                     /* 수정 모드 */
                     <>
+                    <div className={styles.star_preview_row}>
                       <div className={styles.star_div}>
                         {[1, 2, 3, 4, 5].map(star => (
                           <span
@@ -245,24 +291,46 @@ const Reviews = () => {
                           >★</span>
                         ))}
                       </div>
+                      <div className={styles.review_preview}>
+                        {editPreview
+                          ? <img src={editPreview} className={styles.review_preview_img} />
+                          : <span className={styles.review_preview_placeholder}>미리보기</span>
+                        }
+                      </div>
+                    </div>
                       <textarea
                         value={editForm.content}
                         onChange={e => setEditForm(prev => ({ ...prev, content: e.target.value }))}
                         className={styles.textarea}
                       />
-                      <div className={styles.btn_row}>
-                        <button
-                          className={styles.submit_btn}
-                          onClick={() => handleUpdate(item.reviewId)}
-                        >
-                          저장
-                        </button>
-                        <button
-                          className={styles.cancel_btn}
-                          onClick={() => setEditId(null)}
-                        >
-                          취소
-                        </button>
+                      <div className={styles.file_row}>
+                        <Input
+                          type='file'
+                          accept='image/*'
+                          onChange={e => {
+                            const file = e.target.files[0]
+                            setEditPreview(file ? URL.createObjectURL(file):null);
+                            setEditImage(file);
+                          }}
+                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            className={styles.submit_btn}
+                            onClick={() => handleUpdate(item.reviewId)}
+                          >
+                            저장
+                          </button>
+                          <button
+                            className={styles.cancel_btn}
+                            onClick={() => {
+                              setEditId(null)
+                              setEditImage(null)
+                              setEditPreview(null)
+                            }}
+                          >
+                            취소
+                          </button>
+                        </div>
                       </div>
                     </>
                   ) : (
