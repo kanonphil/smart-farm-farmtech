@@ -97,150 +97,152 @@ const ProductRegister = () => {
 
 
   return (
-    <div className={styles.container}>
-      
-      <div className={styles.imgPreviewArea}>
-        {/* 좌측 - 대표 이미지 */}
-        <div className={styles.mainImgPre}>
-          {mainImgPreviews && <img src={mainImgPreviews}/>}
+    <div className={styles.body}>
+      <div className={styles.container}>
+        
+        <div className={styles.imgPreviewArea}>
+          {/* 좌측 - 대표 이미지 */}
+          <div className={styles.mainImgPre}>
+            {mainImgPreviews && <img src={mainImgPreviews}/>}
+          </div>
+  
+          {/* 가운데 - 서브 이미지들 */}
+          <div className={styles.subImgsPre}>
+            {subImgsPreviews && subImgsPreviews.map((url,i) => (
+              <img key={i} src={url}/>
+            ))}
+          </div>
+  
+          {/* 우측 - 상세페이지 이미지 */}
+          <div className={styles.detailImgPre}>
+            {detailPreviews && <img src={detailPreviews}/>}
+          </div>
         </div>
-
-        {/* 가운데 - 서브 이미지들 */}
-        <div className={styles.subImgsPre}>
-          {subImgsPreviews && subImgsPreviews.map((url,i) => (
-            <img key={i} src={url}/>
-          ))}
-        </div>
-
-        {/* 우측 - 상세페이지 이미지 */}
-        <div className={styles.detailImgPre}>
-          {detailPreviews && <img src={detailPreviews}/>}
-        </div>
-      </div>
-      
-
-      <div className={styles.imageSelecter}>
-        <div>
-          <p>대표 이미지를 선택해주세요.</p>
-          <Input
-            key={`main-${fileInputKey}`}
-            type='file'
-            onChange={e => {
-              setMainImg(e.target.files[0]);
-              setmainImgPreviews(URL.createObjectURL(e.target.files[0]));//임시 생성 URL
-            }}
-          />
-          
-        </div>
-        <div>
-          <p>상세이미지를 선택해주세요. </p>
-          
-          <Input
-              key={`sub-${fileInputKey}`}
+        
+  
+        <div className={styles.imageSelecter}>
+          <div>
+            <p>대표 이미지를 선택해주세요.</p>
+            <Input
+              key={`main-${fileInputKey}`}
               type='file'
-              multiple={true}
               onChange={e => {
-                const filesArr = [];
-
-                for(let i = 0; i < e.target.files.length; i++){
-                  filesArr.push(e.target.files[i])
-                }
-                setSubImgs(filesArr)
-                setSubImgsPreviews(filesArr.map(file => URL.createObjectURL(file)));
+                setMainImg(e.target.files[0]);
+                setmainImgPreviews(URL.createObjectURL(e.target.files[0]));//임시 생성 URL
               }}
-            />  
+            />
+            
+          </div>
+          <div>
+            <p>상세이미지를 선택해주세요. </p>
+            
+            <Input
+                key={`sub-${fileInputKey}`}
+                type='file'
+                multiple={true}
+                onChange={e => {
+                  const filesArr = [];
+  
+                  for(let i = 0; i < e.target.files.length; i++){
+                    filesArr.push(e.target.files[i])
+                  }
+                  setSubImgs(filesArr)
+                  setSubImgsPreviews(filesArr.map(file => URL.createObjectURL(file)));
+                }}
+              />  
+          </div>
+          <div>
+            <p>상세페이지 이미지를 선택해주세요.</p>
+            <Input
+              key={`detail-${fileInputKey}`}
+              type='file'
+              onChange={e => {
+                setdetailImgs(e.target.files[0]);
+                setDetailPreviews(URL.createObjectURL(e.target.files[0]));
+              }}
+            />
+          </div>
         </div>
+  
         <div>
-          <p>상세페이지 이미지를 선택해주세요.</p>
+          {/* 상품명 */}
+          <p>상품명</p>
           <Input
-            key={`detail-${fileInputKey}`}
-            type='file'
-            onChange={e => {
-              setdetailImgs(e.target.files[0]);
-              setDetailPreviews(URL.createObjectURL(e.target.files[0]));
-            }}
-          />
-        </div>
-      </div>
-
-      <div>
-        {/* 상품명 */}
-        <p>상품명</p>
-        <Input
-          name='productName'
-          value={productData.productName}
-          onChange={handleProductData}
-        />
-      </div>
-
-      <div>
-        <div>
-          <p>가격</p>
-          {/* 가격 */}
-          <Input 
-            name='productPrice'
-            value={productData.productPrice}
+            name='productName'
+            value={productData.productName}
             onChange={handleProductData}
           />
         </div>
+  
         <div>
-          <p>재고</p>
-          {/* 재고 */}
+          <div>
+            <p>가격</p>
+            {/* 가격 */}
+            <Input 
+              name='productPrice'
+              value={productData.productPrice}
+              onChange={handleProductData}
+            />
+          </div>
+          <div>
+            <p>재고</p>
+            {/* 재고 */}
+            <Input
+              name='productStock'
+              value={productData.productStock}
+              onChange={handleProductData}
+            />
+          </div>
+        </div>
+  
+        <div>
+          {/* 상품설명 */}
+          <p>상품설명</p>
           <Input
-            name='productStock'
-            value={productData.productStock}
+            name='productDesc'
+            type="textarea"
+            value={productData.productDesc}
             onChange={handleProductData}
           />
         </div>
-      </div>
-
-      <div>
-        {/* 상품설명 */}
-        <p>상품설명</p>
-        <Input
-          name='productDesc'
-          type="textarea"
-          value={productData.productDesc}
-          onChange={handleProductData}
-        />
-      </div>
-
-      <div>
-        <p>카테고리</p>
-        {/* 카테고리 선택 */}
-        <Select
-          name='categoryId'
-          value={productData.categoryId}
-          onChange={handleProductData}
-          options={cateList.map(c => ({ value: c.categoryId, label: c.categoryName }))}
-          placeholder='카테고리를 선택하세요'
-        />
-      </div>
-
-      <div>
-        <p>상품상태</p>
-        {/* 상품상태 */}
-        <Select
-          name='productStatus'
-          value={productData.productStatus}
-          onChange={handleProductData}
-          options={[
-            { value: 'ACTIVE', label: '판매중' },
-            { value: 'INACTIVE', label: '판매중지' }
-          ]}
-          placeholder='상품 상태를 선택하세요'
-        />
-      </div>
-
-      <div>
-        <Button
-          type='button'
-          title='도서등록'
-          fullWidth
-          onClick={regProducts}
-        >
-        상품등록  
-        </Button>
+  
+        <div>
+          <p>카테고리</p>
+          {/* 카테고리 선택 */}
+          <Select
+            name='categoryId'
+            value={productData.categoryId}
+            onChange={handleProductData}
+            options={cateList.map(c => ({ value: c.categoryId, label: c.categoryName }))}
+            placeholder='카테고리를 선택하세요'
+          />
+        </div>
+  
+        <div>
+          <p>상품상태</p>
+          {/* 상품상태 */}
+          <Select
+            name='productStatus'
+            value={productData.productStatus}
+            onChange={handleProductData}
+            options={[
+              { value: 'ACTIVE', label: '판매중' },
+              { value: 'INACTIVE', label: '판매중지' }
+            ]}
+            placeholder='상품 상태를 선택하세요'
+          />
+        </div>
+  
+        <div>
+          <Button
+            type='button'
+            title='도서등록'
+            fullWidth
+            onClick={regProducts}
+          >
+          상품등록  
+          </Button>
+        </div>
       </div>
     </div>
   )

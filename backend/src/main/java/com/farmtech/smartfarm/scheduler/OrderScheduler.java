@@ -1,5 +1,6 @@
 package com.farmtech.smartfarm.scheduler;
 
+import com.farmtech.smartfarm.notification.service.NotificationService;
 import com.farmtech.smartfarm.order.dto.ManagerOrderDTO;
 import com.farmtech.smartfarm.order.mapper.ManagerOrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
 public class OrderScheduler {
 
   private final ManagerOrderMapper managerOrderMapper;
+  private final NotificationService notificationService;
 
   /**
    * 스케줄러 1: 배송 완료 자동 처리
@@ -47,6 +49,13 @@ public class OrderScheduler {
         int result = managerOrderMapper.updateToShipped(order.getOrderId(), now);
         if (result == 1) {
           log.info("[스케줄러] 배송 완료 처리 완료 - orderId: {}", order.getOrderId());
+
+          // 알림 전송
+          notificationService.createNotification(
+                  order.getMemberId(),
+                  "상품 배송이 완료되었습니다.",
+                  "/mypage/orders"
+          );
         }
       } catch (Exception e) {
         log.error("[스케줄러] 배송 완료 처리 실패 - orderId: {}", order.getOrderId(), e);

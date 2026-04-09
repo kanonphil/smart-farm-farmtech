@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.notification.mapper.NotificationMapper">
+	<resultMap id="notificationMap" type="com.farmtech.smartfarm.notification.dto.NotificationDTO">
+        <id     column="NOTIFICATION_ID"    property="notificationId" />
+        <result column="MEMBER_ID"          property="memberID" />
+        <result column="MESSAGE"            property="message" />
+        <result column="LINK"               property="link" />
+        <result column="IS_READ"            property="isRead" />
+        <result column="CREATED_AT"         property="createdAt" />
+    </resultMap>
+
+    <!-- 알림 저장 -->
+    <insert id="insertNotification">
+        INSERT INTO NOTIFICATIONS (MEMBER_ID, MESSAGE, LINK)
+        VALUES (#{memberId}, #{message}, #{link})
+    </insert>
+
+    <!-- 안 읽은 알림 목록 -->
+    <select id="selectUnreadNotifications" resultMap="notificationMap">
+        SELECT NOTIFICATION_ID,
+               MEMBER_ID,
+               MESSAGE,
+               LINK,
+               IS_READ,
+               CREATED_AT
+        FROM NOTIFICATIONS
+        WHERE MEMBER_ID = #{memberId}
+        AND IS_READ = 0
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- 읽음 처리 -->
+    <update id="updateMarkAsRead">
+        UPDATE NOTIFICATIONS
+        SET IS_READ = 1
+        WHERE NOTIFICAION_ID = #{notificationId}
+    </update>
+</mapper>
