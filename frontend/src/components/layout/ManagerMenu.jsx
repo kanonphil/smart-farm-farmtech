@@ -7,6 +7,7 @@ import {
   MdMemory, MdTune, MdNotifications, MdHome,
   MdExpandLess, MdExpandMore
 } from 'react-icons/md'
+import { AiOutlineLineChart } from 'react-icons/ai'
 
 const ManagerMenu = () => {
   const navigate = useNavigate()
@@ -80,30 +81,16 @@ const ManagerMenu = () => {
         <div className={`${styles.section_items} ${openSection === '스마트팜' ? styles.open : ''}`}>
           <NavLink
             to='sensor-chart'
-            className={(param) => param.isActive ? styles.active : ''}
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            데이터 분석
+           <AiOutlineLineChart size={18} /> 데이터 분석
           </NavLink>
-        </li>
-        <li>
           <NavLink
             to='actuator'
             className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            <MdMemory size={18} /> 액츄에이터 제어
-          </NavLink>
-          <NavLink
-            to='threshold'
-            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
-          >
-            <MdTune size={18} /> 임계값 설정
-          </NavLink>
-          <NavLink
-            to='alerts'
-            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
-          >
-            <MdNotifications size={18} /> 알림 이력
-          </NavLink>
+            <MdMemory size={18} /> 기기 제어
+            </NavLink>
         </div>
 
       </nav>
