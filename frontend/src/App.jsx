@@ -4,7 +4,6 @@ import Join from "./pages/member/Join"
 import Login from './pages/member/Login'
 import ActuatorControl from "./pages/manager/ActuatorControl"
 import ManagerLayout from "./components/layout/ManagerLayout"
-import ThresholdPreset from "./pages/manager/ThresholdPreset"
 import ProductRegister from "./pages/manager/ProductRegister"
 import AlertHistory from "./pages/manager/AlertHistory"
 import ManagerHome from "./pages/manager/ManagerHome"
@@ -84,8 +83,7 @@ function App() {
           <Route index element={<ManagerHome/>} />
           <Route path='reg-product' element={<ProductRegister />} />
           <Route path='actuator' element={<ActuatorControl />} />
-          <Route path='threshold' element={<ThresholdPreset />} />
-          <Route path='alerts' element={<AlertHistory />} />
+          {/* <Route path='alerts' element={<AlertHistory />} /> */}
           <Route path='products' element={<Products/>} />
           <Route path='stock' element={<Stock />} />
           <Route path='orders' element={<OrderManage />} />
