@@ -25,3 +25,15 @@
 .detected {
   color: #ef4444;
 }
+
+.status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0.4rem 0 0 0;
+}
+
+.great { color: #2563eb; }
+.good  { color: #16a34a; }
+.low   { color: #ef4444; }
+.high  { color: #ef4444; }
+.bad   { color: #ef4444; }

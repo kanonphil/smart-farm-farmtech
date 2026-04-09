@@ -4,6 +4,8 @@ import com.farmtech.smartfarm.threshold.dto.ThresholdPresetDTO;
 import com.farmtech.smartfarm.threshold.mapper.ThresholdMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -11,12 +13,19 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class ThresholdService {
   private final ThresholdMapper thresholdMapper;
-  private final RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate;
   private final String IOT_URL = "http://192.168.30.235:8000";
+
+  public ThresholdService(ThresholdMapper thresholdMapper) {
+    this.thresholdMapper = thresholdMapper;
+    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+    factory.setConnectTimeout(3000);  // 연결 시도 최대 3초
+    factory.setReadTimeout(3000);     // 응답 대기 최대 3초
+    this.restTemplate = new RestTemplate(factory);
+  }
 
   // 전체 프리셋 목록 반환
   public List<ThresholdPresetDTO> getAllPreset() {
@@ -51,6 +60,7 @@ public class ThresholdService {
     thresholdMapper.activatePreset(id);
   }
 
+  @Async
   public void notifyIoTServer() {
     try {
       restTemplate.postForObject(IOT_URL + "/threshold/reload", null, String.class);
