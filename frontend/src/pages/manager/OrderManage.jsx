@@ -158,13 +158,13 @@ const OrderManage = () => {
                 <th>배송시작일시</th>
                 <th>예상배송완료</th>
                 <th>상태</th>
-                <th>처리</th>
+                {/* <th>처리</th> */}
               </tr>
             </thead>
             <tbody>
               {displayedOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className={styles.empty}>주문 내역이 없습니다.</td>
+                  <td colSpan={8} className={styles.empty}>주문 내역이 없습니다.</td>
                 </tr>
               ) : (
                 displayedOrders.map(order => (
@@ -179,13 +179,8 @@ const OrderManage = () => {
                     <td>{order.shippingStartedAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
                     <td>{order.expectedDeliveredAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
                     <td>
-                      <span className={getStatusClass(order.orderStatus)}>
-                        {getStatusLabel(order.orderStatus)}
-                      </span>
-                    </td>
-                    <td>
                       {/* PAID 상태일 때만 배송 시작 버튼 표시 */}
-                      {order.orderStatus === 'PAID' && (
+                      {order.orderStatus === 'PAID' ? (
                         <button
                           className={styles.shippingBtn}
                           onClick={() => handleShippingStart(order.orderId)}
@@ -193,8 +188,12 @@ const OrderManage = () => {
                         >
                           {shippingLoadingId === order.orderId ? '처리중...' : '배송 시작'}
                         </button>
+                      ) : (
+                        <span className={getStatusClass(order.orderStatus)}>
+                          {getStatusLabel(order.orderStatus)}
+                        </span>
                       )}
-                      {order.orderStatus === 'SHIPPING' && (
+                      {/* {order.orderStatus === 'SHIPPING' && (
                         <span className={styles.statusText}>배송 중</span>
                       )}
                       {order.orderStatus === 'SHIPPED' && (
@@ -202,7 +201,7 @@ const OrderManage = () => {
                       )}
                       {order.orderStatus === 'DONE' && (
                         <span className={styles.statusText}>구매 확정 완료</span>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                 ))

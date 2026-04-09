@@ -83,7 +83,6 @@ function App() {
           <Route index element={<ManagerHome/>} />
           <Route path='reg-product' element={<ProductRegister />} />
           <Route path='actuator' element={<ActuatorControl />} />
-          {/* <Route path='alerts' element={<AlertHistory />} /> */}
           <Route path='products' element={<Products/>} />
           <Route path='stock' element={<Stock />} />
           <Route path='orders' element={<OrderManage />} />
