@@ -59,23 +59,7 @@ const ManagerMenu = () => {
             to='actuator'
             className={(param) => param.isActive ? styles.active : ''}
           >
-            액츄에이터 제어
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to='threshold'
-            className={(param) => param.isActive ? styles.active : ''}
-          >
-            임계값 설정
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to='alerts'
-            className={(param) => param.isActive ? styles.active : ''}
-          >
-            알림 이력
+            기기 제어
           </NavLink>
         </li>
       </ul>
