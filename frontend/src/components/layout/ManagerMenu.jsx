@@ -1,60 +1,83 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import styles from './ManagerMenu.module.css'
-import logo from '../../assets/logo.png'
+import logo from '../../assets/logo-dark.png'
+import { useState } from 'react'
+import {
+  MdDashboard, MdAddBox, MdInventory, MdListAlt,
+  MdMemory, MdTune, MdNotifications, MdHome,
+  MdExpandLess, MdExpandMore
+} from 'react-icons/md'
 
 const ManagerMenu = () => {
   const navigate = useNavigate()
-  
+  const [openSection, setOpenSection] = useState('상품') // 기본으로 열려있는 섹션
+
+  const toggleSection = (section) => {
+    setOpenSection(prev => prev === section ? null : section)
+  }
+
   return (
     <div className={styles.container}>
-      {/* 로고 클릭 시 메인 페이지로 이동 */}
-      <div className={styles.logo_div}>
-        <img src={logo} alt={() => navigate('/')} />
+
+      {/* 로고 */}
+      <div className={styles.logo_div} onClick={() => navigate('/')}>
+        <img src={logo} alt="logo" />
       </div>
 
-      {/* 관리자 타이틀 */}
+      {/* 프로필 */}
       <div className={styles.profile}>
-        <p className={styles.name}>관리자</p>
-        <p className={styles.welcome}>스마트팜 관리 시스템</p>
+        <div className={styles.avatar}>관</div>
+        <div>
+          <p className={styles.name}>관리자</p>
+          <span className={styles.role}>Admin</span>
+        </div>
       </div>
 
-      {/* 관리자 메뉴 목록 */}
-      {/* NavLink: 현재 경로와 일치하면 isActive가 true -> active 스타일 적용 */}
-      <ul className={styles.menu_list}>
-        <li>
-          <NavLink
-            to=''
-            end
-            className={(param) => param.isActive ? styles.active : ''}
-          >
-            홈
-          </NavLink>
-        </li>
-        <li>
+      {/* 메뉴 */}
+      <nav className={styles.menu_nav}>
+
+        {/* 메인 */}
+        <div className={styles.section_label_static}>메인</div>
+        <NavLink
+          to=''
+          end
+          className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
+        >
+          <MdDashboard size={18} /> 대시보드
+        </NavLink>
+
+        {/* 상품 섹션 */}
+        <div className={styles.section_label} onClick={() => toggleSection('상품')}>
+          <span>상품</span>
+          {openSection === '상품' ? <MdExpandLess size={16}/> : <MdExpandMore size={16}/>}
+        </div>
+        <div className={`${styles.section_items} ${openSection === '상품' ? styles.open : ''}`}>
           <NavLink
             to='reg-product'
-            className={(param) => param.isActive ? styles.active : ''}
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            상품 등록
+            <MdAddBox size={18} /> 상품 등록
           </NavLink>
-        </li>
-        <li>
           <NavLink
             to='stock'
-            className={(param) => param.isActive ? styles.active : ''}
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            재고 관리
+            <MdInventory size={18} /> 재고 관리
           </NavLink>
-        </li>
-        <li>
           <NavLink
             to='orders'
-            className={(param) => param.isActive ? styles.active : ''}
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            주문 관리
+            <MdListAlt size={18} /> 주문 관리
           </NavLink>
-        </li>
-        <li>
+        </div>
+
+        {/* 스마트팜 섹션 */}
+        <div className={styles.section_label} onClick={() => toggleSection('스마트팜')}>
+          <span>스마트팜</span>
+          {openSection === '스마트팜' ? <MdExpandLess size={16}/> : <MdExpandMore size={16}/>}
+        </div>
+        <div className={`${styles.section_items} ${openSection === '스마트팜' ? styles.open : ''}`}>
           <NavLink
             to='sensor-chart'
             className={(param) => param.isActive ? styles.active : ''}
@@ -65,12 +88,33 @@ const ManagerMenu = () => {
         <li>
           <NavLink
             to='actuator'
-            className={(param) => param.isActive ? styles.active : ''}
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
-            기기 제어
+            <MdMemory size={18} /> 액츄에이터 제어
           </NavLink>
-        </li>
-      </ul>
+          <NavLink
+            to='threshold'
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
+          >
+            <MdTune size={18} /> 임계값 설정
+          </NavLink>
+          <NavLink
+            to='alerts'
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
+          >
+            <MdNotifications size={18} /> 알림 이력
+          </NavLink>
+        </div>
+
+      </nav>
+
+      {/* 하단 */}
+      <div className={styles.footer}>
+        <div className={styles.menu_item} onClick={() => navigate('/')}>
+          <MdHome size={18} /> 메인 사이트
+        </div>
+      </div>
+
     </div>
   )
 }

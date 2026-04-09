@@ -36,4 +36,19 @@ public class DashboardService {
   public List<DashboardDTO> getMonthSales(int year){
     return dashboardMapper.getMonthSales(year);
   }
+
+  //주문 상태 조회 기능
+  public DashboardDTO getOrderStatus(){
+    return dashboardMapper.getOrderStatus();
+  }
+
+  //회원 별 구매순위 탑 10 기능
+  public List<DashboardDTO> getMemberRank(){
+    return dashboardMapper.getMemberRank();
+  }
+
+  //상품별 탑5 기능
+  public List<DashboardDTO> getProductRank(){
+    return dashboardMapper.getProductRank();
+  }
 }

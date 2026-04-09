@@ -447,7 +447,7 @@ const AiChef = () => {
                       <div className={styles.productBtns}>
                         <button
                           className={styles.viewBtn}
-                          onClick={() => navigate(`/product/${product.productId}`)}
+                          onClick={() => navigate(`/products/${product.productId}`)}
                         >
                           상품 보러가기
                         </button>

@@ -20,4 +20,13 @@ public class DashboardDTO {
   private int yesterdayOrders;
   private int month;
   private int revenue;
+  private int paidCount;
+  private int shippedCount;
+  private int doneCount;
+  private int cancelCount;
+  private int totalAmount;
+  private int orderCount;
+  private String memberName;
+  private String productName;
+  private int totalQty;
 }

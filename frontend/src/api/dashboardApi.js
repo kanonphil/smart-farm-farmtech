@@ -36,7 +36,39 @@ export const getTodayOrder = async () => {
   return response.data
 }
 
+/**
+ * 해당연도 월별 매출 조회
+ * @param {*} year 
+ * @returns 
+ */
 export const getMonthSales = async (year) => {
   const response = await axiosInstance.get(`/dashboards/sales-month/${year}`)
+  return response.data
+}
+
+/**
+ * 주문 상태 조회
+ * @returns 
+ */
+export const getOrderStatus = async () => {
+  const response = await axiosInstance.get('/dashboards/order-status')
+  return response.data
+}
+
+/**
+ * 멤버 별 구매순위 탑10 
+ * @returns 
+ */
+export const getMemberRank = async () => {
+  const response = await axiosInstance.get('/dashboards/member-rank')
+  return response.data
+}
+
+/**
+ * 상품 별 판매순위 탑 5
+ * @returns 
+ */
+export const getProductRank = async () => {
+  const response = await axiosInstance.get('/dashboards/product-rank')
   return response.data
 }

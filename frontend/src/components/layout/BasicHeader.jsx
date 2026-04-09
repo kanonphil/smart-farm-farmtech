@@ -17,7 +17,6 @@ const BasicHeader = () => {
 
   const decoded = decodeToken(token)
 
-
   //로그아웃 함수
   const logout = async () => {
     try{
@@ -51,9 +50,13 @@ const BasicHeader = () => {
               <li><NotificationBell /></li>
               <li><Link to='/cart'>장바구니</Link></li>
               <li><Link to='/pw-confirm'>마이페이지</Link></li>
+              
               <li
                 onClick={()=>logout()}
               >로그아웃</li>
+              {
+                decoded?.role === 'ROLE_MANAGER' && <Link to='/manager'><li style={{color : 'red', fontWeight : 'bolder'}}>관리자페이지</li></Link>
+              }
             </ul>
           </div>
         :
