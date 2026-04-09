@@ -30,18 +30,27 @@ public class JwtConfirmFilter extends OncePerRequestFilter {
         //요청 헤더에 담긴 토큰 정보 받기
         String authorization = request.getHeader("Authorization");
 
-        //Authorization 정보가 없거나, 토큰이 Bearer로 시작하지 않으면...
-        if(authorization == null || !authorization.startsWith("Bearer ")){
-            System.out.println("토큰 정보가 없습니다.");
-
-            //필터 진행 후 다음 코드 이어서 진행하는 코드
-            filterChain.doFilter(request, response);
-
-            return;
+        //SSE 연결처럼 헤더를 못 보내는 경우를 위해 쿼리 파리미터로도 토큰 허용
+        String token;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+          token = authorization.split(" ")[1];
+        } else if (request.getParameter("token") != null) {
+          String paramToken = request.getParameter("token");
+          // 토큰에 "Bearer " 접두사가 포함된 경우 분리
+          token = paramToken.startsWith("Bearer ") ? paramToken.split(" ")[1] : paramToken;
+        } else {
+          filterChain.doFilter(request, response);
+          return;
         }
 
+        //Authorization 정보가 없거나, 토큰이 Bearer로 시작하지 않으면...
+        //if(authorization == null || !authorization.startsWith("Bearer ")){
+        //    System.out.println("토큰 정보가 없습니다.");
+        //    return;
+        //}
+
         //요청 헤더에서 받아온 토큰 정보에서 Bearer 키워드를 제거
-        String token = authorization.split(" ")[1];
+        //String token = authorization.split(" ")[1];
 
         //필터 진행 후 다음 코드 이어서 진행하는 코드
         // filterChain.doFilter(request, response);
