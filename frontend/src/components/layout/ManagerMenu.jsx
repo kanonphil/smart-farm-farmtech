@@ -56,6 +56,14 @@ const ManagerMenu = () => {
         </li>
         <li>
           <NavLink
+            to='sensor-chart'
+            className={(param) => param.isActive ? styles.active : ''}
+          >
+            데이터 분석
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
             to='actuator'
             className={(param) => param.isActive ? styles.active : ''}
           >

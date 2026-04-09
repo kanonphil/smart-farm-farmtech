@@ -60,3 +60,15 @@ export const updateManagerProductStock = async (productId, payload) => {
   const response = await axiosInstance.patch(`/manager/products/${productId}/stock`, payload)
   return response
 }
+
+/**
+ * 기간별 센서 이력 조회
+ * @param {string} start - 시작일 (yyyy-MM-dd)
+ * @param {string} end - 종료일 (yyyy-MM-dd)
+ */
+export const getSensorHistory = async (start, end) => {
+  const response = await axiosInstance.get('/sensors/history', {
+    params: { start, end }
+  })
+  return response.data
+}

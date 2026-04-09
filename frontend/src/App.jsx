@@ -31,6 +31,7 @@ import { useEffect } from "react"
 import { axiosInstance } from "./api/axiosInstance"
 import Stock from "./pages/manager/Stock"
 import OrderManage from './pages/manager/OrderManage'
+import SensorChart from "./pages/manager/SensorChart"
 
 function App() {
   const { setToken } = useAuthStore()
@@ -86,6 +87,7 @@ function App() {
           <Route path='products' element={<Products/>} />
           <Route path='stock' element={<Stock />} />
           <Route path='orders' element={<OrderManage />} />
+          <Route path='sensor-chart' element={<SensorChart />} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}

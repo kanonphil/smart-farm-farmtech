@@ -3,7 +3,9 @@ package com.farmtech.smartfarm.sensor.mapper;
 import com.farmtech.smartfarm.sensor.dto.SensorDTO;
 import com.farmtech.smartfarm.sensor.dto.SensorReceiveDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -18,13 +20,15 @@ public interface SensorMapper {
   // 조도 조회 메서드
   SensorDTO getLight();
 
-  // 온습도 저장
-  void insertDht(SensorReceiveDTO dto);
+  // 기간별 온습도 이력 조회
+  List<SensorDTO> getDhtHistory(@Param("start")LocalDate start,
+                                @Param("end") LocalDate end);
 
-  // 조도 저장
-  void insertLight(SensorReceiveDTO dto);
+  // 기간별 조도 이력 조회
+  List<SensorDTO> getLightHistory(@Param("start")LocalDate start,
+                                  @Param("end") LocalDate end);
 
-  // 대기질 저장
-
-  // 모션 저장
+  // 기간별 대기질 이력 조회
+  List<SensorDTO> getAirHistory(@Param("start")LocalDate start,
+                                @Param("end") LocalDate end);
 }
