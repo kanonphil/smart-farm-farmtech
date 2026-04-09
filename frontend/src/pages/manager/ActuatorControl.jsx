@@ -232,7 +232,11 @@ const ActuatorControl = () => {
   ]]
 
   
-  if (loading && !status) return <div>Loading...</div>
+  if (loading && !status) return (
+    <div className={styles.loadingWrap}>
+      <div className={styles.spinner} />
+    </div>
+  )
   if (!status && !isConnected && !fallbackSensor) {
     return <div className={styles.connectionError}>서버와 연결할 수 없습니다.</div>
   }
@@ -253,7 +257,7 @@ const ActuatorControl = () => {
           <Button
             size='small'
             onClick={fetchStatus}
-            variant='secondary'
+            variant='dark'
             disabled={isConnected}
           >재연결 시도</Button>
         </div>
