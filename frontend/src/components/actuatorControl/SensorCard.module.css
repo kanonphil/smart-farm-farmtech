@@ -32,7 +32,8 @@
   margin: 0.4rem 0 0 0;
 }
 
-.good { color: #16a34a; }
-.low  { color: #2563eb; }
-.high { color: #ef4444; }
-.bad  { color: #dc2626; }
+.great { color: #2563eb; }
+.good  { color: #16a34a; }
+.low   { color: #ef4444; }
+.high  { color: #ef4444; }
+.bad   { color: #ef4444; }

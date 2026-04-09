@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { buzzerOff, buzzerOn, fanOff, fanOn, getStatus, ledOff, ledOn, setMode } from '../../api/iotApi'
 import PageTitle from '../../components/common/PageTitle'
 import SensorCard from '../../components/actuatorControl/SensorCard'
@@ -44,7 +44,7 @@ const getSensorStatus = (type, value, preset) => {
       if (value > preset.luxHigh) return make('과다', 'high')
       return make('적정', 'good')
     case 'air':
-      if (value < preset.airPpmLow) return make('좋음', 'good')
+      if (value < preset.airPpmLow) return make('좋음', 'great')
       if (value > preset.airPpmBad) return make('나쁨', 'bad')
       return make('적정', 'good')
     default:
@@ -77,45 +77,57 @@ const ActuatorControl = () => {
   /** 폴백 데이터 측정 시각 */
   const [fallbackRecordedAt, setFallbackRecordedAt] = useState(null)
 
-  useEffect(() => {
-    // /status API 호출 함수
-    const fetchStatus = async () => {
-      try {
-        const data = await getStatus()
-        setStatus(data)
-        setIsConnected(true)
-      } catch (error) {
-        console.error('상태 조회 실패:', error);
-        setIsConnected(false)
+  const intervalRef = useRef(null)
 
-        // 첫 연결 실패이고 아직 폴백도 없을 때만 DB 조회
-        if (!status && !fallbackSensor) {
-          try {
-            const db = await getSensor()
-            setFallbackSensor({
-              temperature: db.dht?.[0]?.temperature ?? null,
-              humidity: db.dht?.[0]?.humidity ?? null,
-              lux: db.light?.lightValue ?? null,
-              air_ppm: db.air?.rawValue ?? null,
-            })
-            setFallbackRecordedAt(
-              db.dht?.[0]?.recordedAt ?? db.light?.recordedAt ?? db.air?.recordedAt ?? null
-            )
-          } catch (dbError) {
-            console.error('DB 센서 조회 실패:', dbError)
-          }
+  // /status API 호출 함수
+  const fetchStatus = async () => {
+    try {
+      const data = await getStatus()
+      setStatus(data)
+      setIsConnected(true)
+      // 폴링이 멈춰있었으면 재시작
+      if (!intervalRef.current) startPolling(fetchStatus)
+    } catch (error) {
+      console.error('상태 조회 실패:', error);
+      setIsConnected(false)
+      // 연결 실패 시 폴링 중단
+      stopPolling()
+
+      // 첫 연결 실패이고 아직 폴백도 없을 때만 DB 조회
+      console.log('fallback 진입 조건:', { status, fallbackSensor })
+      if (!status && !fallbackSensor) {
+        try {
+          const db = await getSensor()
+          console.log('실제 센서 데이터:', db.data)
+          const d = db.data ?? db
+
+          setFallbackSensor({
+            temperature: d.dht?.[0]?.temperature ?? null,
+            humidity: d.dht?.[0]?.humidity ?? null,
+            lux: d.light?.lightValue ?? null,
+            air_ppm: d.air?.rawValue ?? null,
+          })
+          setFallbackRecordedAt(
+            d.dht?.[0]?.recordedAt ?? d.light?.recordedAt ?? d.air?.recordedAt ?? null
+          )
+        } catch (dbError) {
+          console.error('DB 센서 조회 실패:', dbError)
         }
-      } finally {
-        setLoading(false)
       }
+    } finally {
+      setLoading(false)
     }
-    
+  }
+
+  useEffect(() => {
     fetchStatus()
+    startPolling(fetchStatus)
+    return () => stopPolling()
 
     // 3초마다 자동으로 데이터 갱신
-    const interval = setInterval(fetchStatus, 3000)
+    // const interval = setInterval(fetchStatus, 3000)
     // 페이지 벗어날 때 interval 정리 (메모리 누수 방지)
-    return () => clearInterval(interval)
+    // return () => clearInterval(interval)
   }, [])
 
   // 프리셋 목록 불러오기
@@ -191,6 +203,18 @@ const ActuatorControl = () => {
     await activatePreset(id)
     fetchPresets()
   }
+
+  const stopPolling = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
+
+  const startPolling = (fn) => {
+    stopPolling()
+    intervalRef.current = setInterval(fn, 3000)
+  }
   
   const tableHeaders = [[
     { label: '프리셋 이름', rowSpan: 2, style: { verticalAlign: 'middle' } },
@@ -226,6 +250,12 @@ const ActuatorControl = () => {
       {!isConnected && (
         <div className={styles.connectionBanner}>
           ⚠ 서버와 연결이 끊겼습니다. 마지막으로 측정된 값을 표시합니다.
+          <Button
+            size='small'
+            onClick={fetchStatus}
+            variant='secondary'
+            disabled={isConnected}
+          >재연결 시도</Button>
         </div>
       )}
 
@@ -320,7 +350,7 @@ const ActuatorControl = () => {
       {/* 임계값 프리셋 */}
       <h2 className={`${styles.sectionTitle} ${styles.thresholdTitle}`}>임계값 설정</h2>
       <div className={styles.addRow}>
-        <Button onClick={handleAdd} variant='primary'>+ 프리셋 추가</Button>
+        <Button size='small' onClick={handleAdd} variant='primary'>+ 프리셋 추가</Button>
       </div>
 
       {/* 프리셋 목록 테이블 */}
@@ -330,10 +360,14 @@ const ActuatorControl = () => {
         renderRow={(preset) => (
           <>
             <td>{preset.name}</td>
-            <td>{preset.tempLow}</td> <td>{preset.tempHigh}</td>
-            <td>{preset.humLow}</td> <td>{preset.humHigh}</td>
-            <td>{preset.airPpmLow}</td> <td>{preset.airPpmBad}</td>
-            <td>{preset.luxLow}</td> <td>{preset.luxHigh}</td>
+            <td>{preset.tempLow}</td> 
+            <td>{preset.tempHigh}</td>
+            <td>{preset.humLow}</td> 
+            <td>{preset.humHigh}</td>
+            <td>{preset.airPpmLow}</td> 
+            <td>{preset.airPpmBad}</td>
+            <td>{preset.luxLow}</td> 
+            <td>{preset.luxHigh}</td>
             <td>
               <span className={`${styles.badge} ${preset.active ? styles.badgeActive : styles.badgeInactive}`}>
                 {preset.active ? '적용중' : '미적용'}
@@ -371,7 +405,7 @@ const ActuatorControl = () => {
 
       {/* 추가/수정 폼 */}
       {showForm && (
-        <div className={styles.form}>
+        <div className={styles.form} data-theme='light'>
           <h2 className={styles.formTitle}>{editingId !== null ? '프리셋 수정' : '프리셋 추가'}</h2>
           <div className={styles.formGrid}>
             <Input label='프리셋 이름' labelStyle={{ color: '#000000' }} name='name' value={form.name} onChange={handleChange} />
