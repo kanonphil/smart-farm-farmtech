@@ -38,4 +38,7 @@ public interface ReviewMapper {
 
   //고객 평균평점, 주문수, 7일, 30일 조회
   Map<String,Object> ratingAndReviews();
+
+  //해당상품 리뷰 평점들, 카운트
+  Map<String,Object> countAndRating(@Param("productId")int productId);
 }

@@ -90,4 +90,7 @@ public class ReviewService {
 
   //고객 총 리뷰수, 평균평점, 7일, 30일(리뷰,평점)
   public Map<String,Object> ratingAndReviews(){return reviewMapper.ratingAndReviews();}
+
+  //해당상품 리뷰 평점들, 카운트
+  public Map<String,Object> countAndRating(int productId){return reviewMapper.countAndRating(productId);}
 }

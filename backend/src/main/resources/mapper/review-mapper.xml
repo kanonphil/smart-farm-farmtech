@@ -15,6 +15,8 @@
         <result column="PRODUCT_NAME" property="productName" />
         <result column="PRODUCT_PRICE" property="productPrice" />
         <result column="IMAGE_URL" property="imageUrl" />
+        <result column="MEMBER_NAME" property="memberName" />
+        <result column="IMAGE_SAVED_NAME" property="imageSavedName" />
     </resultMap>
 
     <resultMap id="unreviewedItemMap" type="com.farmtech.smartfarm.review.dto.UnreviewedItemDTO">
@@ -121,8 +123,8 @@
     <update id="updateReview">
         UPDATE REVIEW
         SET RATING = #{rating},
-        CONTENT = #{content}
-        IMAGE_URL = #{imgUrl}
+            CONTENT = #{content},
+            IMAGE_URL = #{imageUrl}
         WHERE REVIEW_ID = #{reviewId}
         AND MEMBER_ID = #{memberId}
     </update>
@@ -146,7 +148,9 @@
         R.CREATED_AT,
         P.PRODUCT_NAME,
         P.PRODUCT_PRICE,
-        R.IMAGE_URL
+        R.IMAGE_URL,
+        M.MEMBER_NAME,
+        PI.IMAGE_SAVED_NAME
         FROM REVIEW R
         INNER JOIN ORDER_ITEM O
         ON R.ORDER_ITEM_ID = O.ORDER_ITEM_ID
@@ -154,6 +158,9 @@
         ON R.MEMBER_ID = M.MEMBER_ID
         INNER JOIN PRODUCT P
         ON R.PRODUCT_ID = P.PRODUCT_ID
+        INNER JOIN PRODUCT_IMAGE PI
+        ON PI.PRODUCT_ID = R.PRODUCT_ID
+        AND IMAGE_TYPE = 'MAIN'
         ORDER BY R.CREATED_AT DESC
     </select>
 
@@ -167,6 +174,19 @@
         COUNT(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 7 DAY)  THEN 1 END) AS COUNT_7,
         COUNT(CASE WHEN R.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) AS COUNT_30
         FROM REVIEW R
+    </select>
+
+    <select id="countAndRating" resultType="map">
+        SELECT
+        ROUND(AVG(RATING),1)                                    AS avgRating,
+        COUNT(*)                                                 AS totalCount,
+        SUM(CASE WHEN RATING = 1 THEN 1 ELSE 0 END)            AS one,
+        SUM(CASE WHEN RATING = 2 THEN 1 ELSE 0 END)            AS two,
+        SUM(CASE WHEN RATING = 3 THEN 1 ELSE 0 END)            AS three,
+        SUM(CASE WHEN RATING = 4 THEN 1 ELSE 0 END)            AS four,
+        SUM(CASE WHEN RATING = 5 THEN 1 ELSE 0 END)            AS five
+        FROM REVIEW
+        WHERE PRODUCT_ID = #{productId}
     </select>
 
 </mapper>

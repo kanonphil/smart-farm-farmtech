@@ -108,4 +108,10 @@ public class ReviewController {
     Map<String,Object> list = reviewService.ratingAndReviews();
     return ResponseEntity.ok().body(list);
   }
+
+  @GetMapping("/all")
+  public ResponseEntity<?> rrrrrrrrrr(@RequestParam("productId")int productId){
+    Map<String,Object> list = reviewService.countAndRating(productId);
+    return ResponseEntity.ok().body(list);
+  }
 }
