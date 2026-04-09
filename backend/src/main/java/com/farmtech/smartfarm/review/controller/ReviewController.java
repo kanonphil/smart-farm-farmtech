@@ -73,14 +73,15 @@ public class ReviewController {
   }
 
   //리뷰 수정 api
-  @PutMapping("/{reviewId}")
+  @PutMapping(value = "/{reviewId}", consumes = "multipart/form-data")
   public ResponseEntity<?> updateReview(
           @PathVariable int reviewId,
-          @RequestBody ReviewDTO reviewDTO,
-          @AuthenticationPrincipal CustomUserDetails userDetail) {
+          @ModelAttribute ReviewDTO reviewDTO,
+          @RequestParam(value = "imgFile", required = false) MultipartFile imgFile,
+          @AuthenticationPrincipal CustomUserDetails userDetail)throws IOException {
     reviewDTO.setReviewId(reviewId);
     reviewDTO.setMemberId(userDetail.getMemberDTO().getMemberId());
-    reviewService.updateReview(reviewDTO);
+    reviewService.updateReview(reviewDTO,imgFile);
     return ResponseEntity.ok().build();
   }
 
@@ -105,6 +106,12 @@ public class ReviewController {
   @GetMapping("/ratingAndReviews")
   public ResponseEntity<?> ratingAndReviews(){
     Map<String,Object> list = reviewService.ratingAndReviews();
+    return ResponseEntity.ok().body(list);
+  }
+
+  @GetMapping("/all")
+  public ResponseEntity<?> rrrrrrrrrr(@RequestParam("productId")int productId){
+    Map<String,Object> list = reviewService.countAndRating(productId);
     return ResponseEntity.ok().body(list);
   }
 }

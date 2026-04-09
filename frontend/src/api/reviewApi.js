@@ -50,8 +50,8 @@ export const getUnreviewedItems = async (startDate, endDate) => {
  * @param {*} data 
  * @returns 
  */
-export const updateReview = async (reviewId, data) => {
-  const response = await axiosInstance.put(`/reviews/${reviewId}`, data)
+export const updateReview = async (reviewId, formData) => {
+  const response = await axiosInstance.put(`/reviews/${reviewId}`, formData)
   return response
 }
 

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ReviewDTO {
   private int reviewId;
   private int memberId;
+  private String memberName;
   private int productId;
   private int orderItemId;
   private int rating;
@@ -20,4 +21,5 @@ public class ReviewDTO {
   private String productName;
   private int productPrice;
   private String imageUrl;
+  private String imageSavedName;
 }

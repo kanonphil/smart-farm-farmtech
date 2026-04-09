@@ -381,8 +381,8 @@ const OrderList = () => {
             {preview && <img src={preview} style={{
               maxWidth: '100%',
               maxHeight: '100%',
-              borderRadius: '8px',    // 이미지 둥근 테두리
-              objectFit: 'contain',   // 비율 유지하며 박스 안에 맞춤
+              borderRadius: '8px',
+              objectFit: 'contain',
               display: 'block',
             }}/>}
           </div>
