@@ -66,7 +66,7 @@
     <!-- 자동 배송 완료 대상 조회 -->
     <!-- SHIPPING 상태 중 SHIPPING_STARTED_AT 기준 2일 경과한 주문 -->
     <select id="selectAutoShipTargets" resultMap="managerOrderMap">
-        SELECT ORDER_ID, ORDER_STATUS, SHIPPING_STARTED_AT
+        SELECT ORDER_ID, MEMBER_ID, ORDER_STATUS, SHIPPING_STARTED_AT
         FROM ORDERS
         WHERE ORDER_STATUS = 'SHIPPING'
           AND DATE_ADD(SHIPPING_STARTED_AT, INTERVAL 2 DAY) &lt;= #{now}
