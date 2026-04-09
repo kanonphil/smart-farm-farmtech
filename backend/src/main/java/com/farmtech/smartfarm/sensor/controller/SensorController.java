@@ -1,14 +1,19 @@
 package com.farmtech.smartfarm.sensor.controller;
 
+import com.farmtech.smartfarm.sensor.dto.SensorHistoryResponseDTO;
 import com.farmtech.smartfarm.sensor.dto.SensorResponseDTO;
 import com.farmtech.smartfarm.sensor.service.SensorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/sensors")
@@ -29,4 +34,22 @@ public class SensorController {
     }
   }
 
+  /**
+   * 기간별 센서 이력 조회
+   * @param start 시작일 (yyyy-MM-dd)
+   * @param end 종료일 (yyyy-MM-dd)
+   */
+  @GetMapping("/history")
+  public ResponseEntity<?> getSensorHistory(
+          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate start,
+          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate end
+          ) {
+    try {
+      SensorHistoryResponseDTO response = sensorService.getSensorHistory(start, end);
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      log.error("센서 이력 조회 실패", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 }
