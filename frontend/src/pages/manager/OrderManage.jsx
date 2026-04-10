@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { getManagerOrderList, startShipping } from '../../api/orderApi'
 import Pagination from '../../components/common/Pagination'
+import Table from '../../components/common/Table'
 import styles from './OrderManage.module.css'
+import { MdPayment, MdLocalShipping, MdDoneAll, MdCheckCircle, MdCancel } from 'react-icons/md'
 import useAuthStore from '../../store/authStore'
 
 /**
@@ -119,17 +121,18 @@ const OrderManage = () => {
       {/* 상태 요약 */}
       <div className={styles.summaryRow}>
         {[
-          { label: '결제완료', key: 'PAID',     color: styles.dangerCard },
-          { label: '배송중',   key: 'SHIPPING', color: styles.warningCard },
-          { label: '배송완료', key: 'SHIPPED',  color: styles.infoCard },
-          { label: '구매확정', key: 'DONE',     color: styles.safeCard },
-          { label: '구매취소', key: 'REFUNDED', color: styles.badCard },
-        ].map(({ label, key, color }) => (
-          <div key={key} className={`${styles.summaryCard} ${color}`}>
-            <span className={styles.summaryLabel}>{label}</span>
-            <span className={styles.summaryCount}>
-              {orders.filter(o => o.orderStatus === key).length}건
-            </span>
+          { label: '결제완료', key: 'PAID',     icon: <MdPayment size={22} color='#d32f2f' />,     iconClass: styles.iconPaid },
+          { label: '배송중',   key: 'SHIPPING', icon: <MdLocalShipping size={22} color='#e65100' />, iconClass: styles.iconShipping },
+          { label: '배송완료', key: 'SHIPPED',  icon: <MdDoneAll size={22} color='#1565c0' />,       iconClass: styles.iconShipped },
+          { label: '구매확정', key: 'DONE',     icon: <MdCheckCircle size={22} color='#2e7d32' />,   iconClass: styles.iconDone },
+          { label: '환불', key: 'REFUNDED', icon: <MdCancel size={22} color='#9e9e9e' />,        iconClass: styles.iconRefunded },
+        ].map(({ label, key, icon, iconClass }) => (
+          <div key={key} className={styles.summaryCard}>
+            <div className={`${styles.iconWrap} ${iconClass}`}>{icon}</div>
+            <div>
+              <p className={styles.summaryCount}>{orders.filter(o => o.orderStatus === key).length}건</p>
+              <p className={styles.summaryLabel}>{label}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -149,69 +152,46 @@ const OrderManage = () => {
 
       {/* 주문 테이블 */}
       {!isLoading && !errorMsg && (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead className={styles.thead}>
-              <tr>
-                <th>주문번호</th>
-                <th>회원ID</th>
-                <th>주문금액</th>
-                <th>주문일시</th>
-                <th>결제일시</th>
-                <th>배송시작일시</th>
-                <th>예상배송완료</th>
-                <th>상태</th>
-                {/* <th>처리</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {displayedOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className={styles.empty}>주문 내역이 없습니다.</td>
-                </tr>
-              ) : (
-                displayedOrders.map(order => (
-                  <tr key={order.orderId}>
-                    <td className={styles.idCell}>#{order.orderId}</td>
-                    <td>{order.memberId}</td>
-                    <td className={styles.numCell}>
-                      {order.orderTotalPrice?.toLocaleString()}원
-                    </td>
-                    <td>{order.orderCreatedAt?.replace('T', ' ').slice(0, 16)}</td>
-                    <td>{order.paidAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
-                    <td>{order.shippingStartedAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
-                    <td>{order.expectedDeliveredAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
-                    <td>
-                      {/* PAID 상태일 때만 배송 시작 버튼 표시 */}
-                      {order.orderStatus === 'PAID' ? (
-                        <button
-                          className={styles.shippingBtn}
-                          onClick={() => handleShippingStart(order.orderId)}
-                          disabled={shippingLoadingId === order.orderId}
-                        >
-                          {shippingLoadingId === order.orderId ? '처리중...' : '배송 시작'}
-                        </button>
-                      ) : (
-                        <span className={getStatusClass(order.orderStatus)}>
-                          {getStatusLabel(order.orderStatus)}
-                        </span>
-                      )}
-                      {/* {order.orderStatus === 'SHIPPING' && (
-                        <span className={styles.statusText}>배송 중</span>
-                      )}
-                      {order.orderStatus === 'SHIPPED' && (
-                        <span className={styles.statusText}>배송 완료</span>
-                      )}
-                      {order.orderStatus === 'DONE' && (
-                        <span className={styles.statusText}>구매 확정 완료</span>
-                      )} */}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          headers={[[
+            { label: '주문번호' },
+            { label: '회원ID' },
+            { label: '주문금액' },
+            { label: '주문일시' },
+            { label: '결제일시' },
+            { label: '배송시작일시' },
+            { label: '예상배송완료' },
+            { label: '상태' },
+          ]]}
+          data={displayedOrders}
+          emptyMessage='주문 내역이 없습니다.'
+          renderRow={(order) => (
+            <>
+              <td className={styles.idCell}>#{order.orderId}</td>
+              <td>{order.memberId}</td>
+              <td className={styles.numCell}>{order.orderTotalPrice?.toLocaleString()}원</td>
+              <td>{order.orderCreatedAt?.replace('T', ' ').slice(0, 16)}</td>
+              <td>{order.paidAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
+              <td>{order.shippingStartedAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
+              <td>{order.expectedDeliveredAt?.replace('T', ' ').slice(0, 16) || '-'}</td>
+              <td>
+                {order.orderStatus === 'PAID' ? (
+                  <button
+                    className={styles.shippingBtn}
+                    onClick={() => handleShippingStart(order.orderId)}
+                    disabled={shippingLoadingId === order.orderId}
+                  >
+                    {shippingLoadingId === order.orderId ? '처리중...' : '배송 시작'}
+                  </button>
+                ) : (
+                  <span className={getStatusClass(order.orderStatus)}>
+                    {getStatusLabel(order.orderStatus)}
+                  </span>
+                )}
+              </td>
+            </>
+          )}
+        />
       )}
 
       {/* 페이지네이션 */}

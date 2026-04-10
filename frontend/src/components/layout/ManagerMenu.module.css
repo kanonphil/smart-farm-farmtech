@@ -12,6 +12,7 @@
   padding: 24px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   cursor: pointer;
+  margin: auto;
 }
 .logo_div img {
   width: 130px;
@@ -127,4 +128,27 @@
 .footer {
   padding: 12px;
   border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* 아이콘 래퍼 */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  color: #64748b;
+}
+
+.menu_item:hover .icon {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.active .icon {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
 }

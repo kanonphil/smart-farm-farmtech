@@ -2,29 +2,34 @@
   position: relative;
 }
 
+/* ── 벨 버튼 ── */
 .bell {
   position: relative;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   color: #555;
   display: flex;
   align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
 }
 
 .bell:hover {
-  color: #1a1a1a;
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
-/* 안 읽은 알림 수 뱃지 */
+/* ── 뱃지 ── */
 .badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 0px;
+  right: 0px;
   background: #e53e3e;
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   min-width: 16px;
   height: 16px;
@@ -33,73 +38,25 @@
   align-items: center;
   justify-content: center;
   padding: 0 3px;
+  border: 2px solid #fff;
+  animation: pulse 2s ease infinite;
 }
 
-/* 드롭다운 */
-.dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 280px;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  overflow: hidden;
+/* ── 뱃지 pulse 애니메이션 ── */
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5); }
+  60%  { box-shadow: 0 0 0 5px rgba(229, 62, 62, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
 }
 
-.dropdownTitle {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  margin: 0;
-}
-
-.empty {
-  padding: 20px 16px;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #aaa;
-  margin: 0;
-}
-
-/* 알림 항목 */
-.item {
-  padding: 12px 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #f9f9f9;
-  transition: background 0.15s;
-}
-
-.item:hover {
-  background: #f9f9f9;
-}
-
-.item:last-child {
-  border-bottom: none;
-}
-
-.message {
-  font-size: 0.88rem;
-  color: #333;
-  margin: 0 0 4px 0;
-}
-
-.time {
-  font-size: 0.78rem;
-  color: #aaa;
-}
-
+/* ── 벨 울림 애니메이션 ── */
 @keyframes ring {
   0%   { transform: rotate(0deg); }
-  10%  { transform: rotate(15deg); }
-  20%  { transform: rotate(-12deg); }
+  10%  { transform: rotate(16deg); }
+  20%  { transform: rotate(-13deg); }
   30%  { transform: rotate(10deg); }
-  40%  { transform: rotate(-8deg); }
-  50%  { transform: rotate(5deg); }
+  40%  { transform: rotate(-7deg); }
+  50%  { transform: rotate(4deg); }
   60%  { transform: rotate(0deg); }
   100% { transform: rotate(0deg); }
 }
@@ -107,4 +64,138 @@
 .ringing {
   animation: ring 2s ease infinite;
   transform-origin: top center;
+  color: #2563eb;
+}
+
+/* ── 드롭다운 ── */
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 300px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: dropIn 0.18s ease;
+}
+
+/* ── 드롭다운 헤더 ── */
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f4f8;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.headerBadge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 1px 8px;
+}
+
+/* ── 스크롤 가능한 목록 영역 ── */
+.list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+.list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+/* ── 알림 항목 ── */
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+  border-left: 3px solid #2563eb;
+  background: #fafcff;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: #eff6ff;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* 미읽음 파란 점 */
+.itemDot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2563eb;
+  margin-top: 5px;
+}
+
+.itemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.message {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ── 빈 상태 ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: #cbd5e1;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
 }

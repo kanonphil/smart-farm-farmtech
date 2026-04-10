@@ -28,10 +28,10 @@ public class OrderScheduler {
 
   /**
    * 스케줄러 1: 배송 완료 자동 처리
-   * 매 시간 정각 실행
+   * 매 분 실행
    * SHIPPING 상태 중 shippingStartedAt 기준 2일 경과한 주문을 SHIPPED로 변경
    */
-  @Scheduled(cron = "0 0 * * * *")
+  @Scheduled(cron = "0 * * * * *")
   @Transactional
   public void autoShipOrders() {
     LocalDateTime now = LocalDateTime.now();
@@ -90,6 +90,32 @@ public class OrderScheduler {
       } catch (Exception e) {
         log.error("[스케줄러] 자동 구매 확정 실패 - orderId: {}", order.getOrderId(), e);
       }
+    }
+  }
+
+  /**
+   * 스케줄러 3: 미결제 방치 주문 정리
+   * 매 시간 10분 실행
+   * READY 상태로 1시간 이상 경과한 주문을 ORDER_ITEM과 함께 삭제
+   */
+  @Scheduled(cron = "0 10 * * * *")
+  @Transactional
+  public void deleteStaleReadyOrder() {
+    LocalDateTime threshold = LocalDateTime.now().minusHours(1);
+    List<Integer> staleIds = managerOrderMapper.selectStaleReadyOrderIds(threshold);
+
+    if (staleIds.isEmpty()) {
+      log.debug("[스케줄러] 만료된 READY 주문 없음");
+      return;
+    }
+
+    log.info("[스케줄러] 만료 READY 주문 정리 시작 - 대상 {}건", staleIds.size());
+
+    try {
+      int deleted = managerOrderMapper.deleteStaleReadyOrders(staleIds);
+      log.info("[스케줄러] 만료 READY 주문 정리 완료 - {}건 삭제", deleted);
+    } catch (Exception e) {
+      log.error("[스케줄러] 만료 READY 주문 정리 실패", e);
     }
   }
 }

@@ -98,7 +98,7 @@ public class MemberService {
         if (member.getRefreshTokenExpiry().isBefore(LocalDateTime.now())) return null;
 
         //4. 새 Access Token 발급해서 반환
-        return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), member.getMemberId(),1000 * 60 * 60);
+        return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), member.getMemberId(), member.getMemberName(), 1000 * 60 * 60);
     }
 
     //로그아웃 시 refresh token 삭제 기능
@@ -112,6 +112,16 @@ public class MemberService {
     }
 
     /**
+     * 이메일로 회원 이름 조회
+     * @param email 회원 이메일
+     * @return 회원 이름
+     */
+    public String getMemberNameByEmail(String email) {
+      return memberMapper.getMemberNameByEmail(email);
+    }
+
+
+  /**
      * 아이디 찾기 - 이름 + 전화번호로 이메일 조회 후 마스킹 처리
      * @param name 회원 이름
      * @param phone 전화번호

@@ -116,7 +116,7 @@
         </choose>
     </select>
 
-    <!-- 매니저 상품 전체 목록 조회 (V_MANAGER_PRODUCT_LIST VIEW 사용, 상태 필터 없음) -->
+    <!-- 매니저 상품 전체 목록 조회 (V_MANAGER_PRODUCT_LIST VIEW 사용, 상태 필터 + 페이지네이션) -->
     <select id="selectProductListManager" resultMap="productListMap">
         SELECT
             PRODUCT_ID,
@@ -129,7 +129,33 @@
             SALES_COUNT
         FROM V_MANAGER_PRODUCT_LIST
         WHERE PRODUCT_STATUS != 'DELETED'
+        <if test="categoryId != null">
+            AND CATEGORY_ID = #{categoryId}
+        </if>
+        <if test="status != null and status != ''">
+            AND PRODUCT_STATUS = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
         ORDER BY PRODUCT_ID DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 매니저 상품 목록 전체 카운트 (요약 카드용) -->
+    <select id="countProductListManager" resultType="int">
+        SELECT COUNT(*)
+        FROM V_MANAGER_PRODUCT_LIST
+        WHERE PRODUCT_STATUS != 'DELETED'
+        <if test="categoryId != null">
+            AND CATEGORY_ID = #{categoryId}
+        </if>
+        <if test="status != null and status != ''">
+            AND PRODUCT_STATUS = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
     </select>
 
     <!--  상품 상세 정보 조회  -->
@@ -151,6 +177,12 @@
     <delete id="deleteProductImage">
         DELETE FROM PRODUCT_IMAGE
         WHERE PRODUCT_ID = #{productId}
+    </delete>
+
+    <!-- 이미지 단건 삭제 -->
+    <delete id="deleteProductImageById">
+        DELETE FROM PRODUCT_IMAGE
+        WHERE IMAGE_ID = #{imageId}
     </delete>
 
     <update id="updateProduct">

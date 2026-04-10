@@ -50,4 +50,8 @@ public interface MemberMapper {
 
     //회원탈퇴
     void withdrawMember(int memberId);
+
+    // 이메일로 회원 이름 조회
+    String getMemberNameByEmail(String email);
+
 }

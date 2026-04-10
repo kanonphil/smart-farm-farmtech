@@ -146,6 +146,13 @@
           AND MEMBER_PHONE = #{phone}
     </select>
 
+    <!-- 이메일로 회원 이름 조회 -->
+    <select id="getMemberNameByEmail" resultType="String">
+        SELECT MEMBER_NAME
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{email}
+    </select>
+
 <!--  회원탈퇴  -->
     <update id="withdrawMember">
         UPDATE MEMBER

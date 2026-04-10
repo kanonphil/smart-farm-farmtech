@@ -1,0 +1,18 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.item {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
