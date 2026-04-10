@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -83,10 +84,15 @@ public class ProductController {
 
   // 매니저 상품 전체 목록 조회 api (ACTIVE + INACTIVE)
   @GetMapping("/manager")
-  public ResponseEntity<?> selectProductListManager() {
+  public ResponseEntity<?> selectProductListManager(
+          @RequestParam(value = "categoryId", required = false) Integer categoryId,
+          @RequestParam(value = "status", required = false) String status,
+          @RequestParam(value = "keyword", required = false) String keyword,
+          @RequestParam(value = "page", defaultValue = "0") int page,
+          @RequestParam(value = "size", defaultValue = "8") int size ) {
     try {
-      List<ProductListDTO> productList = productService.selectProductListManager();
-      return ResponseEntity.status(HttpStatus.OK).body(productList);
+      Map<String, Object> result = productService.selectProductListManager(categoryId, status, keyword, page, size);
+      return ResponseEntity.ok(result);
     } catch (Exception e) {
       log.error("상품 목록 조회(매니저) api 오류", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -107,20 +113,23 @@ public class ProductController {
 
   // 상품 수정 api
   @PutMapping(value = "/{productId}", consumes = "multipart/form-data")
-  public ResponseEntity<?> updateProduct(@PathVariable("productId") int productId,
-                                         ProductDTO productDTO,
-                                         @RequestParam(value = "mainImg", required = false) MultipartFile mainImgFile,
-                                         @RequestParam(value = "subImgs", required = false) MultipartFile[] subImgFiles,
-                                         @RequestParam(value = "detailImg", required = false) MultipartFile detailImgFile) {
+  public ResponseEntity<?> updateProduct(
+          @PathVariable("productId") int productId,
+          ProductDTO productDTO,
+          @RequestParam(value = "mainImg",         required = false) MultipartFile mainImgFile,
+          @RequestParam(value = "subImgs",         required = false) MultipartFile[] subImgFiles,
+          @RequestParam(value = "detailImg",       required = false) MultipartFile detailImgFile,
+          @RequestParam(value = "deletedImageIds", required = false) List<Integer> deletedImageIds) {
     try {
       productDTO.setProductId(productId);
-      productService.updateProduct(productDTO,mainImgFile,subImgFiles,detailImgFile);
+      productService.updateProduct(productDTO, mainImgFile, subImgFiles, detailImgFile, deletedImageIds);
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (Exception e) {
       log.error("상품 수정 오류", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
 
   //상품 삭제 api
   @DeleteMapping("/{productId}")

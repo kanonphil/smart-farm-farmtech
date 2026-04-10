@@ -1,91 +1,79 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { getCategory, regProductAPI } from '../../api/product/product';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
-import styles from './ProductRegister.module.css';
-import Select from '../../components/common/Select';
-import PageTitle from '../../components/common/PageTitle';
+import { getCategory, regProductAPI } from '../../../api/product/product'
+import Input from '../../common/Input'
+import Button from '../../common/Button'
+import Select from '../../common/Select'
+import styles from '../../../pages/manager/ProductRegister.module.css'
+import Textarea from '../../common/Textarea'
 
 /**
- * 상품 등록 페이지
- * - 대표/서브/상세페이지 이미지 업로드 (클릭형 프리뷰 UI)
- * - 필수 항목 유효성 검사
- * - 등록 성공/실패 인라인 메시지 처리
+ * 상품 등록 모달 컴포넌트
+ *
+ * @param {function} onClose   - 모달 닫기 함수
+ * @param {function} onSuccess - 등록 성공 후 부모 목록 갱신 콜백
  */
-const ProductRegister = () => {
-  //카테고리 저장 데이터
-  const [cateList, setCateList] = useState([]);
- 
-  //상품 저장 데이터
-  const [productData,setProductData] = useState({
-    productName : '',
-    productPrice : 0,
-    productStock : 0,
-    productDesc : '',
-    productStatus : '',
-    categoryId : 1
-  });
+const ProductRegisterModal = ({ onClose, onSuccess }) => {
+  const [cateList, setCateList] = useState([])
 
-  //메인, 서브 이미지 저장할 변수
-  const [mainImg, setMainImg] = useState(null);
-  const [subImgs, setSubImgs] = useState([]);
-  const [detailImg, setdetailImgs] = useState(null);
+  const [productData, setProductData] = useState({
+    productName:   '',
+    productPrice:  0,
+    productStock:  0,
+    productDesc:   '',
+    productStatus: '',
+    categoryId:    1,
+  })
 
-  //이미지 업로드 시 프리뷰 화면
-  const [mainImgPreviews ,setmainImgPreviews] = useState(null);
-  const [subImgsPreviews ,setSubImgsPreviews] = useState([]);
-  const [detailPreviews, setDetailPreviews] = useState(null);
+  const [mainImg,    setMainImg]    = useState(null)
+  const [subImgs,    setSubImgs]    = useState([])
+  const [detailImg,  setDetailImg]  = useState(null)
 
-  const [submitStatus, setSubmitStatus] = useState(null) // 'success' | 'error' | null
-  const [errors, setErrors] = useState({})
+  const [mainImgPreview,  setMainImgPreview]  = useState(null)
+  const [subImgsPreviews, setSubImgsPreviews] = useState([])
+  const [detailPreview,   setDetailPreview]   = useState(null)
 
-  const mainInputRef = useRef()
-  const subInputRef = useRef()
+  const [submitError, setSubmitError] = useState(false)
+  const [errors,      setErrors]      = useState({})
+
+  const mainInputRef   = useRef()
+  const subInputRef    = useRef()
   const detailInputRef = useRef()
 
-  useEffect(()=>{
+  useEffect(() => {
     getCategory()
       .then(res => setCateList(res.data))
       .catch(err => console.error('[카테고리] 조회 실패', err))
-  },[])
+  }, [])
 
   /** 텍스트 필드 변경 핸들러 */
-  const handleProductData = (e) => {
-    const {value, name} = e.target;
-    setProductData(prev => ({
-      ...prev,
-      [name] : value
-    }))
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }))
-    }
+  const handleProductData = e => {
+    const { value, name } = e.target
+    setProductData(prev => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
   /** 대표 이미지 선택 */
-  const handleMainImg = (e) => {
+  const handleMainImg = e => {
     const file = e.target.files[0]
     if (!file) return
     setMainImg(file)
-    setmainImgPreviews(URL.createObjectURL(file))
+    setMainImgPreview(URL.createObjectURL(file))
     if (errors.mainImg) setErrors(prev => ({ ...prev, mainImg: '' }))
   }
 
   /** 서브 이미지 선택 (다중) */
-  const handleSubImgs = (e) => {
+  const handleSubImgs = e => {
     const files = Array.from(e.target.files)
     setSubImgs(files)
     setSubImgsPreviews(files.map(f => URL.createObjectURL(f)))
   }
 
   /** 상세페이지 이미지 선택 */
-  const handleDetailImg = (e) => {
+  const handleDetailImg = e => {
     const file = e.target.files[0]
     if (!file) return
-    setdetailImgs(file)
-    setDetailPreviews(URL.createObjectURL(file))
+    setDetailImg(file)
+    setDetailPreview(URL.createObjectURL(file))
   }
 
   /** 필수 항목 유효성 검사 */
@@ -103,63 +91,78 @@ const ProductRegister = () => {
 
   /** 폼 초기화 */
   const resetForm = () => {
-    setProductData({
-      productName: '',
-      productPrice: '',
-      productStock: '',
-      productDesc: '',
-      productStatus: '',
-      categoryId: ''
+    setProductData({ 
+      productName: '', 
+      productPrice: '', 
+      productStock: '', 
+      productDesc: '', 
+      productStatus: '', 
+      categoryId: '' 
     })
     setMainImg(null)
-    setSubImgs(null)
-    setdetailImgs(null)
-    setmainImgPreviews(null)
+    setSubImgs([])
+    setDetailImg(null)
+    setMainImgPreview(null)
     setSubImgsPreviews([])
-    setDetailPreviews(null)
+    setDetailPreview(null)
     mainInputRef.current.value = ''
     subInputRef.current.value = ''
     detailInputRef.current.value = ''
   }
 
-  //상품등록 버튼 클릭 시 실행 함수
-  const regProducts = async() => {
+  /** 상품 등록 */
+  const regProducts = async () => {
     if (!validate()) return
 
-    const regForm = new FormData();
+    const regForm = new FormData()
     Object.entries(productData).forEach(([k, v]) => regForm.append(k, v))
-
-    //메인 이미지 파일 정보 저장
-    regForm.append('mainImg',mainImg);
-    if (detailImg) regForm.append('detailImg',detailImg);
-    //서브 이미지 파일 정보 저장
+    regForm.append('mainImg', mainImg)
+    if (detailImg) regForm.append('detailImg', detailImg)
     subImgs.forEach(img => regForm.append('subImgs', img))
 
     try {
-      const response = await regProductAPI(regForm);
+      const response = await regProductAPI(regForm)
       if (response.status === 201) {
-        setSubmitStatus('success')
         resetForm()
-        setTimeout(() => setSubmitStatus(null), 3000)
+        onSuccess() // 부모 목록 갱신
+        onClose()   // 모달 닫기
       }
     } catch (error) {
-      setSubmitStatus('error')
-      setTimeout(() => setSubmitStatus(null), 3000)
+      setSubmitError(true)
+      setTimeout(() => setSubmitError(false), 3000)
     }
   }
 
+  /** 대표 이미지 초기화 */
+  const clearMainImg = (e) => {
+    e.stopPropagation() // 업로드 박스 클릭 이벤트 방지
+    setMainImg(null)
+    setMainImgPreview(null)
+    mainInputRef.current.value = ''
+  }
+
+  /** 서브 이미지 개별 삭제 */
+  const clearSingleSubImg = (e, index) => {
+    e.stopPropagation()
+    const newFiles    = subImgs.filter((_, i) => i !== index)
+    const newPreviews = subImgsPreviews.filter((_, i) => i !== index)
+    setSubImgs(newFiles)
+    setSubImgsPreviews(newPreviews)
+    if (newFiles.length === 0) subInputRef.current.value = ''
+  }
+
+  /** 상세페이지 이미지 초기화 */
+  const clearDetailImg = (e) => {
+    e.stopPropagation()
+    setDetailImg(null)
+    setDetailPreview(null)
+    detailInputRef.current.value = ''
+  }
 
   return (
-    <div className={styles.container}>
-      <PageTitle title='상품 등록' />
-
-      {/* 성공/실패 메시지 */}
-      {submitStatus === 'success' && (
-        <div className={`${styles.toast} ${styles.toastSuccess}`}>
-          상품이 성공적으로 등록되었습니다.
-        </div>
-      )}
-      {submitStatus === 'error' && (
+    <div>
+      {/* 등록 실패 토스트 */}
+      {submitError && (
         <div className={`${styles.toast} ${styles.toastError}`}>
           상품 등록에 실패했습니다. 다시 시도해주세요.
         </div>
@@ -169,7 +172,6 @@ const ProductRegister = () => {
         {/* 좌측 - 이미지 영역 */}
         <div className={styles.imageCol}>
 
-          {/* 대표 이미지 */}
           <div className={styles.imgSection}>
             <p className={styles.imgLabel}>
               대표 이미지 <span className={styles.required}>*</span>
@@ -178,8 +180,11 @@ const ProductRegister = () => {
               className={`${styles.uploadBox} ${styles.mainBox} ${errors.mainImg ? styles.uploadBoxError : ''}`}
               onClick={() => mainInputRef.current.click()}
             >
-              {mainImgPreviews
-                ? <img src={mainImgPreviews} alt='대표 이미지' className={styles.previewImg} />
+              {mainImgPreview
+                ? <>
+                    <img src={mainImgPreview} alt='대표 이미지' className={styles.previewImg} />
+                    <button className={styles.clearBtn} onClick={clearMainImg}>✕</button>
+                  </>
                 : <div className={styles.placeholder}>
                     <span className={styles.uploadIcon}>+</span>
                     <span>클릭하여 이미지 선택</span>
@@ -190,16 +195,20 @@ const ProductRegister = () => {
             <input ref={mainInputRef} type='file' accept='image/*' hidden onChange={handleMainImg} />
           </div>
 
-          {/* 서브 이미지 */}
           <div className={styles.imgSection}>
             <p className={styles.imgLabel}>서브 이미지 <span className={styles.optional}>(선택)</span></p>
             <div className={styles.uploadBox} onClick={() => subInputRef.current.click()}>
               {subImgsPreviews.length > 0
-                ? <div className={styles.subGrid}>
-                    {subImgsPreviews.map((url, i) => (
-                      <img key={i} src={url} alt={`서브${i + 1}`} className={styles.subPreviewImg} />
-                    ))}
-                  </div>
+                ? <>
+                    <div className={styles.subGrid}>
+                      {subImgsPreviews.map((url, i) => (
+                        <div key={i} className={styles.subImgWrap}>
+                          <img src={url} alt={`서브${i + 1}`} className={styles.subPreviewImg} />
+                          <button className={styles.clearBtnSub} onClick={(e) => clearSingleSubImg(e, i)}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 : <div className={styles.placeholder}>
                     <span className={styles.uploadIcon}>+</span>
                     <span>여러 장 선택 가능</span>
@@ -209,12 +218,14 @@ const ProductRegister = () => {
             <input ref={subInputRef} type='file' accept='image/*' multiple hidden onChange={handleSubImgs} />
           </div>
 
-          {/* 상세페이지 이미지 */}
           <div className={styles.imgSection}>
             <p className={styles.imgLabel}>상세페이지 이미지 <span className={styles.optional}>(선택)</span></p>
             <div className={styles.uploadBox} onClick={() => detailInputRef.current.click()}>
-              {detailPreviews
-                ? <img src={detailPreviews} alt='상세페이지' className={styles.previewImg} />
+              {detailPreview
+                ? <>
+                    <img src={detailPreview} alt='상세페이지' className={styles.previewImg} />
+                    <button className={styles.clearBtn} onClick={clearDetailImg}>✕</button>
+                  </>
                 : <div className={styles.placeholder}>
                     <span className={styles.uploadIcon}>+</span>
                     <span>클릭하여 이미지 선택</span>
@@ -237,7 +248,6 @@ const ProductRegister = () => {
             required
             error={errors.productName}
           />
-
           <div className={styles.row}>
             <Input
               label='가격'
@@ -260,7 +270,6 @@ const ProductRegister = () => {
               error={errors.productStock}
             />
           </div>
-
           <div className={styles.row}>
             <Select
               label='카테고리'
@@ -278,7 +287,7 @@ const ProductRegister = () => {
               value={productData.productStatus}
               onChange={handleProductData}
               options={[
-                { value: 'ACTIVE',   label: '판매중'   },
+                { value: 'ACTIVE',   label: '판매중' },
                 { value: 'INACTIVE', label: '판매중지' },
               ]}
               placeholder='상태 선택'
@@ -286,27 +295,21 @@ const ProductRegister = () => {
               error={errors.productStatus}
             />
           </div>
-
-          {/* 상품 설명 (Input 컴포넌트가 textarea 미지원으로 직접 사용) */}
           <div className={styles.textareaGroup}>
-            <label className={styles.textareaLabel}>상품 설명</label>
-            <textarea
+            <Textarea
               name='productDesc'
               value={productData.productDesc}
               onChange={handleProductData}
               placeholder='상품 설명을 입력해주세요'
               className={styles.textarea}
-              rows={8}
+              rows={5}
             />
           </div>
-
-          <Button fullWidth onClick={regProducts}>
-            상품 등록
-          </Button>
+          <Button fullWidth onClick={regProducts}>상품 등록</Button>
         </div>
       </div>
     </div>
   )
 }
 
-export default ProductRegister
+export default ProductRegisterModal

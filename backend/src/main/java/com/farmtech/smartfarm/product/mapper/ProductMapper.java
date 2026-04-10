@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProductMapper {
@@ -27,8 +28,13 @@ public interface ProductMapper {
   // 상세 상품 조회 메서드
   ProductDTO getProductDetail(int productId);
 
+  /// 매니저 ///
+
   // 상품 목록 조회
-  List<ProductListDTO> selectProductListManager();
+  List<ProductListDTO> selectProductListManager(Map<String, Object> params);
+
+  // 상품 목록 카운트
+  int countProductListManager(Map<String, Object> params);
 
   // 상품 수정
   void updateProduct(ProductDTO productDTO);
@@ -42,6 +48,13 @@ public interface ProductMapper {
 
   void deleteProductImageByType(@Param("productId") int productId,
                                 @Param("imageType") String imageType);
+
+  // 이미지 단건 삭제
+  void deleteProductImageById(@Param("imageId") int imageId);
+
+
+  /// Gemini ///
+  ///
   // 재고가 있는 전체 활성 상품 목록 조회 (AI 매칭용)
   // productId와 productName만 가져와 Gemini 프롬프트에 포함시킨다.
   List<ProductListDTO> selectActiveProducts();

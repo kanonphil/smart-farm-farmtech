@@ -4,6 +4,7 @@ import StockTable from '../../components/manager/stock/StockTable'
 import Pagination from '../../components/common/Pagination'
 import UpdateStockModal from '../../components/manager/stock/UpdateStockModal'
 import styles from './Stock.module.css'
+import { MdCheckCircle, MdNotificationsActive, MdWarning } from 'react-icons/md'
 
 /** 페이지당 표시할 상품 수 */
 const PAGE_SIZE = 10
@@ -103,19 +104,37 @@ const Stock = () => {
   
         {/* 재고 상태 요약 카드 */}
         <div className={styles.summaryRow}>
-        <div className={`${styles.summaryCard} ${styles.dangerCard}`}>
-          <span className={styles.summaryLabel}>⚠️ 위험 (0~9개)</span>
-          <span className={styles.summaryCount}>{stockSummary.dangerCount}개 상품</span>
+          <div className={styles.summaryCard}>
+            <div className={`${styles.iconWrap} ${styles.dangerIcon}`}>
+              <MdWarning size={22} color='#ef4444' />
+            </div>
+            <div>
+              <p className={styles.summaryCount}>{stockSummary.dangerCount}개</p>
+              <p className={styles.summaryLabel}>위험 재고 (0~9개)</p>
+            </div>
+          </div>
+
+          <div className={styles.summaryCard}>
+            <div className={`${styles.iconWrap} ${styles.warningIcon}`}>
+              <MdNotificationsActive size={22} color='#f59e0b' />
+            </div>
+            <div>
+              <p className={styles.summaryCount}>{stockSummary.warningCount}개</p>
+              <p className={styles.summaryLabel}>주의 재고 (10~49개)</p>
+            </div>
+          </div>
+
+          <div className={styles.summaryCard}>
+            <div className={`${styles.iconWrap} ${styles.safeIcon}`}>
+              <MdCheckCircle size={22} color='#22c55e' />
+            </div>
+            <div>
+              <p className={styles.summaryCount}>{stockSummary.safeCount}개</p>
+              <p className={styles.summaryLabel}>안정 재고 (50개 이상)</p>
+            </div>
+          </div>
         </div>
-        <div className={`${styles.summaryCard} ${styles.warningCard}`}>
-          <span className={styles.summaryLabel}>🔔 주의 (10~49개)</span>
-          <span className={styles.summaryCount}>{stockSummary.warningCount}개 상품</span>
-        </div>
-        <div className={`${styles.summaryCard} ${styles.safeCard}`}>
-          <span className={styles.summaryLabel}>✅ 안정 (50개 이상)</span>
-          <span className={styles.summaryCount}>{stockSummary.safeCount}개 상품</span>
-        </div>
-      </div>
+
   
   
         {/* 로딩 */}

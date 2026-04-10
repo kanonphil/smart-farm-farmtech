@@ -77,4 +77,21 @@ public interface ManagerOrderMapper {
    */
   int updateToDone(@Param("orderId") int orderId,
                    @Param("confirmedAt") LocalDateTime confirmedAt);
+
+  /**
+   * 만료된 READY 주문 ID 목록 조회
+   * threshold 이전에 생성된 READY 상태 주문 반환
+   *
+   * @param threshold 만료 기준 시각
+   * @return 만료 주문 ID 목록
+   */
+  List<Integer> selectStaleReadyOrderIds(@Param("threshold") LocalDateTime threshold);
+
+  /**
+   * 만료된 READY 주문 삭제
+   *
+   * @param orderIds 삭제 대상 주문 ID 목록
+   * @return 삭제 행 수
+   */
+  int deleteStaleReadyOrders(@Param("orderIds") List<Integer> orderIds);
 }

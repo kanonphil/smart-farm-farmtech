@@ -10,6 +10,7 @@ import FanCard from '../../components/actuatorControl/FanCard'
 import LedCard from '../../components/actuatorControl/LedCard'
 import styles from './ActuatorControl.module.css'
 import { activatePreset, createPreset, deletePreset, getPresets, getSensor, updatePreset } from '../../api/managerApi'
+import { MdAir, MdSensors, MdThermostat, MdWarning, MdWaterDrop, MdWbSunny } from 'react-icons/md'
 
 /** 임계값 폼 초기화 */
 const EMPTY_FORM = {
@@ -82,7 +83,10 @@ const ActuatorControl = () => {
   // /status API 호출 함수
   const fetchStatus = async () => {
     try {
-      const data = await getStatus()
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 3000) // 3초 안에 응답 없으면 실패
+    )
+      const data = await Promise.race([getStatus(), timeout])
       setStatus(data)
       setIsConnected(true)
       // 폴링이 멈춰있었으면 재시작
@@ -94,11 +98,9 @@ const ActuatorControl = () => {
       stopPolling()
 
       // 첫 연결 실패이고 아직 폴백도 없을 때만 DB 조회
-      console.log('fallback 진입 조건:', { status, fallbackSensor })
       if (!status && !fallbackSensor) {
         try {
           const db = await getSensor()
-          console.log('실제 센서 데이터:', db.data)
           const d = db.data ?? db
 
           setFallbackSensor({
@@ -223,7 +225,7 @@ const ActuatorControl = () => {
     { label: '대기질 (ppm)', colSpan: 2 },
     { label: '조도 (lux)', colSpan: 2 },
     { label: '상태', rowSpan: 2, style: { width: '80px', verticalAlign: 'middle' } },
-    { label: '관리', rowSpan: 2, style: { verticalAlign: 'middle' } },
+    { label: '설정', rowSpan: 2, style: { verticalAlign: 'middle' } },
   ],[
     { label: '하한' }, { label: '상한' },
     { label: '하한' }, { label: '상한' },
@@ -253,7 +255,10 @@ const ActuatorControl = () => {
 
       {!isConnected && (
         <div className={styles.connectionBanner}>
-          ⚠ 서버와 연결이 끊겼습니다. 마지막으로 측정된 값을 표시합니다.
+          <div className={styles.bannerLeft}>
+            <MdWarning size={20} color='#c2410c' />
+            <span>서버와 연결이 끊겼습니다. 마지막으로 측정된 값을 표시합니다.</span>
+          </div>
           <Button
             size='small'
             onClick={fetchStatus}
@@ -298,27 +303,36 @@ const ActuatorControl = () => {
           label='온도' 
           value={sensorData?.temperature} 
           unit='℃' 
+          icon={<MdThermostat size={22} color='#f97316' />}
           {...getSensorStatus('temperature', sensorData?.temperature, activePreset)}
         />
         <SensorCard
           label='습도'
           value={sensorData?.humidity}
           unit='%'
+          icon={<MdWaterDrop size={22} color='#3b82f6' />}
           {...getSensorStatus('humidity', sensorData?.humidity, activePreset)}
         />
         <SensorCard
           label='조도'
           value={sensorData?.lux}
           unit='lux'
+          icon={<MdWbSunny size={22} color='#eab308' />}
           {...getSensorStatus('lux', sensorData?.lux, activePreset)}
         />
         <SensorCard
           label='대기질'
           value={sensorData?.air_ppm}
           unit='ppm'
+          icon={<MdAir size={22} color='#10b981' />}
           {...getSensorStatus('air', sensorData?.air_ppm, activePreset)}
         />
-        <SensorCard label='모션' value={status ? (status.sensor.motion ? '감지' : '없음') : '알 수 없음'} unit='' />
+        <SensorCard 
+          label='모션' 
+          value={status ? (status.sensor.motion ? '감지' : '없음') : '알 수 없음'} 
+          unit=''
+          icon={<MdSensors size={22} color='#8b5cf6' />} 
+        />
       </div>
 
       {/* 액츄에이터 제어 */}
@@ -389,6 +403,7 @@ const ActuatorControl = () => {
                 </Button>
                 <Button
                   size='small'
+                  variant='secondary'
                   onClick={() => handleEdit(preset)}
                 >
                   수정

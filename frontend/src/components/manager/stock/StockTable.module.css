@@ -1,39 +1,3 @@
-.tableWrapper {
-  overflow-x: auto;
-  border-radius: 10px;
-  border: 1px solid #eee;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.thead tr {
-  background: #1a1a1a;
-  color: #fff;
-}
-
-.thead th {
-  padding: 13px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.82rem;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.table tbody tr {
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.15s;
-}
-
-.table tbody tr:hover {
-  background: #f9f9f9;
-}
-
 /* 재고 위험 행 */
 .dangerRow {
   background: #fff8f8 !important;
@@ -50,13 +14,6 @@
 
 .warningRow:hover {
   background: #fff8d6 !important;
-}
-
-td {
-  padding: 13px 16px;
-  color: #333;
-  vertical-align: middle;
-  text-align: center;
 }
 
 .idCell {
@@ -79,10 +36,6 @@ td {
 .stockCell {
   font-size: 1rem;
   font-weight: 800;
-}
-
-.stockCol {
-  text-align: right;
 }
 
 .activeTag {

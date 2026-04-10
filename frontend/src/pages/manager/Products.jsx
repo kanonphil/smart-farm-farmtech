@@ -1,134 +1,146 @@
 import React, { useEffect, useState } from 'react'
-import { delProduct, getCategory, getProductListManager, putProduct } from '../../api/product/product';
+import { delProduct, getCategory, getProductListManager, putProduct } from '../../api/product/product'
 import styles from './Products.module.css'
-import Button from '../../components/common/Button';
-import Table from '../../components/common/Table';
+import Button from '../../components/common/Button'
+import Table from '../../components/common/Table'
 import Modal from '../../components/common/Modal'
-import Input from '../../components/common/Input'
-import Select from '../../components/common/Select'
-import { useNavigate } from 'react-router-dom';
+import Pagination from '../../components/common/Pagination'
+import { MdCancel, MdCheckCircle, MdInventory } from 'react-icons/md'
+import ProductRegisterModal from '../../components/manager/product/ProductRegisterModal'
+import ProductEditModal from '../../components/manager/product/ProductEditModal'
 
+/** 페이지당 상품 수 */
+const PAGE_SIZE = 8
+
+/**
+ * 관리자 상품 목록 페이지
+ *
+ * 요약 카드 / 카테고리·상태 필터 / 키워드 검색 / 페이지네이션 제공
+ * 각 상품에 대해 모달로 수정, 소프트 삭제 처리 가능
+ */
 const Products = () => {
-  const nav = useNavigate();
-  //이미지파일 저장 변수
-  const [mainImgFile,   setMainImgFile]   = useState(null);
-  const [subImgFiles,   setSubImgFiles]   = useState([]);
-  const [detailImgFile, setDetailImgFile] = useState(null);
 
-  //상품 조회
-  const [products, setProducts] = useState([]);
-  //카테고리 조회
-  const [categories, setCategories] = useState([]);
+  /** 상품 목록 및 페이지네이션 */
+  const [products,    setProducts]    = useState([])
+  const [totalPages,  setTotalPages]  = useState(0)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  //모달
-  const [isModalOpen, setIsModalOpen] = useState(false); // 열고 닫음
-  const [selectProduct, setSelectProduct] = useState();  //선택된 상품
-  const [form, setForm] = useState({
-    categoryId : '',
-    productName : '',
-    productPrice : 0,
-    productStock : 0,
-    productStatus : 'ACTIVE'
-  });
-  
-  //수정 시 변수 저장
-  const handleFormChange = e => {
-    const {name, value} = e.target;
-    setForm(prev => ({...prev, [name] : value}));
+  /** 요약 카드 카운트 (필터 무관 전체 기준) */
+  const [totalCount,    setTotalCount]    = useState(0)
+  const [activeCount,   setActiveCount]   = useState(0)
+  const [inactiveCount, setInactiveCount] = useState(0)
+
+  /** 카테고리 목록 */
+  const [categories, setCategories] = useState([])
+
+  /** 필터 / 검색 */
+  const [filterCategory, setFilterCategory] = useState('')
+  const [filterStatus,   setFilterStatus]   = useState('')
+  const [inputKeyword,   setInputKeyword]   = useState('') // 입력 중인 값
+  const [keyword,        setKeyword]        = useState('') // 실제 적용된 검색어
+
+  /** 수정 모달 */
+  const [isModalOpen,   setIsModalOpen]   = useState(false)
+  const [selectProduct, setSelectProduct] = useState(null)
+
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
+
+  // ─── 데이터 조회 ────────────────────────────────────────────────
+
+  /**
+   * 상품 목록 조회 (필터 + 페이지네이션 적용)
+   * filterCategory, filterStatus, keyword, currentPage 변경 시 자동 호출
+   */
+  const fetchProducts = async (page, category, status, kw) => {
+    const response = await getProductListManager({
+      categoryId: category || undefined,
+      status:     status   || undefined,
+      keyword:    kw       || undefined,
+      page,
+      size: PAGE_SIZE,
+    })
+    setProducts(response.data.content)
+    setTotalPages(response.data.totalPages)
   }
 
-  //수정 완료 시 전달 api 전달함수
-  const handleSave = async() => {
-    const data = new FormData();
-    //데이터 폼
-    data.append('categoryId',    form.categoryId);
-    data.append('productName',   form.productName);
-    data.append('productPrice',  form.productPrice);
-    data.append('productStock',  form.productStock);
-    data.append('productStatus', form.productStatus);
-
-    //메인 이미지
-    if(mainImgFile) data.append('mainImg', mainImgFile);
-
-    //서브 이미지 여러개
-    if(subImgFiles && subImgFiles.length > 0){
-      subImgFiles.forEach(f => {
-        data.append("subImgs",f)
-      })
-    }
-    //상세 페이지 이미지
-    if(detailImgFile) data.append('detailImg',detailImgFile);
-
-    try{
-      await putProduct(selectProduct.productId, data);
-
-      setIsModalOpen(false);
-      setMainImgFile(null);
-      setSubImgFiles([]);
-      setDetailImgFile(null);
-      fetchProducts();
-      alert("수정이 완료되었습니다");
-
-    }catch(e){
-      alert("수정 중 오류가 발생했습니다.")
-    }
-  }
-  
-  //모달창에서 상태값
-  const STATUS_OPTIONS = [
-    { value: 'ACTIVE', label: '판매중' },
-    { value: 'INACTIVE', label: '판매중지' },
-  ];
-
-  //상품리스트
-  useEffect(() => {
-    fetchProducts();
-    fetchCategory();
-  }, []);
-
-  //모달
-  useEffect(() => {
-      if(selectProduct){
-        setForm({
-          categoryId : selectProduct.categoryId,
-          productName : selectProduct.productName,
-          productPrice : selectProduct.productPrice,
-          productStock : selectProduct.productStock,
-          productStatus : selectProduct.productStatus
-        })
-      }
-  },[selectProduct])
-
-  const fetchProducts = async () => {
-    const response = await getProductListManager();
-    setProducts(response.data);
+  /**
+   * 요약 카드 카운트 조회 (필터 무관 전체 기준)
+   * 마운트 시 1회 + 상품 추가/수정/삭제 후 갱신
+   */
+  const fetchSummary = async () => {
+    const [all, active, inactive] = await Promise.all([
+      getProductListManager({ page: 0, size: 1 }),
+      getProductListManager({ page: 0, size: 1, status: 'ACTIVE' }),
+      getProductListManager({ page: 0, size: 1, status: 'INACTIVE' }),
+    ])
+    setTotalCount(all.data.totalCount)
+    setActiveCount(active.data.totalCount)
+    setInactiveCount(inactive.data.totalCount)
   }
 
+  /** 카테고리 목록 조회 */
   const fetchCategory = async () => {
-    const response = await getCategory();
-    setCategories(response.data);
+    const response = await getCategory()
+    setCategories(response.data)
   }
 
-  // categoryId로 카테고리명 찾는 함수
-  const getCategoryName = (categoryId) => {
-    const category = categories.find(c => c.categoryId === categoryId);
-    return category ? category.categoryName : '-';
-  }
-  //수정핸들러
-  const handleEdit = (product) => {
-    setIsModalOpen(true);
-    setSelectProduct(product);
-  }
-  //삭제핸들러
-  const handleDelete = async(productId) => {
-    const ok = confirm("정말 삭제하시겠습니까?")
-    if(!ok) return;
-    await delProduct(productId);
-    fetchProducts();
-    console.log('삭제', productId);
+  /** 마운트 시 카테고리 + 요약 카드 초기 조회 */
+  useEffect(() => {
+    fetchCategory()
+    fetchSummary()
+  }, [])
+
+  /**
+   * 필터·검색·페이지 변경 시 상품 목록 갱신
+   * React 18 배치 업데이트로 한 번만 실행됨
+   */
+  useEffect(() => {
+    fetchProducts(currentPage, filterCategory, filterStatus, keyword)
+  }, [currentPage, filterCategory, filterStatus, keyword])
+
+  // ─── 핸들러 ─────────────────────────────────────────────────────
+
+  /** 카테고리 필터 변경 → 1페이지로 초기화 */
+  const handleCategoryChange = e => {
+    setFilterCategory(e.target.value)
+    setCurrentPage(0)
   }
 
-  // 테이블 헤더 정의
+  /** 상태 필터 변경 → 1페이지로 초기화 */
+  const handleStatusChange = e => {
+    setFilterStatus(e.target.value)
+    setCurrentPage(0)
+  }
+
+  /** 검색어 적용 */
+  const handleSearch = () => {
+    setKeyword(inputKeyword)
+    setCurrentPage(0)
+  }
+
+  /** 수정 모달 열기 */
+  const handleEdit = product => {
+    setSelectProduct(product)
+    setIsModalOpen(true)
+  }
+
+  /** 삭제 (소프트 삭제) */
+  const handleDelete = async productId => {
+    const ok = confirm('정말 삭제하시겠습니까?')
+    if (!ok) return
+    await delProduct(productId)
+    fetchProducts(currentPage, filterCategory, filterStatus, keyword)
+    fetchSummary()
+  }
+
+  /** categoryId → 카테고리명 변환 */
+  const getCategoryName = categoryId => {
+    const category = categories.find(c => c.categoryId === categoryId)
+    return category ? category.categoryName : '-'
+  }
+
+  // ─── 테이블 헤더 ─────────────────────────────────────────────────
+
   const headers = [[
     { label: 'No' },
     { label: '카테고리' },
@@ -141,25 +153,100 @@ const Products = () => {
     { label: '관리' },
   ]]
 
-  console.log(products);
+  // ─── 렌더 ───────────────────────────────────────────────────────
+
   return (
     <div className={styles.container}>
+
+      {/* 헤더 */}
       <div className={styles.titleArea}>
-        <h2>상품 목록</h2>
-        <Button
-          variant='primary'
-          size='small'
-          onClick={() => nav('/manager/reg-product')}
-        >+ 상품 등록</Button>
+        <h1 className={styles.title}>상품 목록</h1>
       </div>
 
-      <div className={styles.tableWrap}>
+      {/* 요약 카드 */}
+      <div className={styles.summaryRow}>
+        <div className={styles.summaryCard}>
+          <div className={`${styles.iconWrap} ${styles.iconTotal}`}>
+            <MdInventory size={22} color='#1565c0' />
+          </div>
+          <div>
+            <p className={styles.summaryCount}>{totalCount}개</p>
+            <p className={styles.summaryLabel}>전체 상품</p>
+          </div>
+        </div>
+        <div className={styles.summaryCard}>
+          <div className={`${styles.iconWrap} ${styles.iconActive}`}>
+            <MdCheckCircle size={22} color='#2e7d32' />
+          </div>
+          <div>
+            <p className={styles.summaryCount}>{activeCount}개</p>
+            <p className={styles.summaryLabel}>판매중</p>
+          </div>
+        </div>
+        <div className={styles.summaryCard}>
+          <div className={`${styles.iconWrap} ${styles.iconInactive}`}>
+            <MdCancel size={22} color='#9e9e9e' />
+          </div>
+          <div>
+            <p className={styles.summaryCount}>{inactiveCount}개</p>
+            <p className={styles.summaryLabel}>판매중지</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 필터 바 */}
+      <div className={styles.filterBar}>
+        <select
+          className={styles.filterSelect}
+          value={filterCategory}
+          onChange={handleCategoryChange}
+        >
+          <option value=''>전체 카테고리</option>
+          {categories.map(c => (
+            <option key={c.categoryId} value={c.categoryId}>{c.categoryName}</option>
+          ))}
+        </select>
+        <select
+          className={styles.filterSelect}
+          value={filterStatus}
+          onChange={handleStatusChange}
+        >
+          <option value=''>전체 상태</option>
+          <option value='ACTIVE'>판매중</option>
+          <option value='INACTIVE'>판매중지</option>
+        </select>
+        <input
+          className={styles.searchInput}
+          placeholder='상품명 검색'
+          value={inputKeyword}
+          onChange={e => setInputKeyword(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+        />
+        <Button 
+          variant='primary' 
+          size='small' 
+          onClick={handleSearch}
+        >
+          검색
+        </Button>
+        <Button 
+          variant='primary' 
+          size='small' 
+          style={{ marginLeft: 'auto' }}
+          onClick={() => setIsRegisterOpen(true)}
+        >
+          + 상품 등록
+        </Button>
+      </div>
+
+      {/* 상품 테이블 */}
       <Table
         headers={headers}
         data={products}
+        emptyMessage='상품이 없습니다.'
         renderRow={(product, index) => (
           <>
-            <td>{index + 1}</td>
+            <td>{currentPage * PAGE_SIZE + index + 1}</td>
             <td>{getCategoryName(product.categoryId)}</td>
             <td>
               {product.mainImage
@@ -178,98 +265,56 @@ const Products = () => {
             </td>
             <td>
               <div className={styles.btnArea}>
-                <Button
-                  variant='primary'
-                  size='small'
-                  onClick={(e) => handleEdit(product)}>수정</Button>
-                <Button 
-                  variant='danger' 
-                  size='small' 
-                  onClick={(e) => handleDelete(product.productId)}>삭제</Button>
+                <Button variant='primary' size='small' onClick={() => handleEdit(product)}>수정</Button>
+                <Button variant='danger'  size='small' onClick={() => handleDelete(product.productId)}>삭제</Button>
               </div>
             </td>
           </>
         )}
       />
-      </div>
-      {/* 수정 시 모달창 */}
+
+      {/* 페이지네이션 */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      {/* 상품 등록 모달 */}
+      <Modal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        title='상품 등록'
+        width='min(900px, 92vw)'
+      >
+        <ProductRegisterModal
+          onClose={() => setIsRegisterOpen(false)}
+          onSuccess={() => {
+            fetchProducts(currentPage, filterCategory, filterStatus, keyword)
+            fetchSummary()
+          }}
+        />
+      </Modal>
+
+      {/* 수정 모달 */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="상품 수정"
-        width='500px'
-        className={styles.darkModal}
+        title='상품 수정'
+        width='min(900px, 92vw)'
       >
-       {/* 수정 폼 */}
-       <div className={styles.editForm}>
-          <Select
-            label="카테고리"
-            name='categoryId'
-            value={form.categoryId}
-            onChange={handleFormChange}
-            options={categories.map(e => ({ value: e.categoryId, label: e.categoryName }))}
+        {selectProduct && (
+          <ProductEditModal
+            product={selectProduct}
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={() => {
+              fetchProducts(currentPage, filterCategory, filterStatus, keyword)
+              fetchSummary()
+            }}
           />
-          <Input
-            label="상품명"
-            type="text"
-            name="productName"
-            value={form.productName}
-            onChange={handleFormChange}
-          />
-          <Input
-            label="가격"
-            type="number"
-            name="productPrice"
-            value={form.productPrice}
-            onChange={handleFormChange}
-          />
-          <Input
-            label="재고"
-            type="number"
-            name="productStock"
-            value={form.productStock}
-            onChange={handleFormChange}
-          />
-          <Select
-            label="상태"
-            name="productStatus"
-            value={form.productStatus}
-            onChange={handleFormChange}
-            options={STATUS_OPTIONS}
-          />
-          <p>메인 이미지</p>
-          <Input 
-            type="file"
-            accept="image/*"
-            onChange={e => setMainImgFile(e.target.files[0] || null)}
-          />
-          <p>서브 이미지</p>
-          <Input 
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={e => setSubImgFiles(Array.from(e.target.files))}
-          />
-          <p>상세페이지</p>
-          <Input 
-            type="file"
-            accept="image/*"
-            onChange={e => setDetailImgFile(e.target.files[0] || null)}
-          />
-          <div className={styles.formActions}>
-            <Button
-              variant='outline'
-              size='small'
-              onClick={() => setIsModalOpen(false)}
-            >취소</Button>
-            <Button
-              variant='primary'
-              size='small'
-              onClick={handleSave}
-            >저장</Button>
-          </div>
-       </div>
+        )}
       </Modal>
+
     </div>
   )
 }

@@ -7,10 +7,11 @@ import styles from './SensorCard.module.css'
  * @param {string} [statusLabel] - 상태 텍스트 (예: 적정, 낮음, 높음)
  * @param {string} [statusLevel] - 색상 기준 (good | low | high | bad)
  */
-const SensorCard = ({ label, value, unit, statusLabel, statusLevel }) => {
+const SensorCard = ({ label, value, unit, statusLabel, statusLevel, icon }) => {
   const isMotion = label === '모션' && value === '감지'
   return (
     <div className={styles.card}>
+      {icon && <div className={styles.iconWrap}>{icon}</div>}
       <p className={styles.label}>{label}</p>
       {/* 값이 없을 때 - 표시 */}
       <p className={`${styles.value} ${isMotion ? styles.detected : ''}`}>

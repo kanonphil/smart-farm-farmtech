@@ -1,7 +1,7 @@
-.container {
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
+.container{
+  padding: 2rem;
+  background-color: #f1f5f9;
+  min-height: 100vh;
 }
 
 .modeSection {
@@ -78,6 +78,12 @@
   justify-content: space-between;
 }
 
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .connectionError {
   padding: 2rem;
   text-align: center;
@@ -134,6 +140,7 @@
 .actions {
   display: flex;
   gap: 0.4rem;
+  justify-content: center;
 }
 
 /* 추가/수정 폼 */
@@ -167,10 +174,16 @@
 }
 
 .loadingWrap {
+  position: fixed;
+  top: 0;
+  left: 220px;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 60vh;
+  background: #f1f5f9;
+  z-index: 10;
 }
 
 .spinner {

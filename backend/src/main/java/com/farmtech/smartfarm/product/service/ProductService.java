@@ -6,13 +6,16 @@ import com.farmtech.smartfarm.product.dto.ProductImageDTO;
 import com.farmtech.smartfarm.product.dto.ProductListDTO;
 import com.farmtech.smartfarm.product.mapper.ProductMapper;
 import com.farmtech.smartfarm.util.UploadUtil;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -51,8 +54,25 @@ public class ProductService {
   }
 
   // 상품 목록 조회(매니저)
-  public List<ProductListDTO> selectProductListManager(){
-    return productMapper.selectProductListManager();
+  public Map<String, Object> selectProductListManager(Integer categoryId, String status, String keyword, int page, int size){
+    int offset = page * size;
+
+    Map<String, Object> params = new HashMap<>();
+    params.put("categoryId", categoryId);
+    params.put("status",     status);
+    params.put("keyword",    keyword);
+    params.put("size",       size);
+    params.put("offset",     offset);
+
+    List<ProductListDTO> content = productMapper.selectProductListManager(params);
+    int totalCount = productMapper.countProductListManager(params);
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("content",    content);
+    result.put("totalCount", totalCount);
+    result.put("totalPages", (int) Math.ceil((double) totalCount / size));
+
+    return result;
   }
 
   // 상품 수정
@@ -60,28 +80,35 @@ public class ProductService {
   public void updateProduct(ProductDTO productDTO,
                             MultipartFile mainImgFile,
                             MultipartFile[] subImgFiles,
-                            MultipartFile detailFile) throws IOException {
+                            MultipartFile detailFile,
+                            List<Integer> deletedImageIds) throws IOException {
     // 텍스트 정보 항상 업데이트
     productMapper.updateProduct(productDTO);
 
     // 대표 이미지 (선택했을 때만)
-    if(mainImgFile != null && !mainImgFile.isEmpty()){
+    if (mainImgFile != null && !mainImgFile.isEmpty()) {
       ProductImageDTO mainImg = uploadUtil.fileUpload(mainImgFile);
       mainImg.setProductId(productDTO.getProductId());
       mainImg.setImageType("MAIN");
       productMapper.updateProductImage(mainImg);
     }
+
     // 서브 이미지 (선택했을 때만 -> 기존 삭제 후 새로 INSERT)
-    if(subImgFiles != null && subImgFiles.length > 0 && !subImgFiles[0].isEmpty()){
-      productMapper.deleteProductImageByType(productDTO.getProductId(), "SUB");
+    if (deletedImageIds != null) {
+      for (int imageId : deletedImageIds) {
+        productMapper.deleteProductImageById(imageId);
+      }
+    }
+    if (subImgFiles != null && subImgFiles.length > 0 && !subImgFiles[0].isEmpty()) {
       List<ProductImageDTO> sub = uploadUtil.multipleFileUpload(subImgFiles);
-      for (ProductImageDTO subimg : sub){
-        subimg.setProductId(productDTO.getProductId());
+      for (ProductImageDTO subImg : sub) {
+        subImg.setProductId(productDTO.getProductId());
       }
       productMapper.insertImage(sub);
     }
+
     // 상세 페이지 이미지 (선택했을 때만)
-    if(detailFile != null && !detailFile.isEmpty()){
+    if (detailFile != null && !detailFile.isEmpty()) {
       ProductImageDTO detailImg = uploadUtil.fileUpload(detailFile);
       detailImg.setProductId(productDTO.getProductId());
       detailImg.setImageType("DETAIL");

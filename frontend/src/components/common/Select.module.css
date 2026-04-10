@@ -5,22 +5,22 @@
 .label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: #374151;
   font-size: 1rem;
   font-weight: 500;
 }
 
 .required {
-  color: #ff6b6b;
+  color: #ef4444;
   margin-left: 0.25rem;
 }
 
 .select {
   width: 100%;
   padding: 0.75rem;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #404040;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #d0d0d0;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
@@ -28,68 +28,38 @@
 }
 
 .select:hover {
-  border-color: #505050;
+  border-color: #b0b0b0;
 }
 
 .select:focus {
   outline: none;
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
 }
 
 .select:disabled {
-  background-color: #1a1a1a;
+  background-color: #f5f5f5;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .selectError {
-  border-color: #ff6b6b;
+  border-color: #ef4444;
 }
 
 .selectError:focus {
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+  border-color: #ef4444;
+  box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.15);
 }
 
 .error {
   display: block;
   margin-top: 0.5rem;
-  color: #ff6b6b;
+  color: #ef4444;
   font-size: 0.85rem;
 }
 
-/* 다크모드 select option 스타일 */
 .select option {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-}
-
-/* 라이트모드 대응 */
-[data-theme='light'] .select {
-  background-color: #ffffff;
-  color: #1a1a1a;
-  border-color: #d0d0d0;
-}
-
-[data-theme='light'] .label {
-  color: #1a1a1a;
-}
-
-[data-theme='light'] .select:hover {
-  border-color: #b0b0b0;
-}
-
-[data-theme='light'] .select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-[data-theme='light'] .select:disabled {
-  background-color: #f5f5f5;
-}
-
-[data-theme='light'] .select option {
   background-color: #ffffff;
   color: #1a1a1a;
 }
