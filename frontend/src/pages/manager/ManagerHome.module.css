@@ -8,12 +8,16 @@
   display: flex;
   gap: 1rem;
   align-items: baseline;
+  margin-bottom: 15px;
 }
 
-.title p{
-  color: gray;
+.title_p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
-  padding-bottom: 2rem;
+  color: gray;
+  margin-bottom: 15px;
 }
 
 .standard{

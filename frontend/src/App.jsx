@@ -82,7 +82,7 @@ function App() {
         {/* 관리자 페이지 */}
         <Route path="/manager" element={<ManagerLayout />}>
           <Route index element={<ManagerHome/>} />
-          <Route path='reg-product' element={<ProductRegister />} />
+          {/* <Route path='reg-product' element={<ProductRegister />} /> */}
           <Route path='actuator' element={<ActuatorControl />} />
           <Route path='products' element={<Products/>} />
           <Route path='stock' element={<Stock />} />

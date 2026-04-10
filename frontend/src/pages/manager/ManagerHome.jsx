@@ -5,6 +5,7 @@ import { getMemberCount, getMemberRank, getMonthSales, getOrderStatus, getProduc
 import CustomBarChart from './CustomBarChart.jsx'
 import CustomPieChart from './CustomPieChart.jsx'
 import CustomHorizontalBarChart from './CustomHorizontalBarChart.jsx'
+import { MdAttachMoney, MdEmojiEvents, MdListAlt, MdShowChart, MdStorefront } from 'react-icons/md'
 
 const ManagerHome = () => {
   // 금일, 전일 회원 수 저장 state 변수
@@ -183,7 +184,9 @@ const ManagerHome = () => {
       <div className={styles.sales_order_div}>
         <div className={styles.sales_div}>
           <div className={styles.sales_select_div}>
-            <p>📈 월별 판매 수익</p>
+            <p className={styles.title_p}>
+              <MdShowChart size={18} color='#e41e1e' /> 월별 판매 수익
+            </p>
             <select 
               className={styles.year_select}
               value={year}
@@ -198,7 +201,9 @@ const ManagerHome = () => {
           </div>
         </div>
         <div className={styles.order_div}>
-          <p className={styles.title_p}>📋 주문 상태 현황</p>
+          <p className={styles.title_p}>
+            <MdListAlt size={18} color='#4277c0' /> 주문 상태 현황
+          </p>
           <div className={styles.order_state}>
             <div>
               <p>결제완료</p>
@@ -224,7 +229,9 @@ const ManagerHome = () => {
       </div>
       <div className={styles.rank_div}>
         <div className={styles.member_rank}>
-          <p className={styles.title_p}>🏆 회원 구매 순위 TOP 10</p>
+          <p className={styles.title_p}>
+            <MdEmojiEvents size={18} color='#ffee00' /> 회원 구매 순위 TOP 10
+          </p>
           <div>
             <table>
               <colgroup>
@@ -250,7 +257,9 @@ const ManagerHome = () => {
           </div>
         </div>
         <div className={styles.product_rank}>
-          <div className={styles.title_p}>🛒 상품별 판매 TOP 5</div>
+          <div className={styles.title_p}>
+            <MdStorefront size={18} color='#eb3eeb' /> 상품별 판매 TOP 5
+          </div>
           <div>
             <CustomHorizontalBarChart data={productChartData}/>
           </div>

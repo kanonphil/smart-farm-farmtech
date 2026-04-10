@@ -143,6 +143,11 @@
           AND MEMBER_NAME = #{name}
           AND MEMBER_PHONE = #{phone}
     </select>
-
-
+    
+    <!-- 이메일로 회원 이름 조회 -->
+    <select id="getMemberNameByEmail" resultType="String">
+        SELECT MEMBER_NAME
+        FROM MEMBER
+        WHERE MEMBER_EMAIL = #{email}
+    </select>
 </mapper>

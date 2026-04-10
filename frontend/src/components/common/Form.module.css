@@ -3,14 +3,14 @@
   max-width: 500px;
   margin: 50px auto;
   padding: 2rem;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .formTitle {
   text-align: center;
-  color: #e0e0e0;
+  color: #1a1a1a;
   margin-bottom: 0.5rem;
   font-size: 1.8rem;
   font-weight: 600;
@@ -18,7 +18,7 @@
 
 .formSubtitle {
   text-align: center;
-  color: #a0a0a0;
+  color: #6b7280;
   margin-bottom: 2rem;
   font-size: 0.9rem;
   font-weight: 400;
@@ -39,18 +39,4 @@
   .formSubtitle {
     font-size: 0.85rem;
   }
-}
-
-/* 라이트모드 대응 */
-[data-theme='light'] .formContainer {
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme='light'] .formTitle {
-  color: #1a1a1a;
-}
-
-[data-theme='light'] .formSubtitle {
-  color: #606060;
 }

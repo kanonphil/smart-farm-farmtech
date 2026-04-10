@@ -102,13 +102,13 @@ export const insertOrder = async (data) => {
 }
 
 /**
- * 매니저 상품 전체 목록 조회 (ACTIVE + INACTIVE)
- * GET /manager/products
- * @returns 전체 상품 목록 배열
+ * 매니저 상품 전체 목록 조회 (필터 + 페이지네이션)
+ * GET /products/manager
+ * @param {Object} params - { categoryId, status, keyword, page, size }
  */
-export const getProductListManager = async() => {
-  const response = await axiosInstance.get('/products/manager');
-  return response;
+export const getProductListManager = async (params = {}) => {
+  const response = await axiosInstance.get('/products/manager', { params })
+  return response
 }
 
 /**

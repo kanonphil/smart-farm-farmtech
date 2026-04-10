@@ -1,83 +1,234 @@
-.body{
-  background-color: #f1f5f9;
-  min-height: 100vh;
+.container {
+  padding: 32px;
+  max-width: 1100px;
 }
 
-.container{
-  width: 700px;
-  margin: auto;
-}
-
-/* 이미지 프리뷰 전체 영역 */
-.imgPreviewArea {
-  margin-top: 20px;
-  display: flex;
-  height: 10vh;
-  gap: 8px;
-  margin-bottom: 8px;
-  border: 1px solid #ddd;
+/* 성공/실패 토스트 */
+.toast {
+  padding: 14px 20px;
   border-radius: 8px;
-  overflow: hidden;
-  background-color: #f9f9f9;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
-/* 좌측 - 대표 이미지 (크게) */
-.mainImgPre {
-  flex: 1;
-  overflow: hidden;
+.toastSuccess {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
 }
 
-.mainImgPre img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.toastError {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
-/* 가운데 - 서브 이미지들 (세로로 나열) */
-.subImgsPre {
-  flex: 1;
+/* 2단 레이아웃 */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* 좌측 이미지 컬럼 */
+.imageCol {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
+  gap: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
 }
 
-.subImgsPre img {
-  width: 100%;
-  flex: 1;
-  object-fit: cover;
-  min-height: 0;
-}
-
-/* 우측 - 상세페이지 이미지 (세로로 길게) */
-.detailImgPre {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.detailImgPre img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.imageSelecter{
+.imgSection {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
 }
-.imageSelecter > div {
-  flex: 5;
+
+.imgLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.optional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+
+/* 이미지 업로드 박스 */
+.uploadBox {
+  width: 100%;
+  min-height: 160px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  background: #ffffff;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.uploadBox:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.mainBox {
+  min-height: 220px;
+}
+
+.uploadBoxError {
+  border-color: #ef4444;
+}
+
+.placeholder {
+  width: 100%;
+  min-height: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.84rem;
+  font-weight: 500;
+  padding: 20px;
 }
-.imageSelecter input{
-  width: 100px;
+
+.uploadIcon {
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #cbd5e1;
 }
-.imageSelecter p{
-  margin-bottom: 15px;
-  font-size: 0.8rem;
+
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 서브 이미지 그리드 */
+.subGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+}
+
+.subPreviewImg {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.errorMsg {
+  font-size: 0.78rem;
+  color: #ef4444;
+}
+
+.clearBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.clearBtn:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* 우측 폼 컬럼 */
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 가로 2열 */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 상품 설명 textarea */
+.textareaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.textareaLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  min-height: 120px;
+}
+
+.textarea:focus {
+  border-color: #1a1a1a;
+}
+
+.subImgWrap {
+  position: relative;
+}
+
+.clearBtnSub {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.65rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.clearBtnSub:hover {
+  background: rgba(0, 0, 0, 0.75);
 }

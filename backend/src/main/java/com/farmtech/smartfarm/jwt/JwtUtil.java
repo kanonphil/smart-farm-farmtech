@@ -43,7 +43,13 @@ public class JwtUtil {
         return parseClaims(token).get("memberId", Integer.class);
     }
 
-    //token의 만료시간이 지났으면 true, 만료가 되지 않았으면 false를 리턴
+    // token의 회원 이름 추출
+    public String getMemberName(String token) {
+      return parseClaims(token).get("memberName", String.class);
+    }
+
+
+  //token의 만료시간이 지났으면 true, 만료가 되지 않았으면 false를 리턴
     public Boolean isExpired(String token) {
         try{
             return parseClaims(token).getExpiration().before(new Date());
@@ -59,7 +65,7 @@ public class JwtUtil {
      * @param expirationTime 만료날짜및시간 1000 -> 1초
      * @return 위 정보가 담긴 토큰을 리턴
      */
-    public String createJwt(String username, String role, int memberId, long expirationTime) {
+    public String createJwt(String username, String role, int memberId, String memberName, long expirationTime) {
         return Jwts.builder()
                 .signWith(secretKey, Jwts.SIG.HS512)    //암호화 방식지정. 비밀키 & HS512 알고리즘으로 토큰 암호화 진행
                 .header()
@@ -69,6 +75,7 @@ public class JwtUtil {
                 .subject(username)      //유저이름
                 .claim("role", role)    //권한
                 .claim("memberId", memberId)
+                .claim("memberName", memberName)
                 .issuedAt(new Date(System.currentTimeMillis()))                      //토큰 발행 시간
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))   //토큰 만료 시간
                 .compact();

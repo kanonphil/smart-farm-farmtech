@@ -1,11 +1,7 @@
-.body{
+.container{
+  padding: 2rem;
   background-color: #f1f5f9;
   min-height: 100vh;
-}
-
-.container {
-  padding: 32px;
-  max-width: 1200px;
 }
 
 .header {
@@ -34,27 +30,43 @@
 
 .summaryCard {
   flex: 1;
-  padding: 16px 20px;
-  border-radius: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid transparent;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 12px;
 }
 
-.dangerCard  { background: #fff0f0; border-color: #f5c6c6; }
-.warningCard { background: #fff8e1; border-color: #ffe0b2; }
-.safeCard    { background: #f0fdf4; border-color: #bbf7d0; }
+/* 아이콘 뱃지 */
+.iconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dangerIcon  { background: #fee2e2; }
+.warningIcon { background: #fef3c7; }
+.safeIcon    { background: #dcfce7; }
 
 .summaryLabel {
-  font-size: 0.82rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
 }
 
+/* 텍스트 */
 .summaryCount {
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
+  margin: 0 0 2px 0;
 }
 
 /* ── 로딩 ── */
