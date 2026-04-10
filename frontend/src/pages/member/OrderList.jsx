@@ -10,6 +10,7 @@ import Input from '../../components/common/Input'
 import { confirmOrder } from '../../api/orderApi'
 import Pagination from '../../components/common/Pagination'
 import useAuthStore from '../../store/authStore'
+import { MdCancel, MdCheckCircle, MdDoneAll, MdLocalShipping, MdPayment } from 'react-icons/md'
 
 const OrderList = () => {
   const { showAlert } = useAuthStore()
@@ -89,6 +90,18 @@ const OrderList = () => {
       REFUNDED: '환불',
     }
     return map[status] || status
+  }
+
+  /** 상태별 뱃지 CSS 클래스 반환 */
+  const getStatusBadgeClass = (status) => {
+    const map = {
+      PAID:     styles.badgePaid,
+      SHIPPING: styles.badgeShipping,
+      SHIPPED:  styles.badgeShipped,
+      DONE:     styles.badgeDone,
+      REFUNDED: styles.badgeRefunded,
+    }
+    return `${styles.badge} ${map[status] ?? ''}`
   }
 
   // 버튼 클릭 핸들러
@@ -188,21 +201,24 @@ const OrderList = () => {
         </div>
       </div>
      
-      <div className={styles.statusCards}>
+      <div className={styles.summaryRow}>
         {[
-          { label: '결제완료', key: 'PAID', color: '#4caf50' },
-          { label: '배송완료', key: 'SHIPPED', color: '#ff9800' },
-          { label: '구매확정', key: 'DONE', color: '#2196f3' },
-          { label: '구매취소', key: 'REFUNDED', color: '#9c27b0' },
-        ].map(({ label, key, color }) => (
-          <div key={key} className={styles.statusCard}>
-            <p className={styles.statusLabel} style={{ color }}>{label}</p>
-            <p className={styles.statusCount}>{statusCount(key)}건</p>
+          { label: '결제완료', key: 'PAID', icon: <MdPayment size={22} color='#d32f2f' />, iconClass: styles.iconPaid },
+          { label: '배송중', key: 'SHIPPING', icon: <MdLocalShipping size={22} color='#e65100' />, iconClass: styles.iconShipping },
+          { label: '배송완료', key: 'SHIPPED', icon: <MdDoneAll size={22} color='#1565c0' />, iconClass: styles.iconShipped },
+          { label: '구매확정', key: 'DONE', icon: <MdCheckCircle size={22} color='#2e7d32' />, iconClass: styles.iconDone },
+          { label: '환불', key: 'REFUNDED', icon: <MdCancel size={22} color='#9e9e9e' />, iconClass: styles.iconRefunded },
+        ].map(({ label, key, icon, iconClass }) => (
+          <div key={key} className={styles.summaryCard}>
+            <div className={`${styles.iconWrap} ${iconClass}`}>{icon}</div>
+            <div>
+              <p className={styles.summaryCount}>{statusCount(key)}건</p>
+              <p className={styles.summaryLabel}>{label}</p>
+            </div>
           </div>
         ))}
       </div>
       {/* 주문 내역 테이블 */}
-      <h3 className={styles.title}>주문 내역</h3>
       <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
@@ -213,87 +229,57 @@ const OrderList = () => {
               <th>수량</th>
               <th>금액</th>
               <th>상태</th>
-              <th>취소</th>
-              <th>구매 확정</th>
-              <th>리뷰</th>
+              <th>액션</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.empty}>주문 내역이 없습니다.</td>
+                <td colSpan={7} className={styles.empty}>주문 내역이 없습니다.</td>
               </tr>
             ) : (
               displayedOrders.map((order, i) =>
                 order.orderItemDTOList?.map((item, itemIndex) => (
-                  <tr 
-                    key={`${order.orderId}-${item.orderItemId}`}
-                    style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff' }}
-                  >
-                    {/* 주문번호, 주문일은 첫 번째 상품 행에만 표시 (rowSpan으로 병합) */}
+                  <tr key={`${order.orderId}-${item.orderItemId}`}>
+
+                    {/* 주문번호, 주문일 — 첫 번째 상품 행에만 */}
                     {itemIndex === 0 && (
                       <>
-                        <td 
-                          rowSpan={order.orderItemDTOList.length}
-                          style={{verticalAlign: 'middle'}}
-                        >
+                        <td rowSpan={order.orderItemDTOList.length}>
                           {orders.length - (currentPage * PAGE_SIZE + i)}
                         </td>
-                        <td
-                          rowSpan={order.orderItemDTOList.length}
-                          style={{verticalAlign: 'middle'}}
-                        >
+                        <td rowSpan={order.orderItemDTOList.length}>
                           {order.orderCreatedAt?.split('T')[0]}
                         </td>
                       </>
                     )}
 
-                    {/* 상품별 행 */}
-                    <td
-                      style={{verticalAlign: 'middle'}}
-                    >{item.productName}</td>
-                    <td
-                      style={{verticalAlign: 'middle'}}
-                    >{item.orderItemQty}</td>
+                    {/* 상품, 수량 — 매 행 */}
+                    <td>{item.productName}</td>
+                    <td>{item.orderItemQty}</td>
 
-                    {/* 금액, 상태, 취소는 첫 번째 상품 행에만 표시 (rowSpan으로 병합) */}
+                    {/* 금액, 상태 — 첫 번째 상품 행에만 */}
                     {itemIndex === 0 && (
                       <>
-                        <td 
-                          rowSpan={order.orderItemDTOList.length}
-                          style={{verticalAlign: 'middle'}}
-                        >
+                        <td rowSpan={order.orderItemDTOList.length}>
                           {order.orderTotalPrice?.toLocaleString()}원
                         </td>
-                        <td 
-                          rowSpan={order.orderItemDTOList.length}
-                          style={{verticalAlign: 'middle'}}
-                        >
-                          {changeStatus(order.orderStatus)}
-                        </td>
-                        <td 
-                          rowSpan={order.orderItemDTOList.length}
-                          style={{verticalAlign: 'middle'}}
-                        >
-                          {order.orderStatus === 'PAID' && (
-                            <Button
-                              variant='danger'
-                              size='small'
-                              onClick={() => handleCancelClick(order.orderId)}
-                            >
-                              주문 취소
-                            </Button>
-                          )}
+                        <td rowSpan={order.orderItemDTOList.length}>
+                          <span className={getStatusBadgeClass(order.orderStatus)}>
+                            {changeStatus(order.orderStatus)}
+                          </span>
                         </td>
                       </>
                     )}
 
-                    {/* 기존 취소 버튼 td 뒤에 구매 확정 td 추가 */}
-                    {itemIndex === 0 && (
-                      <td
-                        rowSpan={order.orderItemDTOList.length}
-                        style={{ verticalAlign: 'middle' }}
-                      >
+                    {/* 액션: DONE 제외는 첫 행에 rowSpan */}
+                    {itemIndex === 0 && order.orderStatus !== 'DONE' && (
+                      <td rowSpan={order.orderItemDTOList.length}>
+                        {order.orderStatus === 'PAID' && (
+                          <Button variant='danger' size='small' onClick={() => handleCancelClick(order.orderId)}>
+                            주문 취소
+                          </Button>
+                        )}
                         {order.orderStatus === 'SHIPPED' && (
                           <Button
                             variant='primary'
@@ -304,17 +290,12 @@ const OrderList = () => {
                             {confirmingId === order.orderId ? '처리중...' : '구매 확정'}
                           </Button>
                         )}
-                        {order.orderStatus === 'DONE' && (
-                          <span style={{ fontSize: '0.82rem', color: '#2e7d32', fontWeight: 600 }}>
-                            ✓ 구매확정
-                          </span>
-                        )}
                       </td>
                     )}
 
-                    {/* 리뷰 버튼은 상품별로 각각 표시 */}
-                    <td>
-                      {order.orderStatus === 'DONE' && (
+                    {/* 액션: DONE은 상품별 리뷰 버튼 */}
+                    {order.orderStatus === 'DONE' && (
+                      <td>
                         <Button
                           variant='primary'
                           size='small'
@@ -323,13 +304,15 @@ const OrderList = () => {
                         >
                           {item.hasReview ? '작성완료' : '리뷰 작성'}
                         </Button>
-                      )}
-                    </td>
+                      </td>
+                    )}
+
                   </tr>
                 ))
               )
             )}
           </tbody>
+
         </table>
       </div>
 
@@ -342,7 +325,7 @@ const OrderList = () => {
       <Modal
         isOpen={cancelModal.isOpen}
         onClose={() => setCancelModal({ isOpen: false, orderId: null })}
-        title='주문 취소 (환불)'
+        title='환불'
         width='480px'
       >
         <p style={{ marginBottom: '12px', color: '#555' }}>환불 사유를 입력해주세요.</p>
