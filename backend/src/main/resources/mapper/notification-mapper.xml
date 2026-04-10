@@ -6,7 +6,7 @@
 <mapper namespace="com.farmtech.smartfarm.notification.mapper.NotificationMapper">
 	<resultMap id="notificationMap" type="com.farmtech.smartfarm.notification.dto.NotificationDTO">
         <id     column="NOTIFICATION_ID"    property="notificationId" />
-        <result column="MEMBER_ID"          property="memberID" />
+        <result column="MEMBER_ID"          property="memberId" />
         <result column="MESSAGE"            property="message" />
         <result column="LINK"               property="link" />
         <result column="IS_READ"            property="isRead" />
