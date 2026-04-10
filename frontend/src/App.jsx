@@ -33,9 +33,11 @@ import Stock from "./pages/manager/Stock"
 import OrderManage from './pages/manager/OrderManage'
 import SensorChart from "./pages/manager/SensorChart"
 import AlertModal from "./components/common/AlertModal"
+import Toast from './components/common/Toast'
+
 
 function App() {
-  const { setToken, alertModal, closeAlert } = useAuthStore()
+  const { setToken, alertModal, closeAlert, toast, closeToast } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
@@ -115,6 +117,11 @@ function App() {
           alertModal.callback?.()
           closeAlert()
         }}
+      />
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        onClose={closeToast}
       />
     </>
   )
