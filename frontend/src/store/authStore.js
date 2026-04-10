@@ -21,6 +21,8 @@ const useAuthStore = create((set) => ({
   // 토큰을 삭제하는 함수
   // 로그아웃 시 이 함수를 호출해서 token을 null로 초기화
   clearToken: () => set({ token : null }),
+
+  // 모달 상태
   setAuthReady: () => set({ isAuthReady: true }),
 
   // 알림 관련 액션
@@ -33,8 +35,19 @@ const useAuthStore = create((set) => ({
   })),
   
   alertModal: { show: false, message: '', callback: null },
+  // 모달 띄우기
   showAlert: (message, callback) => set({ alertModal: { show: true, message, callback } }),
+  // 모달 닫기
   closeAlert: () => set({ alertModal: { show: false, message: '', callback: null } }),
+
+  // 토스트 알림 상태
+  toast: { show: false, message: '' },
+  // 토스트 띄우기
+  showToast: (message) => set({ toast: { show: true, message } }),
+  // 토스트 닫기
+  closeToast: () => set({ toast: { show: false, message: '' } }),
+
+
 }))
 
 export default useAuthStore

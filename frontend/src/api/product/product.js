@@ -27,9 +27,9 @@ export const getCategory = async() => {
  * @param {string|null} sort - 정렬 기준 (sales_desc / price_desc / price_asc / null: 기본값)
  * @returns {Promise<Array>} 상품 목록 배열
  */
-export const getProductList = async (sort = null, keyword = null) => {
+export const getProductList = async (sort = null, keyword = null, categoryId = null) => {
   const response = await axiosInstance.get('/products', {
-    params: { sort, keyword }
+    params: { sort, keyword, categoryId }
   })
   return response.data
 }

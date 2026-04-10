@@ -15,7 +15,7 @@ const Login = () => {
 
   // store에서 setToken 함수 가져오기
   // 로그인 성공 시 이 함수로 토큰을 전역 상태에 저장할 것
-  const { setToken } = useAuthStore()
+  const { setToken, showToast } = useAuthStore()
 
   // 자동 로그인 체크박스 state 변수
   const [autoLogin, setAutoLogin] = useState(false)
@@ -95,19 +95,22 @@ const Login = () => {
     try{
       const response = await goLogin({...loginData, autoLogin})
       console.log(response)
-      if(response.status === 200){
-        // Zustand store에 저장
+      // 로그인 성공 시
+      if(response.status === 200) {
         setToken(response.headers.authorization)
-        showAlert('로그인 성공')
-        // 토큰 복호화하여 저장
+
+        // 토스트 알림 표시 (2.5초 후 자동 사라짐)
+        showToast('로그인 성공! 환영합니다 🎉')
+
         const decoded = decodeToken(response.headers.authorization)
-        // 매니저일경우 매니저페이지로 이동
-        if(decoded.role === 'ROLE_MANAGER'){
+
+        // 매니저일 경우 관리자 페이지로 이동
+        if(decoded.role === 'ROLE_MANAGER') {
           nav('/manager')
-          return;
+          return
         }
-        // 아닐경우 메인페이지 이동
-        nav(location.state?.from ||  '/')
+        // 일반 회원은 이전 페이지 또는 메인으로 이동
+        nav(location.state?.from || '/')
       }
     }catch{
       showAlert('이메일 또는 비밀번호를 확인해주세요.')

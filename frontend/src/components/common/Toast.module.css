@@ -1,0 +1,44 @@
+.toast {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-left: 4px solid #4caf50;  /* 왼쪽 포인트 컬러 */
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  min-width: 280px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.icon_wrap {
+  width: 36px;
+  height: 36px;
+  background: #e8f5e9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.message {
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+  color: #333;
+}

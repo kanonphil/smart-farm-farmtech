@@ -31,6 +31,12 @@ import Stock from "./pages/manager/Stock"
 import OrderManage from './pages/manager/OrderManage'
 import SensorChart from "./pages/manager/SensorChart"
 import AlertModal from "./components/common/AlertModal"
+import Toast from './components/common/Toast'
+
+
+function App() {
+  const { setToken, alertModal, closeAlert, toast, closeToast } = useAuthStore()
+  const { setToken, setAuthReady, alertModal, closeAlert } = useAuthStore()
 import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
 
 function App() {
@@ -139,6 +145,11 @@ function App() {
           alertModal.callback?.()
           closeAlert()
         }}
+      />
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        onClose={closeToast}
       />
     </>
   )

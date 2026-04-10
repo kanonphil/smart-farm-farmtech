@@ -40,7 +40,7 @@ const BasicHeader = () => {
     nav(`/products?keyword=${keyword.trim()}`)
   }
   
-
+  console.log(decoded?.memberName)
   return (
     <div>
       <div className={styles.login_div}>

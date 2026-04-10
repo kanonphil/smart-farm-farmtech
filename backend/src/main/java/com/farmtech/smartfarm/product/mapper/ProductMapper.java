@@ -23,7 +23,7 @@ public interface ProductMapper {
   List<ProductCategoryDTO> selectCategory();
 
   // 상품 목록 조회
-  List<ProductListDTO> selectProductList(@Param("sort") String sort, @Param("keyword") String keyword);
+  List<ProductListDTO> selectProductList(@Param("sort") String sort, @Param("keyword") String keyword, @Param("categoryId") Integer categoryId);
 
   // 상세 상품 조회 메서드
   ProductDTO getProductDetail(int productId);
@@ -58,4 +58,6 @@ public interface ProductMapper {
   // 재고가 있는 전체 활성 상품 목록 조회 (AI 매칭용)
   // productId와 productName만 가져와 Gemini 프롬프트에 포함시킨다.
   List<ProductListDTO> selectActiveProducts();
+
+
 }

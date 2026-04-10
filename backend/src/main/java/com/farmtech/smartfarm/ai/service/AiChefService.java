@@ -237,7 +237,7 @@ public class AiChefService {
   ) {
     if (keyword == null || keyword.isBlank()) return;
 
-    List<ProductListDTO> results = productMapper.selectProductList(null, keyword);
+    List<ProductListDTO> results = productMapper.selectProductList(null, keyword, null);
     for (ProductListDTO p : results) {
       if (scoreMap.containsKey(p.getProductId())) {
         // 이미 있는 상품이면 점수만 누적
