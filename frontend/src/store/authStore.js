@@ -10,6 +10,8 @@ const useAuthStore = create((set) => ({
   // 초기값은 null (로그인 전이니까)
   token: null,
 
+  isAuthReady: false,
+
   // 토큰을 저장하는 함수
   // 로그인 성공 시 이 함수를 호출해서 token에 값을 저장
   // set({ token }) = token 값을 새로운 값으로 변경
@@ -18,6 +20,7 @@ const useAuthStore = create((set) => ({
   // 토큰을 삭제하는 함수
   // 로그아웃 시 이 함수를 호출해서 token을 null로 초기화
   clearToken: () => set({ token : null }),
+  setAuthReady: () => set({ isAuthReady: true }),
   alertModal: { show: false, message: '', callback: null },
   showAlert: (message, callback) => set({ alertModal: { show: true, message, callback } }),
   closeAlert: () => set({ alertModal: { show: false, message: '', callback: null } }),
