@@ -47,4 +47,7 @@ public interface MemberMapper {
 
     // 비밀번호 찾기: 이메일 + 이름 + 전화번호 일치 여부 확인
     int verifyAccount(@Param("email") String email, @Param("name") String name, @Param("phone") String phone);
+
+    //회원탈퇴
+    void withdrawMember(int memberId);
 }

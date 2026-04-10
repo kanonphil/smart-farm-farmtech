@@ -10,7 +10,7 @@ import useAuthStore from '../../store/authStore'
 
 const EditPassword = () => {
   const nav = useNavigate();
-  const { token } = useAuthStore()
+  const { token, showAlert } = useAuthStore()
   const decoded = decodeToken(token)
 
   // 새로운 비밀번호 저장 state변수
@@ -69,7 +69,7 @@ const EditPassword = () => {
       memPwCheck: checks.memberPwCheck === ''
     })
     if (Object.values(checks).some(msg => msg !== '')) {
-      alert("입력 항목을 다시 확인해주세요.")
+      showAlert("입력 항목을 다시 확인해주세요.")
       return;
     }
     const data = {
@@ -78,11 +78,10 @@ const EditPassword = () => {
     }
     const response = await setPw(data)
     if(response.status === 200){
-      alert('비밀번호 수정이 완료되었습니다.')
-      nav(-1)
+      showAlert('비밀번호 수정이 완료되었습니다.', () => nav(-1))
     }
     else{
-      alert('수정 실패')
+      showAlert('수정 실패')
     }
   }
 

@@ -148,3 +148,25 @@ export const getOrderList = async (startDate, endDate) => {
     return response
 
 }
+
+/**
+ * 상품별 리뷰 조회
+ * @param {*} productId 
+ * @returns 
+ */
+export const getProductReviews = async (productId) => {
+  const response = await axiosInstance.get(`/reviews/product/${productId}`)
+  return response
+}
+
+/**
+ * 리뷰 평균, 수, 별점 별 갯수 조회
+ * @param {*} productId 
+ * @returns 
+ */
+export const getReviewStats = async (productId) => {
+  const response = await axiosInstance.get('/reviews/all', {
+    params: { productId }
+  })
+  return response
+}

@@ -11,6 +11,7 @@ import useAuthStore from '../../store/authStore'
 
 const EditInfo = () => {
   const nav = useNavigate()
+  const { showAlert } = useAuthStore()
   
   const { token } = useAuthStore()
   const decoded = decodeToken(token)
@@ -94,7 +95,7 @@ const EditInfo = () => {
         }
       }).open()
     } else {
-      alert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+      showAlertalert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
     }
   }
 
@@ -119,10 +120,10 @@ const EditInfo = () => {
 
     const response = await setInfo(memberInfo)
     if(response?.status === 200){
-      alert('수정 완료')
+      showAlert('수정 완료')
     }
     else{
-      alert('수정 실패')
+      showAlert('수정 실패')
     }
   }
 

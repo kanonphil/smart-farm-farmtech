@@ -4,11 +4,13 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import styles from './ProductRegister.module.css';
 import Select from '../../components/common/Select';
+import useAuthStore from '../../store/authStore';
 
 
 const ProductRegister = () => {
   //카테고리 저장 데이터
   const [cateList, setCateList] = useState([]);
+  const { showAlert } = useAuthStore()
  
   //상품 저장 데이터
   const [productData,setProductData] = useState({
@@ -72,7 +74,7 @@ const ProductRegister = () => {
 
     const response = await regProductAPI(regForm);
     if(response.status === 201){
-      alert("등록 성공");
+      showAlert("등록 성공");
 
       //input 태그 초기화
       setProductData({

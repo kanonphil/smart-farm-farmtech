@@ -10,6 +10,7 @@ import NotificationBell from '../common/NotificationBell';
 
 const BasicHeader = () => {
   const nav = useNavigate();
+  const { showAlert } = useAuthStore()
 
   // store에서 token 가져오기
   // token이 바뀌면 이 컴포넌트가 자동으로 리렌더링됨
@@ -26,7 +27,7 @@ const BasicHeader = () => {
     }finally{
       //store에서 토큰 삭제
       clearToken()
-      alert('로그아웃 되었습니다')
+      showAlert('로그아웃 되었습니다.')
       nav('/')
     }
   }

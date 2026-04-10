@@ -7,9 +7,12 @@ import Modal from '../../components/common/Modal'
 import Input from '../../components/common/Input'
 import Select from '../../components/common/Select'
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../store/authStore';
 
 const Products = () => {
   const nav = useNavigate();
+  const { showAlert } = useAuthStore()
+
   //이미지파일 저장 변수
   const [mainImgFile,   setMainImgFile]   = useState(null);
   const [subImgFiles,   setSubImgFiles]   = useState([]);
@@ -67,10 +70,10 @@ const Products = () => {
       setSubImgFiles([]);
       setDetailImgFile(null);
       fetchProducts();
-      alert("수정이 완료되었습니다");
+      showAlert("수정이 완료되었습니다");
 
     }catch(e){
-      alert("수정 중 오류가 발생했습니다.")
+      showAlert("수정 중 오류가 발생했습니다.")
     }
   }
   

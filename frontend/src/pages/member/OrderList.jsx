@@ -9,8 +9,11 @@ import { insertReview } from '../../api/reviewApi'
 import Input from '../../components/common/Input'
 import { confirmOrder } from '../../api/orderApi'
 import Pagination from '../../components/common/Pagination'
+import useAuthStore from '../../store/authStore'
 
 const OrderList = () => {
+  const { showAlert } = useAuthStore()
+  
   //조회 시작 날짜 저장변수
   const[startDate, setStartDate] = useState('')
   //조회 엔드 날짜 저장변수
@@ -96,7 +99,7 @@ const OrderList = () => {
 
   const handleCancelConfirm = async () => {
     if (!cancelReason.trim()) {
-      alert('환불 사유를 입력해주세요')
+      showAlert('환불 사유를 입력해주세요')
       return
     }
     await cancelPaymentApi(cancelModal.orderId, cancelReason)
@@ -114,8 +117,8 @@ const OrderList = () => {
   }
 
   const handleReviewSubmit = async () => {
-    if (rating === 0) { alert('별점을 선택해주세요.'); return }
-    if (!reviewContent.trim()) { alert('리뷰 내용을 입력해주세요.'); return }
+    if (rating === 0) { showAlert('별점을 선택해주세요.'); return }
+    if (!reviewContent.trim()) { showAlert('리뷰 내용을 입력해주세요.'); return }
 
     const formData = new FormData()
     formData.append('orderItemId', reviewModal.orderItemId);
@@ -125,7 +128,7 @@ const OrderList = () => {
 
     await insertReview(formData);
     setReviewModal({ isOpen: false, orderItemId: null})
-    alert('리뷰가 등록되었습니다.')
+    showAlert('리뷰가 등록되었습니다.')
   }
 
   /**
@@ -137,10 +140,10 @@ const OrderList = () => {
     setConfirmingId(orderId)
     try {
       await confirmOrder(orderId)
-      alert('구매가 확정되었습니다.')
+      showAlert('구매가 확정되었습니다.')
       fetchOrders()
     } catch (e) {
-      alert(e.response?.data || '구매 확정 처리 중 오류가 발생했습니다.')
+      showAlert(e.response?.data || '구매 확정 처리 중 오류가 발생했습니다.')
     } finally {
       setConfirmingId(null)
     }

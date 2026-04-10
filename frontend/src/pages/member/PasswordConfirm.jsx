@@ -12,7 +12,7 @@ import useAuthStore from '../../store/authStore'
 const PasswordConfirm = () => {
   const nav = useNavigate();
   
-  const { token } = useAuthStore()
+  const { token, showAlert } = useAuthStore()
   const decoded = decodeToken(token)
 
 
@@ -51,10 +51,10 @@ const PasswordConfirm = () => {
         nav('/mypage')
       }
       else{
-        alert('비밀번호를 확인해주세요.')  
+        showAlert('비밀번호를 확인해주세요.')  
       }
     }catch(e){
-      alert('비밀번호를 확인해주세요.')
+      showAlert('비밀번호를 확인해주세요.')
     }
   }
   

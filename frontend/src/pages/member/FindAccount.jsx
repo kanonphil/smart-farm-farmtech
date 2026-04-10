@@ -5,11 +5,13 @@ import { findEmail, resetPw, verifyAccount } from '../../api/member/memberApi'
 import Form from '../../components/common/Form'
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
+import useAuthStore from '../../store/authStore'
 
 const FindAccount = () => {
   const nav = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = searchParams.get('tab') || 'id'
+  const { showAlert } = useAuthStore()
 
   // ── 탭 전환 handle ──
   const handleTabChange = (newTab) => {
@@ -42,14 +44,14 @@ const FindAccount = () => {
   const handleIdSubmit = async (e) => {
     e.preventDefault()
     if (!idForm.memberName || !idForm.memberPhone) {
-      alert('이름과 전화번호를 입력해주세요.')      
+      showAlert('이름과 전화번호를 입력해주세요.')      
       return
     }
     const response = await findEmail(idForm.memberName, idForm.memberPhone)
     if (response?.status === 200) {
       setFoundEmail(response.data.email)
     } else {
-      alert('일치하는 계정이 없습니다.')
+      showAlert('일치하는 계정이 없습니다.')
     }
   }
 
@@ -58,14 +60,14 @@ const FindAccount = () => {
     e.preventDefault()
     const {memberEmail, memberName, memberPhone} = pwForm
     if (!memberEmail || !memberName || !memberPhone) {
-      alert('모든 항목을 입력해주세요')
+      showAlert('모든 항목을 입력해주세요')
       return
     }
     const response = await verifyAccount(memberEmail, memberName, memberPhone)
     if (response?.data === true) {
       setStep(2)      
     } else {
-      alert('입력하신 정보와 일치하는 계정이 없습니다.')
+      showAlert('입력하신 정보와 일치하는 계정이 없습니다.')
     }
   }
 
@@ -87,10 +89,10 @@ const FindAccount = () => {
       memberPw: newPwForm.memberPw,
     })
     if (response?.status === 200) {
-      alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.')
+      showAlert('비밀번호가 변경되었습니다. 다시 로그인해주세요.')
       nav('/login')
     } else {
-      alert('비밀번호 변경에 실패했습니다.')
+      showAlert('비밀번호 변경에 실패했습니다.')
     }
   }
   

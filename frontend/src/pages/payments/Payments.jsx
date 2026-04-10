@@ -2,6 +2,7 @@ import { ANONYMOUS, loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useEffect } from "react";
 import styles from "./Payments.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import useAuthStore from "../../store/authStore";
 
 // 임시 주문번호 생성 (실제로는 서버에서 주문 생성 후 받아와야 함)
 const generateOrderId = () => {
@@ -12,6 +13,7 @@ const generateOrderId = () => {
 const clientKey = 'test_ck_DpexMgkW36yZdZdWlB698GbR5ozO'
 
 const Payments = () => {
+  const { showAlert } = useAuthStore() 
   const { state } = useLocation()
   const nav = useNavigate()
 
@@ -58,7 +60,7 @@ const Payments = () => {
 
     } catch (error) {
       console.error('결제 요청 오류:', error)
-      alert(error?.message || '결제 요청 중 오류가 발생했습니다.')
+      showAlert(error?.message || '결제 요청 중 오류가 발생했습니다.')
     }
   }
 

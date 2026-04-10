@@ -55,8 +55,9 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(error.config)
       } catch (e) {
         useAuthStore.getState().clearToken()
-        alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
-        window.location.href = '/login'
+        useAuthStore.getState().showAlert('로그인이 만료되었습니다. 다시 로그인해주세요.', () => {
+          window.location.href = '/login'
+        })
       } finally {
         isRefreshing = false // refresh 끝나면 초기화
       }
