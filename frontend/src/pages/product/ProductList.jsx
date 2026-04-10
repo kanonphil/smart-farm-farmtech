@@ -20,12 +20,22 @@ const ProductList = () => {
    * @type {[Array, Function]} 상품 목록 상태
    */
   const [products, setProducts] = useState([])
-  console.log(products)
 
   /**
    * @type {[string|null, Function]} 현재 선택된 정렬 기준
    */
   const [sort, setSort] = useState(null)
+
+  /** 현재 페이지 */
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const PAGE_SIZE = 8
+  const totalPages = Math.ceil(products.length / PAGE_SIZE)
+  /** 현재 페이지에 해당하는 상품 목록 */
+  const currentProdcuts = products.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
 
   /**
    * 상품 목록 조회 함수
@@ -38,6 +48,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(sort, keyword)
+    setCurrentPage(1)  // 정렬, 검색 바뀌면 1페이지로 리셋
   }, [sort, keyword])
 
   /**
@@ -74,7 +85,7 @@ const ProductList = () => {
 
       {/* 상품 카드 그리드 */}
       <div className={styles.grid}>
-        {products.map((product) => (
+        {currentProdcuts.map((product) => (
           <div 
             key={product.productId}
             className={styles.card}
@@ -112,8 +123,40 @@ const ProductList = () => {
           </div>
         ))}
       </div>
-    </div>
-  )
-}
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage(p => p - 1)}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${currentPage === page ? styles.pageBtnActive : ''}`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage(p => p + 1)}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+      )}
+
+          </div>
+        )
+      }
 
 export default ProductList
