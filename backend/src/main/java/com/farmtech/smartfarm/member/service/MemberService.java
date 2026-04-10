@@ -30,7 +30,10 @@ public class MemberService {
         memberDTO.setMemberPw(encodePw);
         int memberId = memberMapper.getNextMemberId();
         memberDTO.setMemberId(memberId);
+
+        int cartId = cartMapper.getNextCartId();
         CartDTO cart = new CartDTO();
+        cart.setCartId(cartId);
         cart.setMemberId(memberId);
         memberMapper.insertMember(memberDTO);
         cartMapper.insertCart(cart);
@@ -160,6 +163,11 @@ public class MemberService {
         if (!verified) return false;
         setNewPw(memberDTO);
         return true;
+    }
+
+    // 회원탈퇴 기능
+    public void withdrawMember(int memberId){
+        memberMapper.withdrawMember(memberId);
     }
 
 }

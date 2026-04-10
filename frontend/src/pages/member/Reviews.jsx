@@ -3,9 +3,11 @@ import styles from './Reviews.module.css'
 import { deleteReview, getMyReviews, getUnreviewedItems, insertReview, updateReview } from '../../api/reviewApi'
 import { useNavigate } from 'react-router-dom'
 import Input from '../../components/common/Input'
+import useAuthStore from '../../store/authStore'
 
 const Reviews = () => {
     const nav = useNavigate();
+    const { showAlert } = useAuthStore() 
     //조회 시작 날짜 저장변수
     const[startDate, setStartDate] = useState('')
     //조회 엔드 날짜 저장변수
@@ -75,20 +77,20 @@ const Reviews = () => {
 
     // 리뷰 등록 처리
     const handleSubmit = async (orderItemId) => {
-      if (reviewForm.rating === 0) { alert('별점을 선택해주세요'); return }
-      if (!reviewForm.content.trim()) { alert('내용을 입력해주세요'); return }
+      if (reviewForm.rating === 0) { showAlert('별점을 선택해주세요'); return }
+      if (!reviewForm.content.trim()) { showAlert('내용을 입력해주세요'); return }
       await insertReview({ orderItemId, rating: reviewForm.rating, content: reviewForm.content })
-      alert('리뷰가 등록되었습니다.')
+      showAlert('리뷰가 등록되었습니다.')
       setOpenId(null)
       fetchData() // 등록 후 목록 갱신
     }
 
     // 리뷰 수정
     const handleUpdate = async (reviewId) => {
-      if (editForm.rating === 0) { alert('별점을 선택해주세요'); return }
-      if (!editForm.content.trim()) { alert('내용을 입력해주세요'); return }
+      if (editForm.rating === 0) { showAlert('별점을 선택해주세요'); return }
+      if (!editForm.content.trim()) { showAlert('내용을 입력해주세요'); return }
       await updateReview(reviewId, { rating: editForm.rating, content: editForm.content })
-      alert('수정되었습니다.')
+      showAlert('수정되었습니다.')
       setEditId(null)
       fetchData()
     }
@@ -98,7 +100,7 @@ const Reviews = () => {
       const result = window.confirm('리뷰를 삭제하시겠습니까?')
       if (!result) return
       await deleteReview(reviewId)
-      alert('삭제되었습니다.')
+      showAlert('삭제되었습니다.')
       fetchData()
     }
       

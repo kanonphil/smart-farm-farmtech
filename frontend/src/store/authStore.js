@@ -17,7 +17,10 @@ const useAuthStore = create((set) => ({
 
   // 토큰을 삭제하는 함수
   // 로그아웃 시 이 함수를 호출해서 token을 null로 초기화
-  clearToken: () => set({ token : null })
+  clearToken: () => set({ token : null }),
+  alertModal: { show: false, message: '', callback: null },
+  showAlert: (message, callback) => set({ alertModal: { show: true, message, callback } }),
+  closeAlert: () => set({ alertModal: { show: false, message: '', callback: null } }),
 }))
 
 export default useAuthStore

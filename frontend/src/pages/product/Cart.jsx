@@ -6,9 +6,11 @@ import Button from '../../components/common/Button'
 import { MdPayment } from "react-icons/md";
 import Step from '../../components/common/Step'
 import { useNavigate } from 'react-router-dom'
+import useAuthStore from '../../store/authStore'
 
 const Cart = () => {
   const nav = useNavigate()
+  const { showAlert } = useAuthStore()
 
   //카트 리스트 저장 state 변수
   const [cartItem, setCartItem] = useState([])
@@ -48,7 +50,7 @@ const Cart = () => {
     cntValue = cntValue === '' ? '1' : Number(cntValue)
     if(cntValue > 99) {
       cntValue = 99
-      alert('최대 구매 수량은 99개입니다.')
+      showAlert('최대 구매 수량은 99개입니다.')
     }
     setCntAndCartNum({
       cartItemQty : cntValue,

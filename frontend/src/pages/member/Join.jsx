@@ -9,6 +9,8 @@ import styles from './Join.module.css'
 import { useNavigate } from 'react-router-dom'
 import { checkEmailDuplicate, regMember } from '../../api/member/memberApi'
 import Modal from '../../components/common/Modal'
+import useAuthStore from '../../store/authStore'
+import SuccessModal from '../../components/common/SuccessModal'
 
 /**
  * 화살표함수 바깥에 쓰는 이유 : state가 변할 때마다 함수 전체가 다시 리렌더링됨
@@ -26,6 +28,8 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const Join = () => {
   const nav = useNavigate()
+  const { showAlert } = useAuthStore()
+  const [successModal, setSuccessModal] = useState({ show: false, message: '' })
 
   useEffect(() => {
     //스크립트가 로드돼 있는지 확인
@@ -120,11 +124,11 @@ const Join = () => {
     //true면 중복!
     const response = await checkEmailDuplicate(form.memEmail);
     if(response.data){
-      alert("이미 사용 중인 이메일입니다.");
+      showAlert("이미 사용 중인 이메일입니다.");
       setIsEmailChecked(false);
       setIsValid(prev => ({ ...prev, memEmail: false }));
     }else{
-      alert("사용 가능한 이메일입니다!")
+      showAlert("사용 가능한 이메일입니다!")
       setIsEmailChecked(true)
       setErrors(prev => ({ ...prev, memEmail: '' }))
       setIsValid(prev => ({...prev,memEmail: true }))
@@ -169,7 +173,7 @@ const Join = () => {
         }
       }).open()
     } else {
-      alert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+      showAlert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
     }
   }
 
@@ -204,7 +208,7 @@ const Join = () => {
     })
     //에러가 하나라도 있으면 중단
     if (Object.values(checks).some(msg => msg !== '')) {
-      alert("입력 항목을 다시 확인해주세요.")
+      showAlert("입력 항목을 다시 확인해주세요.")
       return;
     }
     const joinData = {
@@ -219,13 +223,15 @@ const Join = () => {
     try {
       const response = await regMember(joinData);
       console.log("서버 응답 데이터:", response.data);
-      if (response.status >= 200 && response.status < 300) { // response 존재 여부 확인 추가
-      alert("회원가입을 축하합니다. 로그인 페이지로 이동합니다.");
-      nav('/login'); }
+      // 회원가입 성공 시 교체
+      if (response.status >= 200 && response.status < 300) {
+        setSuccessModal({ show: true, message: '환영합니다! 로그인 페이지로 이동하세요.' })
+      }
+
     } catch (error) {
     // 서버에서 보낸 에러 메시지가 있다면 띄워줌
       const errorMsg = error.response?.data?.message || "서버 통신 중 오류가 발생했습니다.";
-      alert("회원가입 실패: " + errorMsg);
+      showAlert("회원가입 실패: " + errorMsg);
     }
 
     console.log('회원가입 데이터:', {
@@ -238,7 +244,6 @@ const Join = () => {
     })
   }
 
-  console.log(form);
   return (
     <Modal
       isOpen={true}
@@ -387,6 +392,14 @@ const Join = () => {
           </Button>
         </Form>
       </div>
+      <SuccessModal
+        show={successModal.show}
+        message={successModal.message}
+        onClose={() => {
+          setSuccessModal({ show: false, message: '' })
+          nav('/login')
+        }}
+      />
     </Modal>
   )
 }

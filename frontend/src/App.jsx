@@ -32,9 +32,10 @@ import { axiosInstance } from "./api/axiosInstance"
 import Stock from "./pages/manager/Stock"
 import OrderManage from './pages/manager/OrderManage'
 import SensorChart from "./pages/manager/SensorChart"
+import AlertModal from "./components/common/AlertModal"
 
 function App() {
-  const { setToken } = useAuthStore()
+  const { setToken, alertModal, closeAlert } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
@@ -106,6 +107,15 @@ function App() {
         </Route>
 
       </Routes>
+
+      <AlertModal
+        show={alertModal.show}
+        message={alertModal.message}
+        onClose={() => {
+          alertModal.callback?.()
+          closeAlert()
+        }}
+      />
     </>
   )
 }

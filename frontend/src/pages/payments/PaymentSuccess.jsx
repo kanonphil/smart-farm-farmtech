@@ -3,10 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { confirmPaymentApi } from '../../api/paymentApi'
 import styles from './PaymentSuccess.module.css'
 import { deleteItem } from '../../api/product/product'
+import useAuthStore from '../../store/authStore'
 
 const PaymentSuccess = () => {
   const navigate = useNavigate()
   const [countdown, setCountdown] = useState(3)
+  const { showAlert } = useAuthStore()
   
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -41,7 +43,7 @@ const PaymentSuccess = () => {
       }
     } catch (error) {
       console.error("결제 승인 실패", error)
-      alert("결제 승인에 실패했습니다.")
+      showAlert("결제 승인에 실패했습니다.")
     } finally {
       setIsLoading(false)
     }

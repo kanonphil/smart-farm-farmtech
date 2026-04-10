@@ -91,5 +91,16 @@
         WHERE CART_ID = #{cartId}
     </delete>
 
+<!--  카트 번호 받기  -->
+    <select id="getNextCartId" resultType="int">
+        SELECT IFNULL(MAX(CART_ID), 0) + 1 FROM CART
+    </select>
+
+<!--  회원가입시 카트 같이 생성  -->
+    <insert id="insertCart">
+        INSERT INTO CART (CART_ID, MEMBER_ID)
+        VALUES (#{cartId}, #{memberId})
+    </insert>
+
 
 </mapper>

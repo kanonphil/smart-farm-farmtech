@@ -11,6 +11,7 @@ import useAuthStore from '../../store/authStore'
 const Login = () => {
   const nav = useNavigate();
   const location = useLocation()
+  const { showAlert } = useAuthStore()
 
   // store에서 setToken 함수 가져오기
   // 로그인 성공 시 이 함수로 토큰을 전역 상태에 저장할 것
@@ -97,7 +98,7 @@ const Login = () => {
       if(response.status === 200){
         // Zustand store에 저장
         setToken(response.headers.authorization)
-        alert('로그인 성공')
+        showAlert('로그인 성공')
         // 토큰 복호화하여 저장
         const decoded = decodeToken(response.headers.authorization)
         // 매니저일경우 매니저페이지로 이동
@@ -109,7 +110,7 @@ const Login = () => {
         nav(location.state?.from ||  '/')
       }
     }catch{
-      alert('이메일 또는 비밀번호를 확인해주세요.')
+      showAlert('이메일 또는 비밀번호를 확인해주세요.')
     }
   }
   

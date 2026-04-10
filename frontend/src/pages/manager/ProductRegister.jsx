@@ -4,6 +4,7 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import styles from './ProductRegister.module.css';
 import Select from '../../components/common/Select';
+import useAuthStore from '../../store/authStore';
 import PageTitle from '../../components/common/PageTitle';
 
 /**
@@ -15,6 +16,7 @@ import PageTitle from '../../components/common/PageTitle';
 const ProductRegister = () => {
   //카테고리 저장 데이터
   const [cateList, setCateList] = useState([]);
+  const { showAlert } = useAuthStore()
  
   //상품 저장 데이터
   const [productData,setProductData] = useState({

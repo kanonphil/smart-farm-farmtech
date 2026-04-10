@@ -139,3 +139,12 @@ export const resetPw = async (data) => {
     const response = await axios.patch('http://localhost:8080/members/reset-pw', data)
     return response
 }
+
+/**
+ * 회원 탈퇴
+ * @returns 
+ */
+export const withdrawMember = async () => {
+    const response = await axiosInstance.patch('/members/withdraw')
+    return response
+}

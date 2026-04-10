@@ -21,6 +21,7 @@
 
     <insert id="insertMember">
         INSERT INTO MEMBER (
+        MEMBER_ID,
         MEMBER_EMAIL,
         MEMBER_PASSWORD,
         MEMBER_NAME,
@@ -29,6 +30,7 @@
         MEMBER_ADDR,
         MEMBER_ADDR_DETAIL
         ) VALUES (
+        #{memberId},
         #{memberEmail},
         #{memberPw},
         #{memberName},
@@ -143,11 +145,22 @@
           AND MEMBER_NAME = #{name}
           AND MEMBER_PHONE = #{phone}
     </select>
-    
+
     <!-- 이메일로 회원 이름 조회 -->
     <select id="getMemberNameByEmail" resultType="String">
         SELECT MEMBER_NAME
         FROM MEMBER
         WHERE MEMBER_EMAIL = #{email}
     </select>
+
+<!--  회원탈퇴  -->
+    <update id="withdrawMember">
+        UPDATE MEMBER
+            SET MEMBER_STATUS = 'INACTIVE',
+            REFRESH_TOKEN = NULL,
+            REFRESH_TOKEN_EXPIRY=NULL
+        WHERE MEMBER_ID = #{memberId}
+    </update>
+
+
 </mapper>

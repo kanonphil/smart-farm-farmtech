@@ -43,6 +43,7 @@ const STYLE_OPTIONS = [
  */
 const AiChef = () => {
   const navigate = useNavigate()
+  const { showAlert } = useAuthStore()
 
   /** 선택된 식사 상황 */
   const [situation, setSituation] = useState(null)
@@ -83,8 +84,8 @@ const AiChef = () => {
    * 상황과 스타일을 모두 선택해야 요청 가능하다.
    */
   const handleRecommend = async () => {
-    if (!situation) { alert('식사 상황을 선택해주세요.'); return }
-    if (!style) { alert('원하는 스타일을 선택해주세요.'); return }
+    if (!situation) { showAlert('식사 상황을 선택해주세요.'); return }
+    if (!style) { showAlert('원하는 스타일을 선택해주세요.'); return }
 
     setIsLoading(true)
     setError(null)
@@ -155,7 +156,7 @@ const AiChef = () => {
    * 자유 검색어로 레시피 추천 요청
    */
   const handleFreeSearch = async () => {
-    if (!freeText.trim()) { alert('검색어를 입력해주세요.'); return }
+    if (!freeText.trim()) { showAlert('검색어를 입력해주세요.'); return }
     const searchText = freeText.trim()
     setFreeText('')
     handleFreeSearchWith(searchText)

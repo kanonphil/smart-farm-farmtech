@@ -188,4 +188,17 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
     }
+
+    //회원탈퇴 api
+    @PatchMapping("/withdraw")
+    public ResponseEntity<?> withdrawMember(@AuthenticationPrincipal CustomUserDetails userDetails){
+        try {
+            int memberId = userDetails.getMemberDTO().getMemberId();
+            memberService.withdrawMember(memberId);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }catch (Exception e){
+            log.error("회원 탈퇴 오류", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

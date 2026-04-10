@@ -10,6 +10,7 @@ import { insertOrder } from '../../api/orderApi'
 import { getAllInfos } from '../../api/member/memberApi'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ANONYMOUS, loadTossPayments } from '@tosspayments/tosspayments-sdk'
+import useAuthStore from '../../store/authStore'
 
 const CLIENT_KEY = 'test_ck_DpexMgkW36yZdZdWlB698GbR5ozO'
 
@@ -36,6 +37,7 @@ const Order = () => {
   const [sameAsOrderer, setSameAsOrderer] = useState(false)
   //주문 방법 저장 state변수
   const [paymentMethod, setPaymentMethod] = useState('')
+  const { showAlert } = useAuthStore()
 
   //회원 정보 조회 함수
   const getUser = async () => {
@@ -104,7 +106,7 @@ const Order = () => {
         }
       }).open()
     } else {
-      alert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+      showAlert("주소 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.");
     }
   }
 
@@ -164,11 +166,11 @@ const Order = () => {
 
   const handlePayment = async() => {
     if(!paymentMethod) {
-      alert('결제수단을 선택해주세요.')
+      showAlert('결제수단을 선택해주세요.')
       return
     }
     if (!receiverInfo.recipientName || !receiverInfo.recipientPhone || !receiverInfo.recipientAddress) {
-      alert('수령인 정보를 입력해주세요')
+      showAlert('수령인 정보를 입력해주세요')
       return
     }
 

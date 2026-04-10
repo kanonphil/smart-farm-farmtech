@@ -4,6 +4,7 @@ import Pagination from '../../components/common/Pagination'
 import Table from '../../components/common/Table'
 import styles from './OrderManage.module.css'
 import { MdPayment, MdLocalShipping, MdDoneAll, MdCheckCircle, MdCancel } from 'react-icons/md'
+import useAuthStore from '../../store/authStore'
 
 /**
  * 관리자 주문 관리 페이지
@@ -12,6 +13,8 @@ import { MdPayment, MdLocalShipping, MdDoneAll, MdCheckCircle, MdCancel } from '
  * PAID 상태 주문에 대해 배송 시작 버튼을 제공한다.
  */
 const OrderManage = () => {
+  const { showAlert } = useAuthStore()
+
   /** 주문 목록 */
   const [orders, setOrders] = useState([])
   /** 로딩 상태 */
@@ -67,11 +70,11 @@ const OrderManage = () => {
     setShippingLoadingId(orderId)
     try {
       await startShipping(orderId)
-      alert('배송이 시작되었습니다.')
+      showAlert('배송이 시작되었습니다.')
       fetchOrders()  // 목록 갱신
     } catch (e) {
       const msg = e.response?.data || '배송 시작 처리 중 오류가 발생했습니다.'
-      alert(msg)
+      showAlert(msg)
     } finally {
       setShippingLoadingId(null)
     }
