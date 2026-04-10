@@ -1,8 +1,9 @@
 .container {
-  padding: 32px 24px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 100vh;
 }
 
 .title {
@@ -67,70 +68,117 @@
   font-size: 14px;
 }
 
-.statusCards {
+/* 요약 카드 */
+.summaryRow {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.statusCard {
+.summaryCard {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
   border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  background: #fafafa;
+  border-radius: 12px;
 }
 
-.statusLabel {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0 0 8px;
+.iconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.statusCount {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0;
+.iconPaid     { background: #fee2e2; }
+.iconShipping { background: #fef3c7; }
+.iconShipped  { background: #dbeafe; }
+.iconDone     { background: #dcfce7; }
+.iconRefunded { background: #f3f4f6; }
+
+.summaryCount {
+  font-size: 1.4rem;
+  font-weight: 800;
   color: #1a1a1a;
+  margin: 0 0 2px 0;
+}
+
+.summaryLabel {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
 }
 
 /* 테이블 */
+/* 테이블 */
 .tableWrap {
   overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #eee;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.88rem;
 }
 
-.table th {
-  background: #f5f5f5;
-  padding: 10px 14px;
+.table thead tr {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.table thead th {
+  padding: 13px 14px;
   text-align: center;
   font-weight: 600;
-  border-bottom: 2px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .table td {
   padding: 12px 14px;
-  text-align: center;
-  border-bottom: 1px solid #f0f0f0;
   color: #333;
-}
-
-.table tbody tr:hover {
-  background: #fafafa;
+  vertical-align: middle;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .empty {
   color: #aaa;
   padding: 40px 0;
+  text-align: center;
 }
+
+/* 상태 뱃지 */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.badgePaid     { background: #fff0f0; color: #d32f2f; border: 1px solid #f5c6c6; }
+.badgeShipping { background: #fff8e1; color: #e65100; border: 1px solid #ffe0b2; }
+.badgeShipped  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.badgeDone     { background: #f0fdf4; color: #2e7d32; border: 1px solid #bbf7d0; }
+.badgeRefunded { background: #f5f5f5; color: #999;    border: 1px solid #ddd; }
+
 .reviewContent{
   display: flex;
 }
+
 .reviewPreview {
    width: 150px;
   height: 150px;

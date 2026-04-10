@@ -4,8 +4,6 @@ import Join from "./pages/member/Join"
 import Login from './pages/member/Login'
 import ActuatorControl from "./pages/manager/ActuatorControl"
 import ManagerLayout from "./components/layout/ManagerLayout"
-import ProductRegister from "./pages/manager/ProductRegister"
-import AlertHistory from "./pages/manager/AlertHistory"
 import ManagerHome from "./pages/manager/ManagerHome"
 import PasswordConfirm from "./pages/member/PasswordConfirm"
 import MemberLayout from "./components/layout/MemberLayout"
@@ -38,6 +36,7 @@ import Toast from './components/common/Toast'
 
 function App() {
   const { setToken, alertModal, closeAlert, toast, closeToast } = useAuthStore()
+  const { setToken, setAuthReady, alertModal, closeAlert } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
@@ -57,6 +56,8 @@ function App() {
         }
       }catch (e){
         // Refresh Token 없거나 만료 → 비로그인 상태 유지
+      } finally {
+        setAuthReady() // 성공/실패 상관없이 준비 완료 표시
       }
     }
     silentRefresh()
