@@ -10,6 +10,7 @@ import {
   MdPerson, MdLock, MdListAlt, MdRateReview,
   MdHome, MdExitToApp
 } from 'react-icons/md'
+import NotificationBell from '../common/NotificationBell'
 
 /**
  * 일반 회원 마이페이지 사이드바 메뉴
@@ -55,6 +56,9 @@ const MemberMenu = () => {
         <div>
           <p className={styles.name}>{decoded?.memberName ?? '회원'}님</p>
           <span className={styles.role}>Member</span>
+        </div>
+        <div className={styles.bellWrap}>
+          <NotificationBell />
         </div>
       </div>
 

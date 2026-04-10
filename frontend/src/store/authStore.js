@@ -11,6 +11,7 @@ const useAuthStore = create((set) => ({
   token: null,
 
   isAuthReady: false,
+  notification: [],
 
   // 토큰을 저장하는 함수
   // 로그인 성공 시 이 함수를 호출해서 token에 값을 저장
@@ -23,6 +24,16 @@ const useAuthStore = create((set) => ({
 
   // 모달 상태
   setAuthReady: () => set({ isAuthReady: true }),
+
+  // 알림 관련 액션
+  setNotifications: (notifications) => set({ notifications }),
+  addNotification: (notification) => set((state) => ({
+    notifications: [notification, ...state.notifications]
+  })),
+  removeNotification: (notificationId) => set((state) => ({
+    notifications: state.notifications.filter(n => n.notificationId !== notificationId)
+  })),
+  
   alertModal: { show: false, message: '', callback: null },
   // 모달 띄우기
   showAlert: (message, callback) => set({ alertModal: { show: true, message, callback } }),

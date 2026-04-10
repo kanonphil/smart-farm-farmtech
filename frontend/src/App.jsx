@@ -37,6 +37,10 @@ import Toast from './components/common/Toast'
 function App() {
   const { setToken, alertModal, closeAlert, toast, closeToast } = useAuthStore()
   const { setToken, setAuthReady, alertModal, closeAlert } = useAuthStore()
+import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
+
+function App() {
+  const { token, setToken, setAuthReady, setNotifications, addNotification, alertModal, closeAlert } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
@@ -62,6 +66,29 @@ function App() {
     }
     silentRefresh()
   }, [])
+
+  useEffect(() => {
+    if (!token) {
+      setNotifications([])
+      return
+    }
+
+    console.log('[알림] 토큰 확인, 알림 조회 시작')
+    // 미읽은 알림 복원
+    getUnreadNotifications()
+      .then( data => {
+        console.log('[알림] 조회 결과:', data)
+        setNotifications(data)
+      })
+      .catch(err => console.error('[알림] 조회 실패:', err))
+
+    // SSE 연결
+    const disconnect = connectNotificationStream((notification) => {
+      addNotification(notification)
+    })
+
+    return disconnect  // 토큰 변경 또는 로그아웃 시 연결 해제
+  }, [token])
 
   return (
     <>
