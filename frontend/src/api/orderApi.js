@@ -28,7 +28,7 @@ export const cancelOrder = async (tossOrderId) => {
  * @returns {Promise}
  */
 export const confirmOrder = async (orderId) => {
-  const response = await axiosInstance.patch(`/orders/${orderId}/confrim`)
+  const response = await axiosInstance.patch(`/orders/${orderId}/confirm`)
   return response
 }
 

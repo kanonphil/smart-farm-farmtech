@@ -50,11 +50,11 @@ public class OrderScheduler {
         if (result == 1) {
           log.info("[스케줄러] 배송 완료 처리 완료 - orderId: {}", order.getOrderId());
 
-          // 알림 전송
+          // 알림 전송 (highlight 파라미터로 해당 주문 행 강조)
           notificationService.createNotification(
                   order.getMemberId(),
                   "상품 배송이 완료되었습니다.",
-                  "/mypage/orders"
+                  "/mypage/orders?highlight=" + order.getOrderId()
           );
         }
       } catch (Exception e) {

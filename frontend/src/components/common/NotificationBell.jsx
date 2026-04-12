@@ -11,7 +11,7 @@ import { TbBell, TbBellRinging, TbBellOff } from 'react-icons/tb'
  * - 알림 클릭 시 읽음 처리 후 해당 경로로 이동
  * - 알림 없을 시 TbBellOff 아이콘 + 안내 문구 표시
  */
-const NotificationBell = () => {
+const NotificationBell = ({ dropdownPosition = 'right' }) => {
   const nav = useNavigate()
   const { notifications, unreadCount, readNotification } = useNotification()
   const [open, setOpen] = useState(false)
@@ -51,7 +51,7 @@ const NotificationBell = () => {
 
       {/* 드롭다운 */}
       {open && (
-        <div className={styles.dropdown}>
+        <div className={`${styles.dropdown} ${dropdownPosition === 'left' ? styles.dropdownLeft : styles.dropdownRight}`}>
 
           {/* 헤더 */}
           <div className={styles.dropdownHeader}>
