@@ -109,6 +109,7 @@ public class ReviewController {
     return ResponseEntity.ok().body(list);
   }
 
+  //해당상품 리뷰 평점들, 카운트
   @GetMapping("/all")
   public ResponseEntity<?> rrrrrrrrrr(@RequestParam("productId")int productId){
     Map<String,Object> list = reviewService.countAndRating(productId);

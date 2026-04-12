@@ -76,3 +76,9 @@ export const getReviewRating = async() => {
   const response = await axiosInstance.get('reviews/ratingAndReviews')
   return response;
 }
+
+// 상품별 평균 별점, 별점 분포 조회
+export const getProductRating = async(productId) => {
+  const response = await axiosInstance.get('reviews/all', { params: { productId } })
+  return response;
+}
