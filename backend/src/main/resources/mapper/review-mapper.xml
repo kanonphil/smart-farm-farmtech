@@ -156,15 +156,15 @@
         M.MEMBER_NAME,
         PI.IMAGE_SAVED_NAME
         FROM REVIEW R
-        INNER JOIN ORDER_ITEM O
+        LEFT JOIN ORDER_ITEM O
         ON R.ORDER_ITEM_ID = O.ORDER_ITEM_ID
         INNER JOIN MEMBER M
         ON R.MEMBER_ID = M.MEMBER_ID
         INNER JOIN PRODUCT P
         ON R.PRODUCT_ID = P.PRODUCT_ID
-        INNER JOIN PRODUCT_IMAGE PI
+        LEFT JOIN PRODUCT_IMAGE PI
         ON PI.PRODUCT_ID = R.PRODUCT_ID
-        AND IMAGE_TYPE = 'MAIN'
+        AND PI.IMAGE_TYPE = 'MAIN'
         ORDER BY R.CREATED_AT DESC
     </select>
 
@@ -180,6 +180,7 @@
         FROM REVIEW R
     </select>
 
+    <!-- 해당 상품 고객 별점 조회  -->
     <select id="countAndRating" resultType="map">
         SELECT
         ROUND(AVG(RATING),1)                                    AS avgRating,

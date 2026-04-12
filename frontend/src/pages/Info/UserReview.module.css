@@ -1,10 +1,10 @@
 .container {
-  width: 600px;
-  margin: auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px 0;
+  padding: 60px 120px 60px 60px;
+  box-sizing: border-box;
 }
 
 .headerName h3 {
@@ -138,12 +138,307 @@
   background: #eee;
   color: #333;
 }
-.modalContainer{
+
+/* ── 검색 바 ── */
+.searchBar {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
 }
-.modalHeader{
+
+.totalCount {
+  font-size: 14px;
+  color: #444;
+}
+
+.filterLabel {
+  color: #FF6B35;
+  font-size: 13px;
+}
+
+.searchRight {
   display: flex;
-  gap: 20px;
-  
+  align-items: center;
+  gap: 6px;
+}
+
+.searchSelect {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.searchInput {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  width: 180px;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #FF6B35;
+}
+
+.searchBtn {
+  height: 34px;
+  width: 34px;
+  border: none;
+  background: #FF6B35;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.searchBtn:hover {
+  background: #e05520;
+}
+
+/* ── 통계 섹션 ── */
+.statsSection {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 4px;
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.statLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  margin: 0;
+}
+
+.statBig {
+  font-size: 36px;
+  font-weight: 800;
+  color: #222;
+  line-height: 1;
+}
+
+.statUnit {
+  font-size: 16px;
+  font-weight: 500;
+  color: #aaa;
+}
+
+.statSubList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.statSub {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  padding: 3px 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+.statSubVal {
+  font-weight: 700;
+  color: #444;
+}
+
+.statDivider {
+  width: 1px;
+  background: #eee;
+  margin: 0 24px;
+  align-self: stretch;
+}
+
+/* 별점 분포 */
+.distBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  flex: 2;
+}
+
+.distRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.distRow:hover {
+  background: #f5f5f5;
+}
+
+.distRowActive {
+  background: #fff3ee;
+}
+
+.distStar {
+  font-size: 12px;
+  color: #555;
+  width: 26px;
+  flex-shrink: 0;
+}
+
+.distBarWrap {
+  flex: 1;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.distBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.distCount {
+  font-size: 12px;
+  color: #444;
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.distPct {
+  font-size: 12px;
+  color: #aaa;
+  width: 44px;
+  flex-shrink: 0;
+}
+
+/* 필터 알림 */
+.filterNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff8f5;
+  border: 1px solid #ffe0d0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #555;
+}
+
+.filterClear {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.filterClear:hover {
+  background: #eee;
+  color: #333;
+}
+
+.modalContainer {
+  display: flex;
+  gap: 24px;
+}
+
+.modalImg {
+  width: 360px;
+  height: 360px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.modalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  flex: 1;
+}
+
+.modalProductName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+}
+
+.modalMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.productRatingBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: #fff8f5;
+  border: 1px solid #ffe0d0;
+  border-radius: 8px;
+}
+
+.productRatingLabel {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+}
+
+.productRatingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.productRatingCount {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.modalContent {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
 }

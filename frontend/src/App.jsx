@@ -32,15 +32,11 @@ import OrderManage from './pages/manager/OrderManage'
 import SensorChart from "./pages/manager/SensorChart"
 import AlertModal from "./components/common/AlertModal"
 import Toast from './components/common/Toast'
-
-
-function App() {
-  const { setToken, alertModal, closeAlert, toast, closeToast } = useAuthStore()
-  const { setToken, setAuthReady, alertModal, closeAlert } = useAuthStore()
 import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
 
+
 function App() {
-  const { token, setToken, setAuthReady, setNotifications, addNotification, alertModal, closeAlert } = useAuthStore()
+  const { token, setToken, setAuthReady, setNotifications, addNotification, alertModal, closeAlert, toast, closeToast } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
