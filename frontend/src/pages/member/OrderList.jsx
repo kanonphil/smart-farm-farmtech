@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import styles from './OrderList.module.css'
 import { getOrderList } from '../../api/product/product'    
 import { cancelPaymentApi } from '../../api/paymentApi'
@@ -14,6 +15,10 @@ import { MdCancel, MdCheckCircle, MdDoneAll, MdLocalShipping, MdPayment } from '
 
 const OrderList = () => {
   const { showAlert } = useAuthStore()
+  const [searchParams] = useSearchParams()
+  /** 알림에서 넘어올 때 강조할 주문 ID */
+  const highlightOrderId = Number(searchParams.get('highlight')) || null
+  const highlightRowRef = useRef(null)
   
   //조회 시작 날짜 저장변수
   const[startDate, setStartDate] = useState('')
@@ -51,14 +56,37 @@ const OrderList = () => {
     setCurrentPage(0)
   }, [orders])
 
+  /** 알림에서 진입 시 해당 주문이 있는 페이지로 이동 후 스크롤 */
+  useEffect(() => {
+    if (!highlightOrderId || orders.length === 0) return
+    const orderIndex = orders.findIndex(o => o.orderId === highlightOrderId)
+    if (orderIndex === -1) return
+    const targetPage = Math.floor(orderIndex / PAGE_SIZE)
+    setCurrentPage(targetPage)
+  }, [highlightOrderId, orders])
+
+  useEffect(() => {
+    if (highlightOrderId && highlightRowRef.current) {
+      highlightRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlightOrderId, currentPage])
+
+
+  /** 로컬 날짜를 YYYY-MM-DD 형식으로 변환 (toISOString은 UTC 기준이라 한국 날짜가 어제로 밀릴 수 있음) */
+  const formatLocalDate = (date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
 
   //버튼 클릭 시 날짜변경
   const handlePeriod = (days) => {
     const end = new Date()
     const start = new Date()
     start.setDate(end.getDate() - days)
-    setEndDate(end.toISOString().split('T')[0])
-    setStartDate(start.toISOString().split('T')[0])
+    setEndDate(formatLocalDate(end))
+    setStartDate(formatLocalDate(start))
     setActiveBtn(days)
   }
 
@@ -156,7 +184,7 @@ const OrderList = () => {
       showAlert('구매가 확정되었습니다.')
       fetchOrders()
     } catch (e) {
-      showAlert(e.response?.data || '구매 확정 처리 중 오류가 발생했습니다.')
+      showAlert(e.response?.data?.message || '구매 확정 처리 중 오류가 발생했습니다.')
     } finally {
       setConfirmingId(null)
     }
@@ -240,7 +268,11 @@ const OrderList = () => {
             ) : (
               displayedOrders.map((order, i) =>
                 order.orderItemDTOList?.map((item, itemIndex) => (
-                  <tr key={`${order.orderId}-${item.orderItemId}`}>
+                  <tr
+                    key={`${order.orderId}-${item.orderItemId}`}
+                    ref={itemIndex === 0 && order.orderId === highlightOrderId ? highlightRowRef : null}
+                    className={order.orderId === highlightOrderId ? styles.rowHighlight : ''}
+                  >
 
                     {/* 주문번호, 주문일 — 첫 번째 상품 행에만 */}
                     {itemIndex === 0 && (

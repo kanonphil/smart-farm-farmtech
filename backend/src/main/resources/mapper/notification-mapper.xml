@@ -37,6 +37,6 @@
     <update id="updateMarkAsRead">
         UPDATE NOTIFICATIONS
         SET IS_READ = 1
-        WHERE NOTIFICAION_ID = #{notificationId}
+        WHERE NOTIFICATION_ID = #{notificationId}
     </update>
 </mapper>

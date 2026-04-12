@@ -58,7 +58,7 @@ const MemberMenu = () => {
           <span className={styles.role}>Member</span>
         </div>
         <div className={styles.bellWrap}>
-          <NotificationBell />
+          <NotificationBell dropdownPosition='left' />
         </div>
       </div>
 
