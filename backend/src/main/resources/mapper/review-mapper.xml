@@ -57,6 +57,16 @@
         WHERE ORDER_ITEM_ID = #{orderItemId}
     </select>
 
+    <!-- ORDER_ITEM이 해당 회원의 구매 확정 주문에 속하는지 검증 -->
+    <select id="isOrderItemOwnedByMember" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM ORDER_ITEM oi
+                 JOIN ORDERS o ON oi.ORDER_ID = o.ORDER_ID
+        WHERE oi.ORDER_ITEM_ID = #{orderItemId}
+          AND o.MEMBER_ID      = #{memberId}
+          AND o.ORDER_STATUS   = 'DONE'
+    </select>
+
     <!-- 상품 ID로 리뷰 목록 조회 (최신순, 블라인드 제외) -->
     <select id="getReviewsByProductId" resultMap="reviewMap">
         SELECT

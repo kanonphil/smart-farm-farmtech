@@ -63,14 +63,14 @@ public class SecurityConfig {
                         .requestMatchers("/orders/**").authenticated()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/notifications/**").authenticated()
-                        .requestMatchers(HttpMethod.GET,   "/members/user").authenticated()
                         .requestMatchers(HttpMethod.PUT,   "/members/set-info").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/members/set-pw").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/members/withdraw").authenticated()
+                        .requestMatchers(HttpMethod.GET,  "/members/check-email").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/members/**").authenticated()
 
                         // ── 공개 (비로그인 허용) ─────────────────────
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()          // 회원가입
-                        .requestMatchers(HttpMethod.GET,  "/members/check-email").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members/refresh").permitAll()   // 토큰 갱신
                         .requestMatchers(HttpMethod.POST, "/members/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members/find-email").permitAll()
