@@ -1,20 +1,29 @@
 import MemberMenu from './MemberMenu'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styles from './MemberLayout.module.css'
 import useAuthStore from '../../store/authStore'
+import { useEffect } from 'react'
+import LoadingSpinner from '../common/LoadingSpinner'
 
 /**
  * 일반 회원 마이페이지 레이아웃
  * - 좌측 고정 사이드바 + 우측 콘텐츠 구조 (ManagerLayout 동일 형식)
  */
 const MemberLayout = () => {
-  const { isAuthReady } = useAuthStore()
+  const { token, isAuthReady } = useAuthStore()
+  const nav = useNavigate()
+  const location = useLocation()
 
-  if (!isAuthReady) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#aaa', fontSize: '14px' }}>
-      로딩 중...
-    </div>
-  )
+  useEffect(() => {
+    if (!isAuthReady) return
+
+    // 비로그인 -> 로그인 페이지 (로그인 후 원래 페이지로 돌아오기 위해 from 저장)
+    if (!token) {
+      nav('/login', { replace: true, state: { from: location.pathname } })
+    }
+  }, [isAuthReady, token])
+
+  if (!isAuthReady) return <LoadingSpinner />
 
   return (
     <div className={styles.container}>

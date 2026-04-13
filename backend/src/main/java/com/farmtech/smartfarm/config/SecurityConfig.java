@@ -7,6 +7,7 @@ import com.farmtech.smartfarm.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -45,7 +46,49 @@ public class SecurityConfig {
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                .authorizeHttpRequests(auth -> auth
+                        // ── 매니저 전용 ──────────────────────────────
+                        .requestMatchers("/dashboards/**").hasRole("MANAGER")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/thresholds/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST,   "/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT,    "/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("MANAGER")
+                        .requestMatchers("/products/manager").hasRole("MANAGER")
+                        .requestMatchers("/api/actuator/**").hasRole("MANAGER")
+
+                        // ── 로그인 필요 (일반 회원) ──────────────────
+                        .requestMatchers("/carts/**").authenticated()
+                        .requestMatchers("/orders/**").authenticated()
+                        .requestMatchers("/api/payments/**").authenticated()
+                        .requestMatchers("/notifications/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,   "/members/user").authenticated()
+                        .requestMatchers(HttpMethod.PUT,   "/members/set-info").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/members/set-pw").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/members/withdraw").authenticated()
+
+                        // ── 공개 (비로그인 허용) ─────────────────────
+                        .requestMatchers(HttpMethod.POST, "/members").permitAll()          // 회원가입
+                        .requestMatchers(HttpMethod.GET,  "/members/check-email").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members/refresh").permitAll()   // 토큰 갱신
+                        .requestMatchers(HttpMethod.POST, "/members/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members/find-email").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members/verify-account").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/members/reset-pw").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members/confirm-pw").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()        // 상품 조회
+                        .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()         // 리뷰 조회
+                        .requestMatchers(HttpMethod.GET, "/sensors/**").permitAll()         // 센서 조회
+                        .requestMatchers(HttpMethod.POST, "/api/ai-chef/**").permitAll()    // Ai Chef
+                        // 리뷰 조회는 공개, 작성/수정/삭제는 로그인 필요
+                        .requestMatchers(HttpMethod.POST,   "/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT,    "/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
+
+                        // ── 나머지 전부 차단 ─────────────────────────
+                        .anyRequest().denyAll()
+                );
 
         //기존 로그인 처리를 담당하는 UsernamePasswordAuthenticationFilter 를 LoginFilter 클래스로 대체
         http.addFilterAt(new LoginFilter(authenticationManager, jwtUtil, memberService), UsernamePasswordAuthenticationFilter.class);
