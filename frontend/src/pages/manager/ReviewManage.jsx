@@ -75,8 +75,17 @@ const ReviewManage = () => {
     setAnalyzing(true)
     try {
       const res = await axiosInstance.post('/reviews/manager/analyze')
-      const labelMap = Object.fromEntries(res.data.map(r => [r.reviewId, r.aiLabel]))
-      setReviews(prev => prev.map(r => ({ ...r, aiLabel: labelMap[r.reviewId] ?? r.aiLabel })))
+      // const labelMap = Object.fromEntries(res.data.map(r => [r.reviewId, r.aiLabel]))
+      // setReviews(prev => prev.map(r => ({ ...r, aiLabel: labelMap[r.reviewId] ?? r.aiLabel })))
+      // aiLabel + TOXIC 자동 블라인드 status 동시 반영
+      const resultMap = Object.fromEntries(
+        res.data.map(r => [r.reviewId, { aiLabel: r.aiLabel, status: r.status }])
+      )
+      setReviews(prev => prev.map(r => ({
+        ...r,
+        aiLabel: resultMap[r.reviewId]?.aiLabel ?? r.aiLabel,
+        status:  resultMap[r.reviewId]?.status  ?? r.status,
+      })))
       // 분석 완료 후 AI 등급순으로 자동 전환
       setSortBy('aiLabel')
     } catch (e) {
