@@ -21,6 +21,7 @@ public class DashboardDTO {
   private int month;
   private int revenue;
   private int paidCount;
+  private int shippingCount;
   private int shippedCount;
   private int doneCount;
   private int cancelCount;
