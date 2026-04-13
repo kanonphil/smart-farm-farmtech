@@ -17,6 +17,7 @@
         <result column="IMAGE_URL" property="imageUrl" />
         <result column="MEMBER_NAME" property="memberName" />
         <result column="IMAGE_SAVED_NAME" property="imageSavedName" />
+        <result column="STATUS" property="status" />
     </resultMap>
 
     <resultMap id="unreviewedItemMap" type="com.farmtech.smartfarm.review.dto.UnreviewedItemDTO">
@@ -56,7 +57,7 @@
         WHERE ORDER_ITEM_ID = #{orderItemId}
     </select>
 
-    <!-- 상품 ID로 리뷰 목록 조회 (최신순) -->
+    <!-- 상품 ID로 리뷰 목록 조회 (최신순, 블라인드 제외) -->
     <select id="getReviewsByProductId" resultMap="reviewMap">
         SELECT
             r.REVIEW_ID,
@@ -69,8 +70,9 @@
             m.MEMBER_NAME,
             r.IMAGE_URL
         FROM REVIEW r
-        JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+                 JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
         WHERE r.PRODUCT_ID = #{productId}
+          AND r.STATUS = 'VISIBLE'
         ORDER BY r.CREATED_AT DESC
     </select>
 
@@ -140,31 +142,20 @@
         AND MEMBER_ID = #{memberId}
     </delete>
 
-    <!-- 고객 리뷰 조회   -->
+    <!-- 고객 리뷰 조회 (블라인드 제외) -->
     <select id="selectReviewCustomer" resultMap="reviewMap">
         SELECT
-        R.REVIEW_ID,
-        M.MEMBER_ID,
-        P.PRODUCT_ID,
-        O.ORDER_ITEM_ID,
-        R.RATING,
-        R.CONTENT,
-        R.CREATED_AT,
-        P.PRODUCT_NAME,
-        P.PRODUCT_PRICE,
-        R.IMAGE_URL,
-        M.MEMBER_NAME,
-        PI.IMAGE_SAVED_NAME
+            R.REVIEW_ID, M.MEMBER_ID, P.PRODUCT_ID,
+            O.ORDER_ITEM_ID, R.RATING, R.CONTENT,
+            R.CREATED_AT, P.PRODUCT_NAME, P.PRODUCT_PRICE,
+            R.IMAGE_URL, M.MEMBER_NAME, PI.IMAGE_SAVED_NAME
         FROM REVIEW R
-        LEFT JOIN ORDER_ITEM O
-        ON R.ORDER_ITEM_ID = O.ORDER_ITEM_ID
-        INNER JOIN MEMBER M
-        ON R.MEMBER_ID = M.MEMBER_ID
-        INNER JOIN PRODUCT P
-        ON R.PRODUCT_ID = P.PRODUCT_ID
-        LEFT JOIN PRODUCT_IMAGE PI
-        ON PI.PRODUCT_ID = R.PRODUCT_ID
-        AND PI.IMAGE_TYPE = 'MAIN'
+                 LEFT JOIN ORDER_ITEM O ON R.ORDER_ITEM_ID = O.ORDER_ITEM_ID
+                 INNER JOIN MEMBER M ON R.MEMBER_ID = M.MEMBER_ID
+                 INNER JOIN PRODUCT P ON R.PRODUCT_ID = P.PRODUCT_ID
+                 LEFT JOIN PRODUCT_IMAGE PI ON PI.PRODUCT_ID = R.PRODUCT_ID
+            AND PI.IMAGE_TYPE = 'MAIN'
+        WHERE R.STATUS = 'VISIBLE'
         ORDER BY R.CREATED_AT DESC
     </select>
 
@@ -193,5 +184,38 @@
         FROM REVIEW
         WHERE PRODUCT_ID = #{productId}
     </select>
+
+    <!-- 매니저 전체 리뷰 목록 조회 -->
+    <select id="getAllReviewsForManager" resultMap="reviewMap">
+        SELECT
+            r.REVIEW_ID,
+            r.MEMBER_ID,
+            r.PRODUCT_ID,
+            r.ORDER_ITEM_ID,
+            r.RATING,
+            r.CONTENT,
+            r.CREATED_AT,
+            r.STATUS,
+            m.MEMBER_NAME,
+            p.PRODUCT_NAME,
+            r.IMAGE_URL
+        FROM REVIEW r
+                 JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+                 JOIN PRODUCT p ON r.PRODUCT_ID = p.PRODUCT_ID
+        ORDER BY r.CREATED_AT DESC
+    </select>
+
+    <!-- 매니저 권한 리뷰 삭제 (memberId 검증 없음) -->
+    <delete id="deleteReviewByManager">
+        DELETE FROM REVIEW
+        WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
+    <!-- 리뷰 상태 변경 (VISIBLE / BLINDED) -->
+    <update id="updateReviewStatus">
+        UPDATE REVIEW
+        SET STATUS = #{status}
+        WHERE REVIEW_ID = #{reviewId}
+    </update>
 
 </mapper>

@@ -35,6 +35,7 @@ import Toast from './components/common/Toast'
 import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
 import RequireAuth from './components/common/RequireAuth'
 import { getCartItems } from "./api/product/product"
+import ReviewManage from "./pages/manager/ReviewManage"
 
 
 function App() {
@@ -123,6 +124,7 @@ function App() {
           <Route path='stock' element={<Stock />} />
           <Route path='orders' element={<OrderManage />} />
           <Route path='sensor-chart' element={<SensorChart />} />
+          <Route path='reviews' element={<ReviewManage />} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}
