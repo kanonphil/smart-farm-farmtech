@@ -64,6 +64,9 @@ public class AiChefService {
     List<MatchedProductDTO> matched = matchProductsByIds(recipe, allProducts);
     response.setMatchedProducts(matched);
 
+    List<MatchedProductDTO> sideMatched = matchSideProductsByIds(recipe, allProducts);
+    response.setSideProducts(sideMatched);
+
     if (matched.isEmpty()) {
       response.setProductMatchMessage("추천 레시피는 찾았지만 현재 정확히 일치하는 상품이 없습니다.");
     }
@@ -116,9 +119,11 @@ public class AiChefService {
     sb.append("1. 반드시 소고기(한우) 중심 요리만 추천\n");
     sb.append("2. 가정에서 실제 조리 가능한 현실적인 레시피 우선\n");
     sb.append("3. 설명은 전부 한국어\n");
-    sb.append("4. matchingProductIds는 위 상품 목록에서 이 레시피에 가장 잘 맞는 상품의 productId를 1~3개 골라라\n");
-    sb.append("5. 반드시 위 목록에 있는 productId만 사용할 것 (없으면 빈 배열)\n");
-    sb.append("6. JSON 외 텍스트 절대 출력 금지\n\n");
+    sb.append("4. matchingProductIds: 레시피 핵심 부위와 상품명이 정확히 일치하는 상품만 1개 골라라\n");
+    sb.append("5. sideProductIds: 레시피에 곁들이거나 함께 즐기기 좋은 다른 부위 상품을 1~2개 골라라\n");
+    sb.append("6. matchingProductIds와 sideProductIds는 서로 겹치지 않아야 한다\n");
+    sb.append("7. 반드시 위 목록에 있는 productId만 사용할 것 (없으면 빈 배열)\n");
+    sb.append("8. JSON 외 텍스트 절대 출력 금지\n\n");
 
     sb.append("[출력 형식]\n");
     sb.append("{\n");
@@ -135,7 +140,8 @@ public class AiChefService {
     sb.append("  \"ingredients\": [{\"name\": \"재료명\", \"amount\": \"분량\"}],\n");
     sb.append("  \"steps\": [\"1단계\", \"2단계\"],\n");
     sb.append("  \"matchingCuts\": [{\"cutName\": \"부위명\", \"why\": \"추천 이유\"}],\n");
-    sb.append("  \"matchingProductIds\": [1, 2, 3],\n");
+    sb.append("  \"matchingProductIds\": [1],\n");
+    sb.append("  \"sideProductIds\": [2, 3],\n");
     sb.append("  \"servingTips\": [\"팁1\"],\n");
     sb.append("  \"searchKeywords\": [\"검색어1\"]\n");
     sb.append("}");
@@ -218,6 +224,33 @@ public class AiChefService {
       }
     }
 
+    return result;
+  }
+
+  /**
+   * Gemini가 선택한 sideProductIds로 곁들임 상품을 찾아 반환한다.
+   *
+   * @param recipe      Gemini 레시피 (sideProductIds 포함)
+   * @param allProducts DB 전체 활성 상품 목록
+   * @return 곁들임 상품 목록 (최대 2개)
+   */
+  private List<MatchedProductDTO> matchSideProductsByIds(RecipeDTO recipe, List<ProductListDTO> allProducts) {
+    if (recipe.getSideProductIds() == null || recipe.getSideProductIds().isEmpty()) {
+      return List.of();
+    }
+
+    Map<Integer, ProductListDTO> productMap = allProducts.stream()
+            .collect(Collectors.toMap(ProductListDTO::getProductId, p -> p));
+
+    List<MatchedProductDTO> result = new ArrayList<>();
+    for (Integer productId : recipe.getSideProductIds()) {
+      ProductListDTO p = productMap.get(productId);
+      if (p != null && p.getProductStock() > 0 && "ACTIVE".equals(p.getProductStatus())) {
+        MatchedProductDTO matched = new MatchedProductDTO(p);
+        matched.setMatchReason("함께 즐기면 좋아요");
+        result.add(matched);
+      }
+    }
     return result;
   }
 

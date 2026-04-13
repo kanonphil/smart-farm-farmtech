@@ -480,6 +480,13 @@
   background: #333;
 }
 
+/* 장바구니 담기 완료 상태 */
+.cartAdded {
+  background-color: #16a34a;
+  cursor: default;
+  opacity: 0.85;
+}
+
 /* ── 다른 추천 보기 ── */
 .anotherBtn {
   width: 100%;

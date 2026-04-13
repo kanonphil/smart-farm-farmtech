@@ -30,8 +30,7 @@ const ProductDetail = () => {
   //confirm modal state
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', onConfirm: null })
   //token 저장
-  const { token } = useAuthStore()
-
+  const { token, setCartCount } = useAuthStore()
 
   //수량 변경 시 실행함수
   const handleCnt = e => {
@@ -101,6 +100,7 @@ const ProductDetail = () => {
     }
     const response = await insertCartItem(cartItem)
     if(response.status === 200){
+      setCartCount(prev => prev + 1)
       showConfirm('장바구니 저장 완료! 장바구니로 이동 하시겠습니까?', () => nav('/cart'))
     }
     else{

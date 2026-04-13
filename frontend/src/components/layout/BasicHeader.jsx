@@ -14,7 +14,7 @@ const BasicHeader = () => {
 
   // store에서 token 가져오기
   // token이 바뀌면 이 컴포넌트가 자동으로 리렌더링됨
-  const { token, clearToken } = useAuthStore()
+  const { token, clearToken, cartCount } = useAuthStore()
 
   const decoded = decodeToken(token)
 
@@ -50,7 +50,14 @@ const BasicHeader = () => {
             <li><NotificationBell /></li>
             <li>
               <Link to='/cart' className={styles.utilLink} data-tooltip='장바구니'>
-                <MdShoppingCart size={22} />
+                <div className={styles.cartWrap}>
+                  <MdShoppingCart size={22} />
+                  {cartCount > 0 && (
+                    <span className={styles.cartBadge}>
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </div>
               </Link>
             </li>
             <li>

@@ -29,4 +29,7 @@ public class AiChefResponseDTO {
 
   // 상품 매칭 실패 시 메시지
   private String productMatchMessage;
+
+  /** 함께 즐기면 좋은 상품 목록 */
+  private List<MatchedProductDTO> sideProducts;
 }
