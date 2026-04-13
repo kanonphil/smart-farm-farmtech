@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from './UserReview.module.css'
 import { getReviewRating, getReviews, getProductRating } from '../../api/reviewApi'
 import { useNavigate } from 'react-router-dom'
@@ -44,15 +44,38 @@ const UserReview = () => {
   const [searchType, setSearchType] = useState('productName');
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  //페이지네이션
+  const [page,setPage] = useState(1);
+  const [hasMore,setHasMore] = useState(true);
+  const observerRef = useRef(null);
+  const loadingRef = useRef(false);
+
+
+  //페이지네이션 useEffect
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if(entries[0].isIntersecting) fetchReviews();
+    })
+    if(observerRef.current) observer.observe(observerRef.current)
+    return () => observer.disconnect();
+  },[hasMore,page])
 
   useEffect(() => {
-    fetchReviews();
     fetchReviewRatings();
   }, [])
 
   const fetchReviews = async () => {
-    const response = await getReviews();
-    setReviews(response.data)
+    if(loadingRef.current || !hasMore) return;
+    loadingRef.current = true;
+    const response = await getReviews(page,8);
+    const newReviews = response.data;
+    console.log(newReviews.length);
+    console.log(newReviews);
+    setReviews(prev => [...prev, ...newReviews]);
+    setPage(prev => prev+1);
+    setHasMore(newReviews.length === 8); //8개 미만이면 false
+    loadingRef.current = false;
+    console.log(page);
   }
 
   const fetchReviewRatings = async () => {
@@ -201,7 +224,10 @@ const UserReview = () => {
 
       <div className={styles.reviews}>
         {filteredReviews.map((r, i) => (
-          <div key={i} className={styles.block} onClick={async () => {
+          <div 
+            key={i}
+            className={styles.block} 
+            onClick={async () => {
               setSelctedReview(r);
               setProductRating(null);
               const res = await getProductRating(r.productId);
@@ -247,6 +273,7 @@ const UserReview = () => {
           </div>
         ))}
       </div>
+      <div ref={observerRef}/>
 
       {selectedReview && (
         <Modal

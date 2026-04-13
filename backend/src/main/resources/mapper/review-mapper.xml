@@ -157,6 +157,7 @@
             AND PI.IMAGE_TYPE = 'MAIN'
         WHERE R.STATUS = 'VISIBLE'
         ORDER BY R.CREATED_AT DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 고객 평균평점, 주문수, 7일, 30일 조회  -->

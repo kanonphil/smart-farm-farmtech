@@ -86,7 +86,11 @@ public class ReviewService {
   }
 
   //고객 리뷰 조회 기능
-  public List<ReviewDTO> selectReviewCustomer(){return reviewMapper.selectReviewCustomer();}
+  public List<ReviewDTO> selectReviewCustomer(int page,int size){
+
+    int offset = (page-1) * size;
+    return reviewMapper.selectReviewCustomer(size,offset);
+  }
 
   //고객 총 리뷰수, 평균평점, 7일, 30일(리뷰,평점)
   public Map<String,Object> ratingAndReviews(){return reviewMapper.ratingAndReviews();}
