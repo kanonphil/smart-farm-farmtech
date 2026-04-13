@@ -204,8 +204,10 @@ const ManagerHome = () => {
           <p className={styles.title_p}>
             <MdListAlt size={18} color='#4277c0' /> 주문 상태 현황
           </p>
+          {/* 주문 상태 5칸: 백엔드 상태값 PAID / SHIPPING(배송중) / SHIPPED(배송완료) / DONE / CANCEL */}
           <div className={styles.order_state}>
             <div><p>결제완료</p><p>{orderStatus.paidCount ?? 0}건</p></div>
+            <div><p>배송중</p><p>{orderStatus.shippingCount ?? 0}건</p></div>
             <div><p>배송완료</p><p>{orderStatus.shippedCount ?? 0}건</p></div>
             <div><p>구매확정</p><p>{orderStatus.doneCount ?? 0}건</p></div>
             <div><p>구매취소</p><p>{orderStatus.cancelCount ?? 0}건</p></div>
