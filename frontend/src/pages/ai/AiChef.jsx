@@ -43,7 +43,7 @@ const STYLE_OPTIONS = [
  */
 const AiChef = () => {
   const navigate = useNavigate()
-  const { showAlert } = useAuthStore()
+  const { showAlert, cartCount, setCartCount } = useAuthStore()
 
   /** 선택된 식사 상황 */
   const [situation, setSituation] = useState(null)
@@ -212,12 +212,13 @@ const AiChef = () => {
     try {
       await insertCartItem({ productId, cartItemQty: 1 })
       // 성공 상태 메시지 표시
-      setCartStatus(prev => ({ ...prev, [productId]: '장바구니에 담겼습니다! ✓' }))
-      setTimeout(() => {
-        setCartStatus(prev => ({ ...prev, [productId]: null }))
-      }, 2000)
+      setCartStatus(prev => ({ ...prev, [productId]: '상품이 장바구니에 담겼습니다.' }))
+      setCartCount(cartCount + 1)
+      // setTimeout(() => {
+      //   setCartStatus(prev => ({ ...prev, [productId]: null }))
+      // }, 2000)
     } catch (e) {
-      setCartStatus(prev => ({ ...prev, [productId]: '담기 실패. 다시 시도해주세요.' }))
+      setCartStatus(prev => ({ ...prev, [productId]: '장바구니 담기에 실패했습니다.' }))
       setTimeout(() => {
         setCartStatus(prev => ({ ...prev, [productId]: null }))
       }, 2000)
@@ -391,7 +392,7 @@ const AiChef = () => {
                 <ol className={styles.stepList}>
                   {result.recipe.steps.map((step, i) => (
                     <li key={i} className={styles.stepItem}>
-                      {/* <span className={styles.stepNumber}>{i + 1}</span> */}
+                      <span className={styles.stepNumber}>{i + 1}</span>
                       {step}
                     </li>
                   ))}
@@ -453,10 +454,13 @@ const AiChef = () => {
                           상품 보러가기
                         </button>
                         <button
-                          className={styles.cartBtn}
+                          className={`${styles.cartBtn} ${cartStatus[product.productId] === '상품이 장바구니에 담겼습니다.' ? styles.cartAdded : ''}`}
                           onClick={() => handleAddToCart(product.productId)}
+                          disabled={cartStatus[product.productId] === '상품이 장바구니에 담겼습니다.'}
                         >
-                          장바구니 담기
+                          {cartStatus[product.productId] === '상품이 장바구니에 담겼습니다.'  && '✓ 담겼습니다'}
+                          {cartStatus[product.productId] === '장바구니 담기에 실패했습니다.'  && '담기 실패'}
+                          {!cartStatus[product.productId] && '장바구니 담기'}
                         </button>
                       </div>
                     </div>
@@ -465,13 +469,45 @@ const AiChef = () => {
               </div>
             </div>
 
+            {/* 함께 즐기면 좋은 상품 — 추가 */}
+            {result.sideProducts?.length > 0 && (
+              <div className={styles.section}>
+                <div className={styles.sectionTitle}>🥩 함께 즐기면 좋은 상품</div>
+                <div className={styles.productList}>
+                  {result.sideProducts.map(product => (
+                    <div key={product.productId} className={styles.productCard}>
+                      {product.mainImage && (
+                        <img src={product.mainImage} alt={product.productName} className={styles.productImg} />
+                      )}
+                      <div className={styles.productInfo}>
+                        <p className={styles.productName}>{product.productName}</p>
+                        <p className={styles.productPrice}>{product.productPrice?.toLocaleString()}원</p>
+                        <p className={styles.matchReason}>{product.matchReason}</p>
+                        {cartStatus[product.productId] && (
+                          <p className={styles.cartMsg}>{cartStatus[product.productId]}</p>
+                        )}
+                        <div className={styles.productBtns}>
+                          <button className={styles.viewBtn} onClick={() => navigate(`/products/${product.productId}`)}>
+                            상품 보러가기
+                          </button>
+                          <button className={styles.cartBtn} onClick={() => handleAddToCart(product.productId)}>
+                            장바구니 담기
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* 다른 추천 보기 */}
             <button
               className={styles.anotherBtn}
               onClick={handleAnotherRecommend}
               disabled={isLoading}
             >
-              🔄 다른 추천 보기
+              다른 추천 보기
             </button>
 
           </div>

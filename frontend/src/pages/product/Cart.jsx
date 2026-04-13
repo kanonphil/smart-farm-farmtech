@@ -10,7 +10,7 @@ import useAuthStore from '../../store/authStore'
 
 const Cart = () => {
   const nav = useNavigate()
-  const { showAlert } = useAuthStore()
+  const { showAlert, setCartCount } = useAuthStore()
 
   //카트 리스트 저장 state 변수
   const [cartItem, setCartItem] = useState([])
@@ -31,6 +31,7 @@ const Cart = () => {
     })
     setCartItem(dataList)
     setCheckedItems(dataList.map(item => item.cartItemId))
+    setCartCount(dataList.length)
   }
 
   useEffect(()=>{
