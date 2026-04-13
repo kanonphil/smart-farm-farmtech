@@ -141,7 +141,7 @@
     </delete>
 
     <!-- 고객 리뷰 조회   -->
-    <select id="selectReviewCustomer" resultMap="reviewMap">
+    <select id="selectReviewCustomer" parameterType="map" resultMap="reviewMap">
         SELECT
         R.REVIEW_ID,
         M.MEMBER_ID,
@@ -166,6 +166,7 @@
         ON PI.PRODUCT_ID = R.PRODUCT_ID
         AND PI.IMAGE_TYPE = 'MAIN'
         ORDER BY R.CREATED_AT DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 고객 평균평점, 주문수, 7일, 30일 조회  -->

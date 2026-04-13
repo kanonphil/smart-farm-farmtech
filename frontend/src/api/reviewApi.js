@@ -66,8 +66,10 @@ export const deleteReview = async (reviewId) => {
 }
 
 // 고객 리뷰 최신순 각각 조회
-export const getReviews = async() => {
-  const response = await axiosInstance.get("reviews/customer")
+export const getReviews = async(page,size) => {
+  const response = await axiosInstance.get("reviews/customer",{
+    params:{page,size}
+  })
   return response;
 }
 

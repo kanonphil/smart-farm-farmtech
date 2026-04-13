@@ -97,8 +97,9 @@ public class ReviewController {
 
   //고객 리뷰 조회
   @GetMapping("/customer")
-  public ResponseEntity<?> selectReviewCustomer(){
-    List<ReviewDTO> list = reviewService.selectReviewCustomer();
+  public ResponseEntity<?> selectReviewCustomer(@RequestParam("page")int page,
+                                                @RequestParam("size")int size){
+    List<ReviewDTO> list = reviewService.selectReviewCustomer(page,size);
     return ResponseEntity.ok().body(list);
   }
 

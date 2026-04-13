@@ -34,7 +34,7 @@ public interface ReviewMapper {
   void deleteReview(@Param("reviewId") int reviewId, @Param("memberId") int memberId);
 
   //고객 리뷰 조회 메서드
-  List<ReviewDTO> selectReviewCustomer ();
+  List<ReviewDTO> selectReviewCustomer (@Param("size")int size ,@Param("offset")int offset);
 
   //고객 평균평점, 주문수, 7일, 30일 조회
   Map<String,Object> ratingAndReviews();
