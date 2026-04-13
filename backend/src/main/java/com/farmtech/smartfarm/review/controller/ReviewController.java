@@ -158,14 +158,25 @@ public class ReviewController {
   /**
    * 리뷰 AI 분석 요청 API (매니저 전용)
    *
-   * 현재 전체 리뷰를 Gemini에 전달하여 CLEAN/SUSPICIOUS/TOXIC 등급을 반환한다.
+   * 전체 리뷰를 Gemini에 전달하여 CLEAN/SUSPICIOUS/TOXIC 등급을 반환한다.
+   * TOXIC 판정된 리뷰는 자동으로 블라인드 처리된다.
    *
-   * @return aiLabel이 설정된 전체 리뷰 목록
+   * @return aiLabel 및 status가 반영된 전체 리뷰 목록
    */
   @PostMapping("/manager/analyze")
   public ResponseEntity<List<ReviewDTO>> analyzeReviews() {
     List<ReviewDTO> reviews = reviewService.getAllReviewsForManager();
-    return ResponseEntity.ok(geminiReviewService.analyzeReviews(reviews));
+    List<ReviewDTO> analyzed = geminiReviewService.analyzeReviews(reviews);
+
+    // TOXIC 판정 리뷰 자동 블라인드 처리
+    analyzed.stream()
+            .filter(r -> "TOXIC".equals(r.getAiLabel()))
+            .forEach(r -> {
+              reviewService.updateReviewStatus(r.getReviewId(), "BLINDED");
+              r.setStatus("BLINDED");  // 응답에도 반영
+            });
+
+    return ResponseEntity.ok(analyzed);
   }
 
 }

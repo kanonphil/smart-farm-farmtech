@@ -18,7 +18,7 @@ public interface OrderMapper {
   int getNextOrderId();
 
   // 주문 상품 저장 메서드
-  void insertOrderItem(List<OrderItemDTO> itemList);
+  void insertOrderItem(@Param("itemList") List<OrderItemDTO> itemList);
 
   // 주문 정보 조회 메서드
   OrderDTO getOrder(int memberId);
