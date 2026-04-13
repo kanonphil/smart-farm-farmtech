@@ -67,6 +67,35 @@
   aspect-ratio: 1 / 1;
   background-color: #f5f5f5;
   overflow: hidden;
+  position: relative;
+}
+
+/* 이미지 흑백 처리 */
+.soldOutImage {
+  filter: grayscale(60%);
+  opacity: 0.85;
+}
+
+/* 어두운 오버레이 */
+.soldOutOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SOLD OUT 텍스트 */
+.soldOutText {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: #e63946;  /* 빨간 배경 */
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
 }
 
 .image {

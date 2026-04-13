@@ -324,7 +324,7 @@
   border: 1px solid #ebebeb;
   border-radius: 12px;
   background: #fafafa;
-  width: 1036px;
+  width: 100%;
   align-items: center;
 }
 
@@ -391,6 +391,8 @@
 .btn_buy:disabled,
 .btn_cart:disabled {
   background: #ccc;
+  border-color: #ccc;
+  color: #fff;
   cursor: not-allowed;
 }
 

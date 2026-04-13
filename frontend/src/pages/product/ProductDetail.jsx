@@ -94,6 +94,10 @@ const ProductDetail = () => {
 
   //장바구니 담기 버튼 클릭 시 실행함수
   const addCartItem = async () => {
+    if(!token) {
+      showConfirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?', () => nav('/login'))
+      return
+    }
     const cartItem = {
       productId : product.productId,
       cartItemQty : cnt

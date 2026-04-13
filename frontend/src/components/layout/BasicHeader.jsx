@@ -3,10 +3,11 @@ import logo from '../../assets/logo.png'
 import { Link, useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/tokenUtils';
 import { logoutAPI } from '../../api/member/memberApi';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useAuthStore from '../../store/authStore';
 import NotificationBell from '../common/NotificationBell';
-import { MdAdminPanelSettings, MdLogin, MdLogout, MdPerson, MdPersonAdd, MdSearch, MdShoppingCart } from 'react-icons/md';
+import { MdAdminPanelSettings, MdLogin, MdLogout, MdPerson, MdPersonAdd, MdSearch, MdShoppingCart, MdHistory } from 'react-icons/md';
+import { getRecommendedKeywords } from '../../api/product/product';
 
 const BasicHeader = () => {
   const nav = useNavigate();
@@ -34,10 +35,53 @@ const BasicHeader = () => {
   
   //검색 내용 저장 state변수
   const [keyword, setKeyword] = useState('')
+  const [showDrop, setShowDrop] = useState(false)
+  const [recentSearches, setRecentSearches] = useState(() => {
+    return JSON.parse(localStorage.getItem('recentSearches') || '[]')
+  })
+  const [recommended, setRecommended] = useState([])
 
-  //검색창 함수
-  const handleSearch = () => {
-    nav(`/products?keyword=${keyword.trim()}`)
+  useEffect(()=>{
+    getRecommendedKeywords().then(res => setRecommended(res.data))
+  }, [])
+
+  const searchRef = useRef(null)
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowDrop(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // 검색 실행 (최근 검색어 저장 포함)
+  const handleSearch = (value = keyword) => {
+    const trimmed = value.trim()
+    if (!trimmed) return
+    const updated = [trimmed, ...recentSearches.filter(k => k !== trimmed)].slice(0, 5)
+    setRecentSearches(updated)
+    localStorage.setItem('recentSearches', JSON.stringify(updated))
+    setShowDrop(false)
+    setKeyword(trimmed)
+    nav(`/products?keyword=${trimmed}`)
+  }
+
+  // 최근 검색어 개별 삭제
+  const deleteRecent = (e, word) => {
+    e.stopPropagation()
+    const updated = recentSearches.filter(k => k !== word)
+    setRecentSearches(updated)
+    localStorage.setItem('recentSearches', JSON.stringify(updated))
+  }
+
+  // 최근 검색어 전체 삭제
+  const clearRecent = () => {
+    setRecentSearches([])
+    localStorage.removeItem('recentSearches')
   }
   
   console.log(decoded?.memberName)
@@ -106,17 +150,53 @@ const BasicHeader = () => {
             <Link to='/user-reviews'><li>고객리뷰</li></Link>
           </ul>
         </div>
-        <div className={styles.search_div}>
-          <input 
-            type="text" 
-            className={styles.search} 
+        <div className={styles.search_div} ref={searchRef}>
+          <input
+            type="text"
+            className={styles.search}
             placeholder='상품 입력'
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
+            onFocus={() => setShowDrop(true)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
           />
-          <MdSearch onClick={handleSearch}/>
+          <MdSearch onClick={() => handleSearch()} />
+
+          {showDrop && (
+            <div className={styles.search_drop}>
+
+              {/* 최근 검색어 */}
+              {recentSearches.length > 0 && (
+                <>
+                  {recentSearches.map(word => (
+                    <div key={word} className={styles.drop_item} onClick={() => handleSearch(word)}>
+                      <MdHistory size={16} className={styles.drop_icon} />
+                      <span className={styles.drop_word}>{word}</span>
+                      <button className={styles.delete_btn} onClick={(e) => deleteRecent(e, word)}>✕</button>
+                    </div>
+                  ))}
+                  <div className={styles.drop_divider} />
+                </>
+              )}
+
+              {/* 추천 검색어 */}
+              <div className={styles.drop_recommend}>
+                <span className={styles.drop_title}>추천 검색어</span>
+                <div className={styles.recommend_wrap}>
+                  {recommended.map(word => (
+                    <button key={word} className={styles.recommend_btn} onClick={() => handleSearch(word)}>
+                      {word}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+
+            </div>
+          )}
+
         </div>
+
       </div>
     </div>
   )

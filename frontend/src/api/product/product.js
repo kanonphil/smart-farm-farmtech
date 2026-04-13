@@ -170,3 +170,9 @@ export const getReviewStats = async (productId) => {
   })
   return response
 }
+
+/**
+ * 추천 검색어 조회
+ * @returns 
+ */
+export const getRecommendedKeywords = () => axiosInstance.get('/products/recommended-keywords')

@@ -143,4 +143,11 @@ public class ProductController {
     }
   }
 
+  //검색어 추천
+  @GetMapping("/recommended-keywords")
+  public ResponseEntity<?> getRecommendedKeywords() {
+    return ResponseEntity.ok(productService.getRecommendedKeywords());
+  }
+
+
 }

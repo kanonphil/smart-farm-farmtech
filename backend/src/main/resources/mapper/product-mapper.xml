@@ -229,4 +229,16 @@
           AND PRODUCT_STOCK > 0
         ORDER BY PRODUCT_ID DESC
     </select>
+
+<!--  상위 7개 상품 추천검색어  -->
+    <select id="selectRecommendedKeywords" resultType="string">
+        SELECT p.PRODUCT_NAME
+        FROM PRODUCT p
+        LEFT JOIN ORDER_ITEM oi ON p.PRODUCT_ID = oi.PRODUCT_ID
+        WHERE p.PRODUCT_STATUS = 'ACTIVE'
+        GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME
+        ORDER BY COUNT(oi.ORDER_ITEM_ID) DESC
+        LIMIT 7
+    </select>
+
 </mapper>

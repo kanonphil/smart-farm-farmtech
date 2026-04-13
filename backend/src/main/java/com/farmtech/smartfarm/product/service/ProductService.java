@@ -121,4 +121,9 @@ public class ProductService {
   public void deleteProduct(int productId){
     productMapper.deleteProduct(productId);       // 상품 삭제
   }
+
+// 검색어 추천
+  public List<String> getRecommendedKeywords() {
+    return productMapper.selectRecommendedKeywords();
+  }
 }
