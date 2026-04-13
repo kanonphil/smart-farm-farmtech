@@ -20,51 +20,11 @@
   margin-bottom: 15px;
 }
 
-.standard{
+.standard {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
-}
-
-.standard div {
-  background-color: white;
-  padding: 1rem;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.standard div:nth-child(1){
-  border-left: 4px solid #38bdf8;
-}
-
-.standard div:nth-child(2){
-  border-left: 4px solid #22c55e;
-}
-
-.standard div:nth-child(3){
-  border-left: 4px solid #a855f7;
-}
-
-.standard div:nth-child(4){
-  border-left: 4px solid #f97316;
-}
-
-.standard > div > p:nth-child(1){
-  font-size: 14px;
-  color: gray;
-}
-
-.standard > div > p:nth-child(2){
-  font-size: 24px;
-  font-weight: bolder;
-  
-}
-
-.standard > div > p:nth-child(3){
-  font-size: 12px;
 }
 
 .sales_order_div{
@@ -111,67 +71,6 @@
   font-size: 14px;
   color: gray;
   margin-bottom: 15px;
-}
-
-.order_state{
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 1rem;
-  height: 100px;
-}
-
-.order_state > div:nth-child(1){
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #fef9c3;
-  color: #ca8a04;
-  gap: 0.5rem;
-  border-radius: 10px;
-}
-
-.order_state > div:nth-child(2){
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #dbeafe;
-  color: #2563eb;
-  gap: 0.5rem;
-  border-radius: 10px;
-}
-
-.order_state > div:nth-child(3){
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #dcfce7;
-  color: #16a34a;
-  gap: 0.5rem;
-  border-radius: 10px;
-}
-
-.order_state > div:nth-child(4){
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #fee2e2;
-  color: #dc264a;
-  gap: 0.5rem;
-  border-radius: 10px;
-}
-
-.order_state > div > p:first-child{
-  color: gray;
-  font-size: 15px;
-}
-
-.order_state > div > p:nth-child(2){
-  font-size: 23px;
-  font-weight: bolder;
 }
 
 .rank_div{
@@ -258,4 +157,131 @@
   flex-direction: column;
   gap: 1rem;
   min-height: 600px;
+}
+
+.summaryCard {
+  background: #ffffff;
+  padding: 1.2rem;
+  border-radius: 10px;
+  border-left: 4px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardLabel {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.cardIconWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* 비교 수치 텍스트 */
+.diffUp      { font-size: 12px; color: #16a34a; }
+.diffDown    { font-size: 12px; color: #dc2626; }
+.diffNeutral { font-size: 12px; color: #9ca3af; }
+
+/* 주문 상태 */
+.order_state {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  height: 100px;
+}
+
+/* 결제완료 */
+.order_state > div:nth-child(1) {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; background-color: #fef9c3;
+  color: #ca8a04; gap: 0.5rem; border-radius: 10px;
+}
+/* 배송완료 */
+.order_state > div:nth-child(2) {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; background-color: #dbeafe;
+  color: #2563eb; gap: 0.5rem; border-radius: 10px;
+}
+/* 구매확정 */
+.order_state > div:nth-child(3) {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; background-color: #dcfce7;
+  color: #16a34a; gap: 0.5rem; border-radius: 10px;
+}
+/* 구매취소 */
+.order_state > div:nth-child(4) {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; background-color: #fee2e2;
+  color: #dc264a; gap: 0.5rem; border-radius: 10px;
+}
+
+/* 랭킹 테이블 */
+.rankTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rankTable thead tr {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rankTable thead th {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-align: left;
+}
+
+.rankTable tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.rankTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.rankTable td {
+  padding: 10px 12px;
+}
+
+/* 로딩 */
+.loadingWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
