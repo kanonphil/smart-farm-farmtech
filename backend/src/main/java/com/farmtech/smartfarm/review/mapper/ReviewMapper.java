@@ -41,4 +41,14 @@ public interface ReviewMapper {
 
   //해당상품 리뷰 평점들, 카운트
   Map<String,Object> countAndRating(@Param("productId")int productId);
+
+  /** 전체 리뷰 목록 조회 (매니저용, 상품명·회원명 포함, 최신순) */
+  List<ReviewDTO> getAllReviewsForManager();
+
+  /** 매니저 권한 리뷰 삭제 (memberId 검증 없음) */
+  void deleteReviewByManager(@Param("reviewId") int reviewId);
+
+  /** 리뷰 노출 상태 변경 (VISIBLE ↔ BLINDED) */
+  void updateReviewStatus(@Param("reviewId") int reviewId, @Param("status") String status);
+
 }

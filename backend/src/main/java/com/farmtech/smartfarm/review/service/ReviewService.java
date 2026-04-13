@@ -97,4 +97,33 @@ public class ReviewService {
 
   //해당상품 리뷰 평점들, 카운트
   public Map<String,Object> countAndRating(int productId){return reviewMapper.countAndRating(productId);}
+
+  /**
+   * 전체 리뷰 목록 조회 (매니저용)
+   *
+   * @return 상품명·회원명 포함 전체 리뷰 목록 (최신순)
+   */
+  public List<ReviewDTO> getAllReviewsForManager() {
+    return reviewMapper.getAllReviewsForManager();
+  }
+
+  /**
+   * 매니저 권한 리뷰 삭제 (memberId 검증 없음)
+   *
+   * @param reviewId 삭제할 리뷰 ID
+   */
+  public void deleteReviewByManager(int reviewId) {
+    reviewMapper.deleteReviewByManager(reviewId);
+  }
+
+  /**
+   * 리뷰 노출 상태 변경 (VISIBLE ↔ BLINDED)
+   *
+   * @param reviewId 대상 리뷰 ID
+   * @param status   변경할 상태 (VISIBLE / BLINDED)
+   */
+  public void updateReviewStatus(int reviewId, String status) {
+    reviewMapper.updateReviewStatus(reviewId, status);
+  }
+
 }

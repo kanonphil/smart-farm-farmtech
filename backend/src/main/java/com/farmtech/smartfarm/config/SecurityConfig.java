@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("MANAGER")
                         .requestMatchers("/products/manager").hasRole("MANAGER")
                         .requestMatchers("/api/actuator/**").hasRole("MANAGER")
+                        .requestMatchers("/reviews/manager/**").hasRole("MANAGER")
 
                         // ── 로그인 필요 (일반 회원) ──────────────────
                         .requestMatchers("/carts/**").authenticated()

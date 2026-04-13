@@ -13,6 +13,11 @@ const useAuthStore = create((set) => ({
   isAuthReady: false,
   notification: [],
 
+  cartCount: 0,
+  setCartCount: (countOrFn) => set((state) => ({
+    cartCount: typeof countOrFn === 'function' ? countOrFn(state.cartCount) : countOrFn
+  })),
+
   // 토큰을 저장하는 함수
   // 로그인 성공 시 이 함수를 호출해서 token에 값을 저장
   // set({ token }) = token 값을 새로운 값으로 변경

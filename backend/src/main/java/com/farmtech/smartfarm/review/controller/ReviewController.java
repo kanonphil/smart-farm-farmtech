@@ -2,6 +2,7 @@ package com.farmtech.smartfarm.review.controller;
 
 import com.farmtech.smartfarm.member.dto.CustomUserDetails;
 import com.farmtech.smartfarm.review.dto.ReviewDTO;
+import com.farmtech.smartfarm.review.service.GeminiReviewService;
 import com.farmtech.smartfarm.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReviewController {
   private final ReviewService reviewService;
+  private final GeminiReviewService geminiReviewService;
 
   /**
    * 리뷰 등록 API
@@ -116,4 +118,55 @@ public class ReviewController {
     Map<String,Object> list = reviewService.countAndRating(productId);
     return ResponseEntity.ok().body(list);
   }
+
+  // ─── 매니저 전용 API ───────────────────────────────────────────
+
+  /**
+   * 전체 리뷰 목록 조회 API (매니저 전용)
+   *
+   * @return 상품명·회원명 포함 전체 리뷰 목록
+   */
+  @GetMapping("/manager")
+  public ResponseEntity<List<ReviewDTO>> getAllReviewsForManager() {
+    return ResponseEntity.ok(reviewService.getAllReviewsForManager());
+  }
+
+  /**
+   * 매니저 권한 리뷰 삭제 API
+   *
+   * @param reviewId 삭제할 리뷰 ID
+   */
+  @DeleteMapping("/manager/{reviewId}")
+  public ResponseEntity<?> deleteReviewByManager(@PathVariable int reviewId) {
+    reviewService.deleteReviewByManager(reviewId);
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * 리뷰 블라인드/복구 API (매니저 전용)
+   *
+   * @param reviewId 대상 리뷰 ID
+   * @param body     {"status": "BLINDED"} 또는 {"status": "VISIBLE"}
+   */
+  @PatchMapping("/manager/{reviewId}/status")
+  public ResponseEntity<?> updateReviewStatus(
+          @PathVariable int reviewId,
+          @RequestBody Map<String, String> body) {
+    reviewService.updateReviewStatus(reviewId, body.get("status"));
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * 리뷰 AI 분석 요청 API (매니저 전용)
+   *
+   * 현재 전체 리뷰를 Gemini에 전달하여 CLEAN/SUSPICIOUS/TOXIC 등급을 반환한다.
+   *
+   * @return aiLabel이 설정된 전체 리뷰 목록
+   */
+  @PostMapping("/manager/analyze")
+  public ResponseEntity<List<ReviewDTO>> analyzeReviews() {
+    List<ReviewDTO> reviews = reviewService.getAllReviewsForManager();
+    return ResponseEntity.ok(geminiReviewService.analyzeReviews(reviews));
+  }
+
 }

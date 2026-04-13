@@ -34,10 +34,12 @@ import AlertModal from "./components/common/AlertModal"
 import Toast from './components/common/Toast'
 import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
 import RequireAuth from './components/common/RequireAuth'
+import { getCartItems } from "./api/product/product"
+import ReviewManage from "./pages/manager/ReviewManage"
 
 
 function App() {
-  const { token, setToken, setAuthReady, setNotifications, addNotification, alertModal, closeAlert, toast, closeToast } = useAuthStore()
+  const { token, setToken, setAuthReady, setNotifications, addNotification, alertModal, closeAlert, toast, closeToast, setCartCount } = useAuthStore()
 
   useEffect(()=>{
     // 앱 시작 시 딱 한 번 실행
@@ -67,6 +69,7 @@ function App() {
   useEffect(() => {
     if (!token) {
       setNotifications([])
+      setCartCount(0)
       return
     }
 
@@ -78,6 +81,10 @@ function App() {
         setNotifications(data)
       })
       .catch(err => console.error('[알림] 조회 실패:', err))
+      
+    getCartItems()
+      .then(res => setCartCount(res?.data?.length ?? 0))
+      .catch(() => {})
 
     // SSE 연결
     const disconnect = connectNotificationStream((notification) => {
@@ -85,6 +92,7 @@ function App() {
     })
 
     return disconnect  // 토큰 변경 또는 로그아웃 시 연결 해제
+
   }, [token])
 
   return (
@@ -116,6 +124,7 @@ function App() {
           <Route path='stock' element={<Stock />} />
           <Route path='orders' element={<OrderManage />} />
           <Route path='sensor-chart' element={<SensorChart />} />
+          <Route path='reviews' element={<ReviewManage />} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}
