@@ -60,4 +60,8 @@ public interface ProductMapper {
   List<ProductListDTO> selectActiveProducts();
 
 
+//  검색어 추천
+  List<String> selectRecommendedKeywords();
+
+
 }

@@ -186,29 +186,27 @@ const ProductList = () => {
                 <img
                   src={product.mainImage}
                   alt={product.productName}
-                  className={styles.image}
+                  className={`${styles.image} ${product.productStock === 0 ? styles.soldOutImage : ''}`}
                 />
               ) : (
-                // 이미지가 업을 경우 대체 텍스트 표시
                 <div className={styles.noImage}>이미지 없음</div>
+              )}
+              {product.productStock === 0 && (
+                <div className={styles.soldOutOverlay}>
+                  <span className={styles.soldOutText}>SOLD OUT</span>
+                </div>
               )}
             </div>
 
             {/* 상품 정보 */}
             <div className={styles.info}>
-              {/* 상품명 */}
               <p className={styles.name}>{product.productName}</p>
-
-              {/* 상품 가격 (천 단위 콤마 표현) */}
               <p className={styles.price}>
                 {product.productPrice.toLocaleString()}원
               </p>
-
-              {/* 재고 상태: 재고가 0이면 품절 표시 */}
-              {product.productStock === 0 && (
-                <span className={styles.soldOut}>품절</span>
-              )}
+              {/* 기존 soldOut span 제거 */}
             </div>
+
           </div>
         ))}
       </div>

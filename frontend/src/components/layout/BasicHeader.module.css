@@ -143,6 +143,7 @@
   border-radius: 20px;
   padding: 6px 14px;
   gap: 8px;
+  position: relative;
 }
 
 .search {
@@ -159,4 +160,181 @@
 
 .search_div svg:hover{
   color: black;
+}
+
+.search_drop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  z-index: 999;
+  overflow: hidden;
+}
+
+.drop_section {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drop_section:last-child {
+  border-bottom: none;
+}
+
+.drop_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.drop_title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #aaa;
+}
+
+.clear_btn {
+  font-size: 12px;
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.clear_btn:hover {
+  color: #e63946;
+}
+
+.search_drop {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 999;
+  padding: 8px 0;
+  overflow: hidden;
+}
+
+.drop_item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.drop_item:hover {
+  background: #f1f3f4;
+}
+
+.drop_icon {
+  color: #9aa0a6;
+  flex-shrink: 0;
+}
+
+.drop_word {
+  flex: 1;
+  font-size: 14px;
+  color: #202124;
+}
+
+.delete_btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #9aa0a6;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.drop_item:hover .delete_btn {
+  opacity: 1;
+}
+
+.drop_divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 8px 0;
+}
+
+.drop_recommend {
+  padding: 10px 16px 14px;
+}
+
+.drop_title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9aa0a6;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.recommend_wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recommend_btn {
+  padding: 5px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.recommend_btn:hover {
+  border-color: #222;
+  color: #222;
+  background: #f5f5f5;
+}
+
+
+.delete_btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.delete_btn:hover {
+  color: #888;
+}
+
+.recommend_wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recommend_btn {
+  padding: 5px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.recommend_btn:hover {
+  border-color: #222;
+  color: #222;
+  background: #f5f5f5;
 }
