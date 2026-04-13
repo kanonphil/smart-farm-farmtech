@@ -31,6 +31,11 @@ public class ReviewService {
   public void insertReview(ReviewDTO reviewDTO, MultipartFile imgFile)
   throws IOException {
 
+    // 본인의 구매 확정 주문 상품인지 검증
+    if (!reviewMapper.isOrderItemOwnedByMember(reviewDTO.getOrderItemId(), reviewDTO.getMemberId())) {
+      throw new IllegalArgumentException("본인의 구매 확정 주문 상품에만 리뷰를 작성할 수 있습니다.");
+    }
+
     // 동일한 주문 상품에 대한 리뷰 중복 여부 확인
     if (reviewMapper.existsByOrderItemId(reviewDTO.getOrderItemId())) {
       throw new IllegalArgumentException("이미 리뷰를 작성하셨습니다.");

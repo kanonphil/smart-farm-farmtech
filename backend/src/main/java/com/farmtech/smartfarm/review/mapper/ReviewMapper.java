@@ -51,4 +51,14 @@ public interface ReviewMapper {
   /** 리뷰 노출 상태 변경 (VISIBLE ↔ BLINDED) */
   void updateReviewStatus(@Param("reviewId") int reviewId, @Param("status") String status);
 
+  /**
+   * ORDER_ITEM_ID가 해당 회원의 구매 확정(DONE) 주문에 속하는지 검증
+   *
+   * @param orderItemId 검증할 주문 상품 ID
+   * @param memberId    요청 회원 ID
+   * @return 본인의 DONE 주문 상품이면 true
+   */
+  boolean isOrderItemOwnedByMember(@Param("orderItemId") int orderItemId,
+                                   @Param("memberId") int memberId);
+
 }
