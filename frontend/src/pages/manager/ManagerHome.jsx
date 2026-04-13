@@ -6,6 +6,7 @@ import CustomBarChart from './CustomBarChart.jsx'
 import CustomPieChart from './CustomPieChart.jsx'
 import CustomHorizontalBarChart from './CustomHorizontalBarChart.jsx'
 import { MdAttachMoney, MdEmojiEvents, MdListAlt, MdPeople, MdPersonAdd, MdShoppingCart, MdShowChart, MdStorefront } from 'react-icons/md'
+import LoadingSpinner from '../../components/common/LoadingSpinner.jsx'
 
 const ManagerHome = () => {
   // 금일, 전일 회원 수 저장 state 변수
@@ -152,13 +153,7 @@ const ManagerHome = () => {
     totalQty: item.totalQty,
   }))
 
-  if (loading) return (
-    <div className={styles.container}>
-      <div className={styles.loadingWrap}>
-        <div className={styles.spinner} />
-      </div>
-    </div>
-  )
+  if (loading) return <LoadingSpinner />
 
   return (
     <div className={styles.container}>

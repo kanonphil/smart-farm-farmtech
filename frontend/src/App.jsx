@@ -33,6 +33,7 @@ import SensorChart from "./pages/manager/SensorChart"
 import AlertModal from "./components/common/AlertModal"
 import Toast from './components/common/Toast'
 import { connectNotificationStream, getUnreadNotifications } from "./api/notificationApi"
+import RequireAuth from './components/common/RequireAuth'
 
 
 function App() {
@@ -99,8 +100,8 @@ function App() {
           <Route path="about" element={<About/>}/>
           <Route path='products' element={<ProductList />} />
           <Route path='products/:productId' element={<ProductDetail/>}/>
-          <Route path="cart" element={<Cart/>}/>
-          <Route path="order" element={<Order/>}/>
+          <Route path="cart" element={<RequireAuth><Cart/></RequireAuth>}/>
+          <Route path="order" element={<RequireAuth><Order/></RequireAuth>}/>
           <Route path="find-account" element={<FindAccount />} />
           <Route path="ai-chef" element={<AiChef/>} />
           <Route path="user-reviews" element={<UserReview/>} />
@@ -126,7 +127,7 @@ function App() {
         </Route>
 
         {/* 결제 페이지 (test) */}
-        <Route path="/payment" element={<BasicLayout />}>
+        <Route path="/payment" element={<RequireAuth><BasicLayout /></RequireAuth>}>
           <Route index element={<Payments />} />
           <Route path="success" element={<PaymentSuccess />} />
           <Route path="fail" element={<PaymentFail />} />
