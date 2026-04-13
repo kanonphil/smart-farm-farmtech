@@ -22,4 +22,11 @@ public class ReviewDTO {
   private int productPrice;
   private String imageUrl;
   private String imageSavedName;
+
+  // 리뷰 노출 상태 (VISIBLE: 정상, BLINDED: 블라인드)
+  private String status;
+
+  // AI 분석 등급 (DB 저장 안함, 분석 결과 응답 전용)
+  // CLEAN / SUSPICIOUS / TOXIC
+  private String aiLabel;
 }

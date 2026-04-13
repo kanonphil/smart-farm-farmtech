@@ -1,0 +1,145 @@
+.container {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 정렬 버튼 그룹 */
+.sortWrap {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.sortBtn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.sortBtn:hover {
+  color: #1e293b;
+}
+
+.sortActive {
+  background: #fff;
+  color: #1e293b;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* AI 분석 버튼 */
+.analyzeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.analyzeBtn:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.analyzeBtn:disabled {
+  background: #a78bfa;
+  cursor: not-allowed;
+}
+
+/* 내용 말줄임 */
+.content {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left !important;
+}
+
+/* 블라인드 처리된 행 */
+.blinded td {
+  opacity: 0.4;
+}
+
+/* 상태 뱃지 */
+.statusVisible {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.statusBlinded {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* AI 등급 뱃지 */
+.label {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.labelClean      { background: #dcfce7; color: #16a34a; }
+.labelSuspicious { background: #fef9c3; color: #ca8a04; }
+.labelToxic      { background: #fee2e2; color: #dc2626; }
+
+/* 관리 버튼 */
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.blindBtn,
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.15s;
+}
+
+.blindBtn           { background: #f1f5f9; color: #475569; }
+.blindBtn:hover     { background: #e2e8f0; }
+.deleteBtn          { background: #fee2e2; color: #dc2626; }
+.deleteBtn:hover    { background: #fecaca; }
