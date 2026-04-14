@@ -143,4 +143,36 @@ public class GeminiReviewService {
             .filter(r -> r.getAiLabel() == null)
             .forEach(r -> r.setAiLabel("CLEAN"));
   }
+
+  /**
+   * 리뷰 내용과 별점을 분석하여 매니저 답글 초안을 생성한다.
+   *
+   * @param rating  리뷰 별점 (1~5)
+   * @param content 리뷰 내용
+   * @return 매니저 답글 초안 문자열
+   */
+  public String generateReplyDraft(int rating, String content) {
+    String prompt = buildReplyPrompt(rating, content);
+    return geminiClient.generateContent(prompt);
+  }
+
+  private String buildReplyPrompt(int rating, String content) {
+    return """
+            당신은 스마트팜 쇼핑몰의 친절한 고객 응대 담당자입니다.
+            아래 고객 리뷰에 대한 매니저 답글 초안을 작성해주세요.
+
+            [규칙]
+            - 별점 4~5점: 감사 인사 위주, 따뜻하고 밝은 톤
+            - 별점 3점: 이용해주셔서 감사하며 개선하겠다는 톤
+            - 별점 1~2점: 불편을 드려 죄송하다는 사과 + 개선 의지, 공감하는 톤
+            - 2~3문장, 간결하게
+            - 특정 보상(환불, 쿠폰 등) 약속 금지
+            - 답글 텍스트만 출력 (제목, 설명 없이)
+
+            [리뷰]
+            별점: %d점
+            내용: %s
+            """.formatted(rating, content);
+  }
+
 }

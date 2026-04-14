@@ -2,8 +2,10 @@ import { useEffect, useState, useMemo } from 'react'
 import styles from './ReviewManage.module.css'
 import useAuthStore from '../../store/authStore'
 import { axiosInstance } from '../../api/axiosInstance'
-import { MdAutoAwesome, MdDelete, MdVisibility, MdVisibilityOff } from 'react-icons/md'
+import { MdAutoAwesome, MdDelete, MdReply, MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import Table from '../../components/common/Table'
+import { getReplyByReviewId, saveReply, deleteReply, generateReplyDraft } from '../../api/reviewApi'
+import Modal from '../../components/common/Modal'
 
 /**
  * 매니저 리뷰 관리 페이지
@@ -17,6 +19,10 @@ const ReviewManage = () => {
 
   /** 전체 리뷰 목록 */
   const [reviews, setReviews] = useState([])
+  /** 답글 모달 상태 */
+  const [replyModal, setReplyModal] = useState({ open: false, review: null, replyId: null, content: '' })
+  /** AI 초안 생성 중 여부 */
+  const [drafting, setDrafting] = useState(false)
   /** AI 분석 요청 중 여부 */
   const [analyzing, setAnalyzing] = useState(false)
   /** 정렬 기준: 'date' | 'aiLabel' */
@@ -95,6 +101,61 @@ const ReviewManage = () => {
     }
   }
 
+  /** 답글 모달 열기 - 기존 답글 조회 후 표시 */
+  const handleOpenReply = async (review) => {
+    try {
+      const res = await getReplyByReviewId(review.reviewId)
+      const existing = res.data
+      setReplyModal({
+        open: true,
+        review,
+        replyId: existing?.replyId ?? null,
+        content: existing?.content ?? '',
+      })
+    } catch (error) {
+      showAlert('답글 정보를 불러오지 못했습니다.')
+    }
+    
+  }
+
+  /** 답글 저장 */
+  const handleSaveReply = async () => {
+    try {
+      await saveReply(replyModal.review.reviewId, replyModal.content)
+      setReplyModal({ open: false, review: null, replyId: null, content: '' })
+    } catch {
+      showAlert('답글 저장에 실패했습니다.')
+    }
+  }
+
+  /** 답글 삭제 */
+  const handleDeleteReply = async () => {
+    try {
+      await deleteReply(replyModal.review.reviewId, replyModal.replyId)
+      setReplyModal({ open: false, review: null, replyId: null, content: '' })
+    } catch {
+      showAlert('답글 삭제에 실패했습니다.')
+    }
+  }
+
+  /** Gemini AI 초안 생성 */
+  const handleDraft = async () => {
+    setDrafting(true)
+    try {
+      const res = await generateReplyDraft(
+        replyModal.review.reviewId,
+        replyModal.review.rating,
+        replyModal.review.content
+      )
+      setReplyModal(prev => ({ ...prev, content: res.data.draft }))
+    } catch {
+      showAlert('AI 초안 생성 중 오류가 발생했습니다.')
+    } finally {
+      setDrafting(false)
+    }
+  }
+
+
   /** AI 등급 뱃지 */
   const labelBadge = (label) => {
     if (!label) return '-'
@@ -116,6 +177,7 @@ const ReviewManage = () => {
     { label: '날짜',    style: { width: '100px' } },
     { label: '상태',    style: { width: '80px'  } },
     { label: 'AI 등급', style: { width: '80px'  } },
+    { label: '답글',    style: { width: '60px'  } },
     { label: '관리',    style: { width: '80px'  } },
   ]]
 
@@ -133,6 +195,15 @@ const ReviewManage = () => {
         </span>
       </td>
       <td>{labelBadge(review.aiLabel)}</td>
+      <td>
+        <button
+          className={styles.replyBtn}
+          onClick={() => handleOpenReply(review)}
+          title='답글'
+        >
+          <MdReply />
+        </button>
+      </td>
       <td>
         <div className={styles.actions}>
           <button
@@ -198,6 +269,57 @@ const ReviewManage = () => {
         getRowClass={getRowClass}
         emptyMessage='리뷰가 없습니다.'
       />
+
+      {replyModal.open && (
+        <Modal
+          isOpen={true}
+          onClose={() => setReplyModal({ open: false, review: null, replyId: null, content: '' })}
+          width="520px"
+        >
+          <div className={styles.replyModal}>
+            <h3 className={styles.replyTitle}>매니저 답글</h3>
+
+            {/* 원본 리뷰 요약 */}
+            <div className={styles.replyReviewBox}>
+              <span className={styles.replyProductName}>{replyModal.review?.productName}</span>
+              <span className={styles.replyStars}>
+                {'★'.repeat(replyModal.review?.rating)}{'☆'.repeat(5 - replyModal.review?.rating)}
+              </span>
+              <p className={styles.replyReviewContent}>{replyModal.review?.content}</p>
+            </div>
+
+            {/* 답글 입력 */}
+            <textarea
+              className={styles.replyTextarea}
+              value={replyModal.content}
+              onChange={e => setReplyModal(prev => ({ ...prev, content: e.target.value }))}
+              placeholder="답글을 입력하세요..."
+              rows={4}
+            />
+
+            {/* 버튼 영역 */}
+            <div className={styles.replyFooter}>
+              <button className={styles.draftBtn} onClick={handleDraft} disabled={drafting}>
+                <MdAutoAwesome />
+                {drafting ? 'AI 초안 생성 중...' : 'AI 초안 생성'}
+              </button>
+              <div className={styles.replyBtns}>
+                {replyModal.replyId && (
+                  <button className={styles.deleteBtn} onClick={handleDeleteReply}>삭제</button>
+                )}
+                <button
+                  className={styles.saveBtn}
+                  onClick={handleSaveReply}
+                  disabled={!replyModal.content.trim()}
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
+
     </div>
   )
 }
