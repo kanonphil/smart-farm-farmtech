@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import styles from './ReviewManage.module.css'
 import useAuthStore from '../../store/authStore'
 import { axiosInstance } from '../../api/axiosInstance'
-import { MdAutoAwesome, MdDelete, MdReply, MdVisibility, MdVisibilityOff } from 'react-icons/md'
+import { MdAutoAwesome, MdDelete,  MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import Table from '../../components/common/Table'
 import { getReplyByReviewId, saveReply, deleteReply, generateReplyDraft } from '../../api/reviewApi'
 import Modal from '../../components/common/Modal'
@@ -122,6 +122,10 @@ const ReviewManage = () => {
   const handleSaveReply = async () => {
     try {
       await saveReply(replyModal.review.reviewId, replyModal.content)
+      // 저장 후 해당 리뷰 hasReply → true 반영
+      setReviews(prev => prev.map(r =>
+        r.reviewId === replyModal.review.reviewId ? { ...r, hasReply: true } : r
+      ))
       setReplyModal({ open: false, review: null, replyId: null, content: '' })
     } catch {
       showAlert('답글 저장에 실패했습니다.')
@@ -132,6 +136,10 @@ const ReviewManage = () => {
   const handleDeleteReply = async () => {
     try {
       await deleteReply(replyModal.review.reviewId, replyModal.replyId)
+      // 삭제 후 해당 리뷰 hasReply → false 반영
+      setReviews(prev => prev.map(r =>
+        r.reviewId === replyModal.review.reviewId ? { ...r, hasReply: false } : r
+      ))
       setReplyModal({ open: false, review: null, replyId: null, content: '' })
     } catch {
       showAlert('답글 삭제에 실패했습니다.')
@@ -197,13 +205,14 @@ const ReviewManage = () => {
       <td>{labelBadge(review.aiLabel)}</td>
       <td>
         <button
-          className={styles.replyBtn}
+          className={`${styles.replyBtn} ${review.hasReply ? styles.replyBtnHas : ''}`}
           onClick={() => handleOpenReply(review)}
-          title='답글'
+          title={review.hasReply ? '답글 수정' : '답글 작성'}
         >
-          <MdReply />
+          {review.hasReply ? '수정' : '작성'}
         </button>
       </td>
+
       <td>
         <div className={styles.actions}>
           <button

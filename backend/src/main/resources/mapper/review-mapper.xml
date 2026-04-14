@@ -18,6 +18,8 @@
         <result column="MEMBER_NAME" property="memberName" />
         <result column="IMAGE_SAVED_NAME" property="imageSavedName" />
         <result column="STATUS" property="status" />
+        <result column="HAS_REPLY" property="hasReply" />
+        <result column="AI_LABEL" property="aiLabel" />
     </resultMap>
 
     <resultMap id="unreviewedItemMap" type="com.farmtech.smartfarm.review.dto.UnreviewedItemDTO">
@@ -196,7 +198,7 @@
         WHERE PRODUCT_ID = #{productId}
     </select>
 
-    <!-- 매니저 전체 리뷰 목록 조회 -->
+    <!-- 매니저 전체 리뷰 목록 조회 - hasReply 포함 -->
     <select id="getAllReviewsForManager" resultMap="reviewMap">
         SELECT
             r.REVIEW_ID,
@@ -207,14 +209,18 @@
             r.CONTENT,
             r.CREATED_AT,
             r.STATUS,
+            r.AI_LABEL,
             m.MEMBER_NAME,
             p.PRODUCT_NAME,
-            r.IMAGE_URL
+            r.IMAGE_URL,
+            CASE WHEN rr.REPLY_ID IS NOT NULL THEN TRUE ELSE FALSE END AS HAS_REPLY
         FROM REVIEW r
                  JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
                  JOIN PRODUCT p ON r.PRODUCT_ID = p.PRODUCT_ID
+                 LEFT JOIN REVIEW_REPLY rr ON r.REVIEW_ID = rr.REVIEW_ID
         ORDER BY r.CREATED_AT DESC
     </select>
+
 
     <!-- 매니저 권한 리뷰 삭제 (memberId 검증 없음) -->
     <delete id="deleteReviewByManager">
@@ -226,6 +232,20 @@
     <update id="updateReviewStatus">
         UPDATE REVIEW
         SET STATUS = #{status}
+        WHERE REVIEW_ID = #{reviewId}
+    </update>
+
+    <!-- 리뷰 ID로 단건 조회 (답글 알림 발송 시 작성자 확인용) -->
+    <select id="getReviewById" resultMap="reviewMap">
+        SELECT REVIEW_ID, MEMBER_ID
+        FROM REVIEW
+        WHERE REVIEW_ID = #{reviewId}
+    </select>
+
+    <!-- AI 분석 등급 저장 -->
+    <update id="updateAiLabel">
+        UPDATE REVIEW
+        SET AI_LABEL = #{aiLabel}
         WHERE REVIEW_ID = #{reviewId}
     </update>
 

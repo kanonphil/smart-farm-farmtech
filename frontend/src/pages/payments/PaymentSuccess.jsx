@@ -8,7 +8,7 @@ import useAuthStore from '../../store/authStore'
 const PaymentSuccess = () => {
   const navigate = useNavigate()
   const [countdown, setCountdown] = useState(3)
-  const { showAlert } = useAuthStore()
+  const { showAlert, setCartCount } = useAuthStore()
   
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -39,6 +39,7 @@ const PaymentSuccess = () => {
         if (cartItemIds.length > 0) {
           await deleteItem(cartItemIds)
           sessionStorage.removeItem('pendingCartItemIds')
+          setCartCount(0)
         }
       }
     } catch (error) {
