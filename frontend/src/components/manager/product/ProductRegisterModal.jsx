@@ -5,6 +5,7 @@ import Button from '../../common/Button'
 import Select from '../../common/Select'
 import styles from '../../../pages/manager/ProductRegister.module.css'
 import Textarea from '../../common/Textarea'
+import { uploadImageToS3 } from '../../../api/product/upload'
 
 /**
  * 상품 등록 모달 컴포넌트
@@ -114,18 +115,16 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
   const regProducts = async () => {
     if (!validate()) return
 
-    const regForm = new FormData()
-    Object.entries(productData).forEach(([k, v]) => regForm.append(k, v))
-    regForm.append('mainImg', mainImg)
-    if (detailImg) regForm.append('detailImg', detailImg)
-    subImgs.forEach(img => regForm.append('subImgs', img))
-
     try {
-      const response = await regProductAPI(regForm)
-      if (response.status === 201) {
-        resetForm()
-        onSuccess() // 부모 목록 갱신
-        onClose()   // 모달 닫기
+      const mainImgUrl = await uploadImageToS3(mainImg);
+      const subImgUrls = await Promise.all(subImgs.map(uploadImageToS3));
+      const detailImgUrl = detailImg ? await uploadImageToS3(detailImg) : null;
+      const response = await regProductAPI(productData,mainImgUrl,subImgUrls,detailImgUrl);
+      
+      if(response.status === 201){
+        resetForm();
+        onSuccess();
+        onClose()
       }
     } catch (error) {
       setSubmitError(true)

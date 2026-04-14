@@ -21,4 +21,7 @@ public class ProductDTO {
   private String productStatus;
   private LocalDateTime productCreatedAt;
   private List<ProductImageDTO> productImageList;
+  private String mainImgUrl;
+  private String[] subImgUrls;
+  private String detailImgUrl;
 }
