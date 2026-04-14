@@ -1,13 +1,18 @@
+import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
+import { uploadImageToS3 } from "./upload";
 
 //상품 등록 api
-export const regProductAPI = async(productData) => {
-  try{
-    const response = await axiosInstance.post('/products', productData)
-    return response;
-  } catch(e) {
-    console.log('상품 등록 axios 오류',e);
-  }
+export const regProductAPI = async(productData,mainImgUrl,subImgUrl,detailImgUrl) => {
+  console.log(productData)
+  console.log(mainImgUrl)
+
+ return axiosInstance.post('/products',{
+  ...productData,
+  mainImgUrl,
+  subImgUrl,
+  detailImgUrl
+ })
 }
 
 //카테고리 조회 api

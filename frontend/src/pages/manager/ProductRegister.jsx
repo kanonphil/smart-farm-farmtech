@@ -6,6 +6,7 @@ import styles from './ProductRegister.module.css';
 import Select from '../../components/common/Select';
 import useAuthStore from '../../store/authStore';
 import PageTitle from '../../components/common/PageTitle';
+import { uploadImageToS3 } from '../../api/product/upload';
 
 /**
  * 상품 등록 페이지
@@ -16,7 +17,6 @@ import PageTitle from '../../components/common/PageTitle';
 const ProductRegister = () => {
   //카테고리 저장 데이터
   const [cateList, setCateList] = useState([]);
-  const { showAlert } = useAuthStore()
  
   //상품 저장 데이터
   const [productData,setProductData] = useState({
@@ -128,21 +128,17 @@ const ProductRegister = () => {
   const regProducts = async() => {
     if (!validate()) return
 
-    const regForm = new FormData();
-    Object.entries(productData).forEach(([k, v]) => regForm.append(k, v))
-
-    //메인 이미지 파일 정보 저장
-    regForm.append('mainImg',mainImg);
-    if (detailImg) regForm.append('detailImg',detailImg);
-    //서브 이미지 파일 정보 저장
-    subImgs.forEach(img => regForm.append('subImgs', img))
 
     try {
-      const response = await regProductAPI(regForm);
-      if (response.status === 201) {
+      const mainImgUrl = await uploadImageToS3(mainImg);
+      const subImgUrls = await Promise.all(subImgs.map(uploadImageToS3));
+      const detailImgUrl = detailImg ? await uploadImageToS3(detailImg) : null;
+
+      const response = await regProductAPI(productData,mainImgUrl,subImgUrls,detailImgUrl);
+      if(response.status === 201){
         setSubmitStatus('success')
         resetForm()
-        setTimeout(() => setSubmitStatus(null), 3000)
+        setTimeout(() => setSubmitStatus(null),3000)
       }
     } catch (error) {
       setSubmitStatus('error')
