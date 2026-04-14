@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './UserReview.module.css'
-import { getReviewRating, getReviews, getProductRating } from '../../api/reviewApi'
+import { getReviewRating, getReviews, getProductRating, getReplyByReviewId } from '../../api/reviewApi'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../../components/common/Modal';
 import Select from '../../components/common/Select';
@@ -50,6 +50,7 @@ const UserReview = () => {
   const observerRef = useRef(null);
   const loadingRef = useRef(false);
 
+  const [selectedReply, setSelectedReply] = useState(null)
 
   //페이지네이션 useEffect
   useEffect(() => {
@@ -230,8 +231,12 @@ const UserReview = () => {
             onClick={async () => {
               setSelctedReview(r);
               setProductRating(null);
-              const res = await getProductRating(r.productId);
-              setProductRating(res.data);
+              const [ratingRes, replyRes] = await Promise.all([
+                getProductRating(r.productId),
+                getReplyByReviewId(r.reviewId),   // ← 추가
+              ])
+              setProductRating(ratingRes.data);
+              setSelectedReply(replyRes.data)
             }}
           >
 
@@ -303,6 +308,14 @@ const UserReview = () => {
                 </div>
               )}
               <p className={styles.modalContent}>{selectedReview.content}</p>
+
+              {/* 매니저 답글 */}
+              {selectedReply?.content && (
+                <div className={styles.replyBox}>
+                  <span className={styles.replyLabel}>판매자 답글</span>
+                  <p className={styles.replyContent}>{selectedReply.content}</p>
+                </div>
+              )}
               <span
                 className={styles.productNameClick}
                 onClick={() => nav(`/products/${selectedReview.productId}`)}

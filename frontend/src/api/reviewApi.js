@@ -88,3 +88,27 @@ export const getProductRating = async(productId) => {
   const response = await axiosInstance.get('reviews/all', { params: { productId } })
   return response;
 }
+
+/** 답글 조회 */
+export const getReplyByReviewId = async (reviewId) => {
+  const response = await axiosInstance.get(`/reviews/${reviewId}/reply`)
+  return response
+}
+
+/** 답글 등록/수정 */
+export const saveReply = async (reviewId, content) => {
+  const response = await axiosInstance.post(`/reviews/${reviewId}/reply`, { content })
+  return response
+}
+
+/** 답글 삭제 */
+export const deleteReply = async (reviewId, replyId) => {
+  const response = await axiosInstance.delete(`/reviews/${reviewId}/reply/${replyId}`)
+  return response
+}
+
+/** AI 답글 초안 생성 */
+export const generateReplyDraft = async (reviewId, rating, content) => {
+  const response = await axiosInstance.post(`/reviews/${reviewId}/reply/draft`, { rating, content })
+  return response
+}

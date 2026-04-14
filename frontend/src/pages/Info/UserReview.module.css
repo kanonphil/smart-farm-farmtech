@@ -442,3 +442,16 @@
   line-height: 1.7;
   margin: 0;
 }
+
+.replyBox {
+  background: #f0fdf4;
+  border-left: 3px solid #16a34a;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+.replyLabel { font-size: 12px; font-weight: 700; color: #16a34a; }
+.replyContent { font-size: 14px; color: #374151; margin: 0; line-height: 1.5; }

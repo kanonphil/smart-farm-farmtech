@@ -103,7 +103,7 @@
         SELECT ORDER_ID
         FROM ORDERS
         WHERE ORDER_STATUS = 'READY'
-        AND ORDER_CREATED_AT &lt; ${threshold}
+        AND ORDER_CREATED_AT &lt; #{threshold}
     </select>
 
     <!-- 만료된 READY 주문 삭제 -->

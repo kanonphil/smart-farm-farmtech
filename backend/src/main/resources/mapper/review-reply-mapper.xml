@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<!-- namespace에는 xml파일과 연결할 Mapper interface 파일명을 패키지를 포함하여 적어주세요 -->
+<mapper namespace="com.farmtech.smartfarm.review.mapper.ReviewReplyMapper">
+
+    <resultMap id="replyResultMap" type="com.farmtech.smartfarm.review.dto.ReviewReplyDTO">
+        <id     property="replyId"   column="REPLY_ID"/>
+        <result property="reviewId"  column="REVIEW_ID"/>
+        <result property="content"   column="CONTENT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+    </resultMap>
+
+    <!-- 답글 등록 -->
+    <insert id="insertReply" useGeneratedKeys="true" keyProperty="replyId">
+        INSERT INTO REVIEW_REPLY (REVIEW_ID, CONTENT)
+        VALUES (#{reviewId}, #{content})
+    </insert>
+
+    <!-- 답글 수정 -->
+    <update id="updateReply">
+        UPDATE REVIEW_REPLY
+        SET CONTENT = #{content}
+        WHERE REPLY_ID = #{replyId}
+    </update>
+
+    <!-- 답글 삭제 -->
+    <delete id="deleteReply">
+        DELETE FROM REVIEW_REPLY
+        WHERE REPLY_ID = #{replyId}
+    </delete>
+
+    <!-- 리뷰 ID로 답글 조회 -->
+    <select id="getReplyByReviewId" resultMap="replyResultMap">
+        SELECT REPLY_ID, REVIEW_ID, CONTENT, CREATED_AT, UPDATED_AT
+        FROM REVIEW_REPLY
+        WHERE REVIEW_ID = #{reviewId}
+    </select>
+
+</mapper>

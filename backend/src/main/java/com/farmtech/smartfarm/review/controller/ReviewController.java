@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reviews")
@@ -159,25 +160,38 @@ public class ReviewController {
   /**
    * 리뷰 AI 분석 요청 API (매니저 전용)
    *
-   * 전체 리뷰를 Gemini에 전달하여 CLEAN/SUSPICIOUS/TOXIC 등급을 반환한다.
-   * TOXIC 판정된 리뷰는 자동으로 블라인드 처리된다.
+   * aiLabel이 NULL인 미분석 리뷰만 Gemini에 전달하여 등급을 분석하고 DB에 저장한다.
+   * 이미 분석된 리뷰는 건너뛰어 불필요한 API 호출을 방지한다.
+   * TOXIC 판정 리뷰는 자동으로 블라인드 처리된다.
    *
    * @return aiLabel 및 status가 반영된 전체 리뷰 목록
    */
   @PostMapping("/manager/analyze")
   public ResponseEntity<List<ReviewDTO>> analyzeReviews() {
-    List<ReviewDTO> reviews = reviewService.getAllReviewsForManager();
-    List<ReviewDTO> analyzed = geminiReviewService.analyzeReviews(reviews);
+    // 1. 전체 리뷰 조회 (DB에 저장된 aiLabel 포함)
+    List<ReviewDTO> allReviews = reviewService.getAllReviewsForManager();
 
-    // TOXIC 판정 리뷰 자동 블라인드 처리
-    analyzed.stream()
-            .filter(r -> "TOXIC".equals(r.getAiLabel()))
-            .forEach(r -> {
-              reviewService.updateReviewStatus(r.getReviewId(), "BLINDED");
-              r.setStatus("BLINDED");  // 응답에도 반영
-            });
+    // 2. aiLabel이 없는 미분석 리뷰만 필터링
+    List<ReviewDTO> unanalyzed = allReviews.stream()
+            .filter(r -> r.getAiLabel() == null)
+            .collect(Collectors.toList());
 
-    return ResponseEntity.ok(analyzed);
+    if (!unanalyzed.isEmpty()) {
+      // 3. 미분석 리뷰만 Gemini 분석
+      geminiReviewService.analyzeReviews(unanalyzed);
+
+      // 4. 분석 결과 DB 저장 + TOXIC 자동 블라인드
+      unanalyzed.forEach(r -> {
+        reviewService.updateAiLabel(r.getReviewId(), r.getAiLabel());
+        if ("TOXIC".equals(r.getAiLabel())) {
+          reviewService.updateReviewStatus(r.getReviewId(), "BLINDED");
+          r.setStatus("BLINDED");
+        }
+      });
+    }
+
+    return ResponseEntity.ok(allReviews);
   }
+
 
 }

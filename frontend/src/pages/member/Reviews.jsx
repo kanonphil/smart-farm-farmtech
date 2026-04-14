@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Reviews.module.css'
-import { deleteReview, getMyReviews, getUnreviewedItems, insertReview, updateReview } from '../../api/reviewApi'
-import { useNavigate } from 'react-router-dom'
+import { deleteReview, getMyReviews, getReplyByReviewId, getUnreviewedItems, insertReview, updateReview } from '../../api/reviewApi'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Input from '../../components/common/Input'
 import useAuthStore from '../../store/authStore'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
@@ -10,6 +10,7 @@ import Button from '../../components/common/Button'
 const Reviews = () => {
   const nav = useNavigate();
   const { token, showAlert } = useAuthStore() 
+  const [searchParams] = useSearchParams()
 
   //조회 시작 날짜 저장변수
   const[startDate, setStartDate] = useState('')
@@ -18,7 +19,7 @@ const Reviews = () => {
   //현재 액티브되고있는 날짜버튼 저장변수
   const[activeBtn, setActiveBtn] = useState(30)
   //현재 액티브되고있는 탭 저장 변수
-  const [activeTab, setActiveTab] = useState('unwritten')
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'unwritten')
   //열린 아코디언 id
   const [openId, setOpenId] = useState(null)
   // 미작성 리뷰 목록
@@ -37,8 +38,12 @@ const Reviews = () => {
   // 수정 시 이미지 편집,프리뷰
   const [editImage,setEditImage] = useState();
   const [editPreview,setEditPreview] = useState();
-
-
+  // 작성완료 리뷰별 답글 저장 { [reviewId]: replyContent }
+  const [replyMap, setReplyMap] = useState({})
+  // 알림으로 진입 시 하이라이트할 reviewId
+  const [highlightId, setHighlightId] = useState(
+    Number(searchParams.get('reviewId')) || null
+  )
 
   //버튼 클릭 시 날짜변경
   const handlePeriod = (days) => {
@@ -58,6 +63,20 @@ const Reviews = () => {
     ])
     setUnwrittenList(unreviewed.data)
     setWrittenList(myReviews.data)
+
+    // 작성완료 리뷰 답글 일괄 조회
+    const replies = await Promise.all(
+      myReviews.data.map(r => 
+        getReplyByReviewId(r.reviewId).catch(() => null)
+      )
+    )
+    const map = {}
+    myReviews.data.forEach((r, i) => {
+      if (replies[i]?.data?.content) {
+        map[r.reviewId] = replies[i].data.content
+      }
+    })
+    setReplyMap(map)
   }
 
   // 렌더링 시 기간 1개월로 설정
@@ -69,13 +88,31 @@ const Reviews = () => {
   useEffect(() => {
     if (startDate && endDate && token) fetchData()
   }, [startDate, endDate, token])
+
+  // searchParams 변경 시 탭 전환 (알림 클릭으로 이동 시)
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const reviewId = searchParams.get('reviewId')
+    if (tab) setActiveTab(tab)
+    if (reviewId) setHighlightId(Number(reviewId))
+  }, [searchParams])
   
   // 아코디언 열기/닫기 (같은 항목 클릭 시 닫힘)
-  const handleAccordion = (id) => {
+  const handleAccordion = async (id, isWritten = false) => {
     setOpenId(prev => prev === id ? null : id)
     setReviewForm({ rating: 0, content: '' })
     setReviewImage(null)
     setPreview(null)
+
+    // 작성완료 탭에서 아코디언 열 때만 답글 조회
+    if (isWritten && !replyMap[id]) {
+      try {
+        const res = await getReplyByReviewId(id)
+        if (res.data?.content) {
+          setReplyMap(prev => ({ ...prev, [id]: res.data.content }))
+        }
+      } catch { /* 답글 없으면 무시 */ }
+    }
   }
 
   /** 리뷰 등록 */
@@ -228,14 +265,27 @@ const Reviews = () => {
         <div className={styles.list}>
           {writtenList.length === 0 && <p className={styles.empty}>작성된 리뷰가 없습니다.</p>}
           {writtenList.map(item => (
-            <div key={item.reviewId} className={`${styles.accordion_item} ${openId === item.reviewId ? styles.accordion_open : ''}`}>
-              <div className={styles.accordion_header} onClick={() => handleAccordion(item.reviewId)}>
+            <div
+              key={item.reviewId}
+              className={`
+                ${styles.accordion_item}
+                ${openId === item.reviewId ? styles.accordion_open : ''}
+                ${highlightId === item.reviewId ? styles.accordion_hasReply : ''}
+              `}
+            >
+              <div className={styles.accordion_header} onClick={() => handleAccordion(item.reviewId, true)}>
                 {item.imageUrl && <img src={item.imageUrl} className={styles.product_thumb} />}
                 <div className={styles.header_info}>
                   <p className={styles.product_name}>{item.productName}</p>
                   <p className={styles.order_date}>{item.createdAt?.split('T')[0]}</p>
                 </div>
                 <div className={styles.header_rating}>{'★'.repeat(item.rating)}</div>
+
+                {/* 답글 뱃지 */}
+                {replyMap[item.reviewId] && (
+                  <span className={styles.replyBadge}>답글</span>
+                )}
+
                 {openId === item.reviewId ? <MdExpandLess size={20} className={styles.chevron} /> : <MdExpandMore size={20} className={styles.chevron} />}
               </div>
 
@@ -280,6 +330,15 @@ const Reviews = () => {
                     /* 조회 모드 */
                     <>
                       <p className={styles.review_content}>{item.content}</p>
+
+                      {/* 판매자 답글 */}
+                      {replyMap[item.reviewId] && (
+                        <div className={styles.replyBox}>
+                          <span className={styles.replyLabel}>판매자 답글</span>
+                          <p className={styles.replyContent}>{replyMap[item.reviewId]}</p>
+                        </div>
+                      )}
+
                       <div className={styles.btn_row}>
                         <Button size='small' variant='secondary' onClick={() => { setEditId(item.reviewId); setEditForm({ rating: item.rating, content: item.content }) }}>수정</Button>
                         <Button size='small' variant='danger' onClick={() => handleDelete(item.reviewId)}>삭제</Button>

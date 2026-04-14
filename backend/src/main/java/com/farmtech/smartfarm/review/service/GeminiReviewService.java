@@ -28,32 +28,71 @@ public class GeminiReviewService {
   private final GeminiClient geminiClient;
   private final ObjectMapper objectMapper;
 
+  /** 한 번에 Gemini에 보낼 리뷰 수 */
+  private static final int CHUNK_SIZE = 5;
+  /** 청크 사이 대기 시간 (ms) - RPM 제한 회피 */
+  private static final int CHUNK_DELAY_MS = 10000;
+  /** 429 등 오류 발생 시 최대 재시도 횟수 */
+  private static final int MAX_RETRY = 3;
+  /** 재시도 기본 대기 시간 (ms) - 지수 백오프 기준값 */
+  private static final int RETRY_DELAY_MS = 60000;
+
   /**
    * 리뷰 목록에 AI 분석 등급(aiLabel)을 설정한다.
    *
-   * Gemini에 리뷰 내용을 전달하고 각 reviewId에 대한
-   * CLEAN / SUSPICIOUS / TOXIC 등급을 받아 DTO에 주입한다.
-   * Gemini 호출 실패 시 전체 리뷰를 CLEAN으로 처리한다.
+   * 리뷰를 CHUNK_SIZE개씩 분할하여 순차 호출하고,
+   * 각 청크 실패 시 지수 백오프 재시도(최대 MAX_RETRY회)를 수행한다.
+   * 최종 실패한 청크는 전체 CLEAN으로 처리한다.
    *
    * @param reviews 분석할 리뷰 목록
-   * @return aiLabel이 설정된 리뷰 목록
    */
-  public List<ReviewDTO> analyzeReviews(List<ReviewDTO> reviews) {
-    if (reviews == null || reviews.isEmpty()) return reviews;
+  public void analyzeReviews(List<ReviewDTO> reviews) {
+    if (reviews == null || reviews.isEmpty()) return;
 
-    try {
-      String prompt = buildPrompt(reviews);
-      log.info("[GeminiReview] 리뷰 분석 요청 - {}건", reviews.size());
-      String rawText = geminiClient.generateContent(prompt);
-      applyLabels(reviews, rawText);
-      log.info("[GeminiReview] 리뷰 분석 완료");
-    } catch (Exception e) {
-      log.warn("[GeminiReview] Gemini 호출 실패, 전체 CLEAN 처리: {}", e.getMessage());
-      // 실패 시 전체 CLEAN으로 기본값 설정
-      reviews.forEach(r -> r.setAiLabel("CLEAN"));
+    log.info("[GeminiReview] 리뷰 분석 요청 - {}건 (청크: {}개씩)", reviews.size(), CHUNK_SIZE);
+
+    for (int i = 0; i < reviews.size(); i += CHUNK_SIZE) {
+      List<ReviewDTO> chunk = reviews.subList(i, Math.min(i + CHUNK_SIZE, reviews.size()));
+      analyzeChunkWithRetry(chunk, i / CHUNK_SIZE + 1);
+
+      // 마지막 청크가 아니면 RPM 제한 회피를 위해 대기
+      if (i + CHUNK_SIZE < reviews.size()) {
+        try { Thread.sleep(CHUNK_DELAY_MS); } catch (InterruptedException ignored) {}
+      }
     }
 
-    return reviews;
+    log.info("[GeminiReview] 리뷰 분석 완료");
+  }
+
+  /**
+   * 단일 청크를 분석하고, 실패 시 지수 백오프 재시도한다.
+   * MAX_RETRY 초과 시 해당 청크만 CLEAN으로 처리한다.
+   *
+   * @param chunk   분석할 리뷰 청크
+   * @param chunkNo 로그용 청크 번호
+   */
+  private void analyzeChunkWithRetry(List<ReviewDTO> chunk, int chunkNo) {
+    for (int attempt = 1; attempt <= MAX_RETRY; attempt++) {
+      try {
+        String prompt = buildPrompt(chunk);
+        String rawText = geminiClient.generateContentForReview(prompt);
+        applyLabels(chunk, rawText);
+        log.info("[GeminiReview] 청크 {} 분석 완료", chunkNo);
+        return; // 성공 시 즉시 종료
+      } catch (Exception e) {
+        log.warn("[GeminiReview] 청크 {} 실패 (시도 {}/{}): {}", chunkNo, attempt, MAX_RETRY, e.getMessage());
+        if (attempt < MAX_RETRY) {
+          // 지수 백오프: 2초 → 4초 → 8초
+          long delay = (long) RETRY_DELAY_MS * (1L << (attempt - 1));
+          log.info("[GeminiReview] {}ms 후 재시도...", delay);
+          try { Thread.sleep(delay); } catch (InterruptedException ignored) {}
+        } else {
+          // 최종 실패 시 해당 청크만 CLEAN 처리
+          log.warn("[GeminiReview] 청크 {} 최종 실패, CLEAN 처리", chunkNo);
+          chunk.forEach(r -> r.setAiLabel("CLEAN"));
+        }
+      }
+    }
   }
 
   /**
@@ -89,8 +128,8 @@ public class GeminiReviewService {
     sb.append("  - 상품을 빙자한 악성 민원성 공격\n\n");
 
     sb.append("[중요 원칙]\n");
-    sb.append("- 부정적인 상품 평가는 CLEAN이다. 부정적 = 유해가 아니다.\n");
-    sb.append("- 욕설이나 도배가 없으면 TOXIC이나 SUSPICIOUS로 분류하지 마라.\n");
+    sb.append("- 부정적인 상품 평가(배송 불만, 맛 불만 등)는 CLEAN이다. 부정 = 유해가 아니다.\n");
+    sb.append("- 욕설·비속어·혐오 표현이 포함되면 반드시 TOXIC으로 분류해라.\n");
     sb.append("- 짧아도 진짜 경험으로 보이면 CLEAN이다.\n\n");
 
     sb.append("[리뷰 목록]\n");
@@ -111,6 +150,7 @@ public class GeminiReviewService {
    * @param rawText  Gemini 응답 원문
    */
   private void applyLabels(List<ReviewDTO> reviews, String rawText) throws Exception {
+    log.info("[GeminiReview] Gemini 원문 응답: {}", rawText);
     // reviewId → ReviewDTO 맵 생성
     Map<Integer, ReviewDTO> reviewMap = reviews.stream()
             .collect(Collectors.toMap(ReviewDTO::getReviewId, r -> r));
@@ -143,4 +183,36 @@ public class GeminiReviewService {
             .filter(r -> r.getAiLabel() == null)
             .forEach(r -> r.setAiLabel("CLEAN"));
   }
+
+  /**
+   * 리뷰 내용과 별점을 분석하여 매니저 답글 초안을 생성한다.
+   *
+   * @param rating  리뷰 별점 (1~5)
+   * @param content 리뷰 내용
+   * @return 매니저 답글 초안 문자열
+   */
+  public String generateReplyDraft(int rating, String content) {
+    String prompt = buildReplyPrompt(rating, content);
+    return geminiClient.generateContentForReview(prompt);
+  }
+
+  private String buildReplyPrompt(int rating, String content) {
+    return """
+            당신은 스마트팜 쇼핑몰의 친절한 고객 응대 담당자입니다.
+            아래 고객 리뷰에 대한 매니저 답글 초안을 작성해주세요.
+
+            [규칙]
+            - 별점 4~5점: 감사 인사 위주, 따뜻하고 밝은 톤
+            - 별점 3점: 이용해주셔서 감사하며 개선하겠다는 톤
+            - 별점 1~2점: 불편을 드려 죄송하다는 사과 + 개선 의지, 공감하는 톤
+            - 2~3문장, 간결하게
+            - 특정 보상(환불, 쿠폰 등) 약속 금지
+            - 답글 텍스트만 출력 (제목, 설명 없이)
+
+            [리뷰]
+            별점: %d점
+            내용: %s
+            """.formatted(rating, content);
+  }
+
 }

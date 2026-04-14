@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Gemini API 호출 전달 클라이언트
  *
- * Gemini 2.0 Flash 모델에 텍스트 프롬프트를 전송하고
+ * Gemini 2.5 Flash 모델에 텍스트 프롬프트를 전송하고
  * 응답 텍스트를 반환한다.
  * AiChefService 및 AiService에서 공통으로 사용가능하다.
  */
@@ -21,34 +21,51 @@ import java.util.Map;
 @Component
 public class GeminiClient {
   // appication-secret.properties의 gemini.api.key 주입
-  @Value("${gemini.api.key}")
-  private String apiKey;
+  @Value("${gemini.api.key.chef}")
+  private String chefApiKey;
+
+  @Value("${gemini.api.key.review}")
+  private String reviewApiKey;
 
   // Gemini API 베이스 URL
-  private static final String GEMINI_URL =
+  private static final String GEMINI_URL_CHEF =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
+  private static final String GEMINI_URL_REVIEW =
           "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
   // HTTP 클라이언트
   private final WebClient webClient = WebClient.create();
 
   /**
-   * Gemini API에 프롬프트를 전송하고 응답 텍스트를 반환한다.
-   *
-   * @param prompt Gemini에 전달한 프롬프트 전문
-   * @return Gemini가 생성한 텍스트 응답
-   * @throws RuntimeException API 호출 실패 또는 응답 파싱 실패 시
+   * AI Chef용 Gemini API 호출
    */
   public String generateContent(String prompt) {
-    // 요청 body 구성 (Gemini API 스펙)
+    return callGemini(prompt, chefApiKey, GEMINI_URL_CHEF);
+  }
+
+  /**
+   * 리뷰 분석용 Gemini API 호출 (별도 API 키 사용)
+   */
+  public String generateContentForReview(String prompt) {
+    return callGemini(prompt, reviewApiKey, GEMINI_URL_REVIEW);
+  }
+
+  /**
+   * 공통 Gemini API 호출 내부 메서드
+   *
+   * @param prompt  전달할 프롬프트
+   * @param apiKey  사용할 API 키
+   * @return Gemini 응답 텍스트
+   */
+  private String callGemini(String prompt, String apiKey, String baseUrl) {
     Map<String, Object> body = Map.of(
             "contents", List.of(
                     Map.of("parts", List.of(Map.of("text", prompt)))
             )
     );
 
-    String url = GEMINI_URL + "?key=" + apiKey;
+    String url = baseUrl + "?key=" + apiKey;
 
-    // WebClient로 POST 요청 전송
     Map<?, ?> response = webClient.post()
             .uri(url)
             .contentType(MediaType.APPLICATION_JSON)
@@ -63,8 +80,6 @@ public class GeminiClient {
             .bodyToMono(Map.class)
             .block();
 
-    // 응답 구조에서 텍스트 추출
-    // Gemini 응답: candidates[0].content.parts[0].text
     List<?> candidates = (List<?>) response.get("candidates");
     Map<?, ?> candidate = (Map<?, ?>) candidates.get(0);
     Map<?, ?> content = (Map<?, ?>) candidate.get("content");
