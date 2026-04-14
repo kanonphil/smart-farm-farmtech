@@ -131,4 +131,14 @@ public class ReviewService {
     reviewMapper.updateReviewStatus(reviewId, status);
   }
 
+  /**
+   * AI 분석 등급 저장
+   *
+   * @param reviewId 대상 리뷰 ID
+   * @param aiLabel  분석 등급 (CLEAN / SUSPICIOUS / TOXIC)
+   */
+  public void updateAiLabel(int reviewId, String aiLabel) {
+    reviewMapper.updateAiLabel(reviewId, aiLabel);
+  }
+
 }

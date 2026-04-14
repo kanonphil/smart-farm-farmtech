@@ -26,7 +26,9 @@ public class ReviewDTO {
   // 리뷰 노출 상태 (VISIBLE: 정상, BLINDED: 블라인드)
   private String status;
 
-  // AI 분석 등급 (DB 저장 안함, 분석 결과 응답 전용)
-  // CLEAN / SUSPICIOUS / TOXIC
+  // AI 분석 등급 (DB 저장, CLEAN / SUSPICIOUS / TOXIC)
   private String aiLabel;
+
+  // 답글 존재 여부 (매니저 전체 리뷰 조회 시 포함, true: 답글 있음)
+  private boolean hasReply;
 }

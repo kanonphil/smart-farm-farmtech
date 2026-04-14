@@ -61,4 +61,10 @@ public interface ReviewMapper {
   boolean isOrderItemOwnedByMember(@Param("orderItemId") int orderItemId,
                                    @Param("memberId") int memberId);
 
+  /** 리뷰 ID로 단건 조회 (알림 발송 시 작성자 확인용) */
+  ReviewDTO getReviewById(@Param("reviewId") int reviewId);
+
+  /** AI 분석 등급 저장 */
+  void updateAiLabel(@Param("reviewId") int reviewId, @Param("aiLabel") String aiLabel);
+
 }
