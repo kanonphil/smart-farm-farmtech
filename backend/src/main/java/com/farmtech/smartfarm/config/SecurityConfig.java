@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/products/manager").hasRole("MANAGER")
                         .requestMatchers("/api/actuator/**").hasRole("MANAGER")
                         .requestMatchers("/reviews/manager/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST,   "/reviews/*/reply", "/reviews/*/reply/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/reviews/*/reply/**").hasRole("MANAGER")
 
                         // ── 로그인 필요 (일반 회원) ──────────────────
                         .requestMatchers("/carts/**").authenticated()
