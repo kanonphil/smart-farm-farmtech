@@ -24,4 +24,6 @@ public class ProductDTO {
   private String mainImgUrl;
   private String[] subImgUrls;
   private String detailImgUrl;
+  private List<Integer> deleteImgUrl;
+  private String[] newSubImgUrls;
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,44 +78,51 @@ public class ProductService {
 
   // 상품 수정
   @Transactional
-  public void updateProduct(ProductDTO productDTO,
-                            MultipartFile mainImgFile,
-                            MultipartFile[] subImgFiles,
-                            MultipartFile detailFile,
-                            List<Integer> deletedImageIds) throws IOException {
+  public void updateProduct(ProductDTO productDTO) throws IOException {
     // 텍스트 정보 항상 업데이트
     productMapper.updateProduct(productDTO);
 
     // 대표 이미지 (선택했을 때만)
-    if (mainImgFile != null && !mainImgFile.isEmpty()) {
-      ProductImageDTO mainImg = uploadUtil.fileUpload(mainImgFile);
-      mainImg.setProductId(productDTO.getProductId());
-      mainImg.setImageType("MAIN");
-      productMapper.updateProductImage(mainImg);
+    if(productDTO.getMainImgUrl() != null){
+      productMapper.deleteProductImageByType(productDTO.getProductId(),"MAIN");
+      ProductImageDTO main = new ProductImageDTO();
+      main.setProductId(productDTO.getProductId());
+      main.setImageType("MAIN");
+      main.setImageSavedName(productDTO.getMainImgUrl());
+      main.setImageOriginName(productDTO.getMainImgUrl());
+      productMapper.insertImage(List.of(main));
     }
 
-    // 서브 이미지 (선택했을 때만 -> 기존 삭제 후 새로 INSERT)
-    if (deletedImageIds != null) {
-      for (int imageId : deletedImageIds) {
-        productMapper.deleteProductImageById(imageId);
-      }
+    // 서브 이미지 (선택했을 때만 -> 삭제)
+    if (productDTO.getDeleteImgUrl() != null){
+        productMapper.deleteProductImageByType(productDTO.getProductId(),"SUB");
     }
-    if (subImgFiles != null && subImgFiles.length > 0 && !subImgFiles[0].isEmpty()) {
-      List<ProductImageDTO> sub = uploadUtil.multipleFileUpload(subImgFiles);
-      for (ProductImageDTO subImg : sub) {
-        subImg.setProductId(productDTO.getProductId());
+    // 서브 이미지 (새로 INSERT)
+    int order = 1;
+    if (productDTO.getSubImgUrls() != null){
+      List<ProductImageDTO> subs = new ArrayList<>();
+      for (String url : productDTO.getSubImgUrls()){
+        ProductImageDTO subimg = new ProductImageDTO();
+        subimg.setProductId(productDTO.getProductId());
+        subimg.setImageOrder(order++);
+        subimg.setImageType("SUB");
+        subimg.setImageSavedName(url);
+        subimg.setImageOriginName(url);
+        subs.add(subimg);
       }
-      productMapper.insertImage(sub);
+      productMapper.insertImage(subs);
     }
 
     // 상세 페이지 이미지 (선택했을 때만)
-    if (detailFile != null && !detailFile.isEmpty()) {
-      ProductImageDTO detailImg = uploadUtil.fileUpload(detailFile);
+    if (productDTO.getDetailImgUrl() != null){
+      productMapper.deleteProductImageByType(productDTO.getProductId(),"DETAIL");
+      ProductImageDTO detailImg = new ProductImageDTO();
       detailImg.setProductId(productDTO.getProductId());
       detailImg.setImageType("DETAIL");
-      productMapper.updateProductImage(detailImg);
+      detailImg.setImageOriginName(productDTO.getDetailImgUrl());
+      detailImg.setImageSavedName(productDTO.getDetailImgUrl());
+      productMapper.insertImage(List.of(detailImg));
     }
-
   }
   // 상품 삭제
   @Transactional

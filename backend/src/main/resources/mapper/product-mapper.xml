@@ -185,6 +185,7 @@
         WHERE IMAGE_ID = #{imageId}
     </delete>
 
+    <!-- 상품 수정   -->
     <update id="updateProduct">
         UPDATE PRODUCT
         SET CATEGORY_ID    = #{categoryId},
