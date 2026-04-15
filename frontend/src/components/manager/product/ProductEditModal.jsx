@@ -63,9 +63,9 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
         const images = detail.productImageList || []
 
         // 상품 설명 세팅
-        setForm(prev => ({ 
-          ...prev, 
-          productDesc: detail.productDesc || '' 
+        setForm(prev => ({
+          ...prev,
+          productDesc: detail.productDesc || ''
         }))
 
         // 이미지 세팅 (기존 코드)
