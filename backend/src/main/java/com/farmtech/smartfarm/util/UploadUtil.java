@@ -1,22 +1,23 @@
 package com.farmtech.smartfarm.util;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.farmtech.smartfarm.product.dto.ProductImageDTO;
 import jakarta.annotation.PostConstruct;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -167,4 +168,29 @@ public class UploadUtil {
 
     return list;
   }
+
+  //presign 생성 메서드
+  public Map<String, String> generatePresignedUrl(String originalFileName){
+    // 확장자 추출
+    String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+    // UUID로 고유한 파일명 생성
+    String savedName = UUID.randomUUID() + extension;
+    // presigned URL 유효시간 설정
+    Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 10); //10분
+
+    // AWS에 서명된 PUT 요청 URL 생성 요청
+    GeneratePresignedUrlRequest request =
+            new GeneratePresignedUrlRequest(bucketName, savedName)
+                    .withMethod(HttpMethod.PUT)
+                    .withExpiration(expiration);
+
+    String presignUrl = s3Client.generatePresignedUrl(request).toString();
+    String fileUrl = "http://" + bucketName + ".s3." + region + ".amazonaws.com/" + savedName;
+
+    return Map.of(
+            "presignedUrl", presignUrl, // 프론트가 s3에 put할 URL
+            "fileUrl", fileUrl
+    );
+  }
+
 }

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,24 +28,40 @@ public class ProductController {
 
   //상품 + 이미지 등록 api
   @PostMapping("")
-  public ResponseEntity<?> insertProduct(ProductDTO productDTO,
-                                         @RequestParam("mainImg") MultipartFile mainImgFile,
-                                         @RequestParam("subImgs") MultipartFile[] subImgs,
-                                         @RequestParam("detailImg") MultipartFile detailImgFile) {
+  public ResponseEntity<?> insertProduct(@RequestBody ProductDTO productDTO) {
     try {
-      // 대표 이미지 업로드
-      ProductImageDTO dto = uploadUtil.fileUpload(mainImgFile);
+      List<ProductImageDTO> imgList = new ArrayList<>();
 
-      // 서브 이미지들 업로드
-      List<ProductImageDTO> imgList = uploadUtil.multipleFileUpload(subImgs);
+      //대표 이미지
+      if (productDTO.getMainImgUrl() != null) {
+        ProductImageDTO mainDto = new ProductImageDTO();
+        mainDto.setImageSavedName(productDTO.getMainImgUrl());
+        mainDto.setImageOriginName(productDTO.getMainImgUrl());
+        mainDto.setImageType("MAIN");
+        imgList.add(mainDto);
+      }
 
-      // 상세 페이지 이미지 업로드
-      ProductImageDTO detailDTO = uploadUtil.fileUpload(detailImgFile);
-      detailDTO.setImageType("DETAIL");
-      imgList.add(detailDTO);
+      //서브 이미지
+      int order = 1;
+      if (productDTO.getSubImgUrls() != null){
+        for(String subs : productDTO.getSubImgUrls()) {
+          ProductImageDTO subDto = new ProductImageDTO();
+          subDto.setImageSavedName(subs);
+          subDto.setImageOriginName(subs);
+          subDto.setImageType("SUB");
+          subDto.setImageOrder(order++);
+          imgList.add(subDto);
+        }
+      }
 
-      // 대표 이미지도 리스트에 합치기
-      imgList.add(dto);
+      //상세 이미지
+      if (productDTO.getDetailImgUrl() != null) {
+        ProductImageDTO detailDto = new ProductImageDTO();
+        detailDto.setImageSavedName(productDTO.getDetailImgUrl());
+        detailDto.setImageOriginName(productDTO.getDetailImgUrl());
+        detailDto.setImageType("DETAIL");
+        imgList.add(detailDto);
+      }
 
       // PRODUCT INSERT 후 생성된 ID로 PRODUCT_IMAGE INSERT (service 내부에서 처리)
       productService.insertProduct(productDTO, imgList);
@@ -54,6 +71,12 @@ public class ProductController {
       log.error("상품등록 api 오류", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품등록중 오류가 발생했습니다.");
     }
+  }
+
+  //s3에 업로드할 수 있는 임시 권한 URL을 발급해주는 API
+  @GetMapping("/presign")
+  public ResponseEntity<Map<String,String>> getPresignUrl(@RequestParam String fileName){
+    return ResponseEntity.ok(uploadUtil.generatePresignedUrl(fileName));
   }
 
   // 카테고리 조회 api
@@ -129,7 +152,6 @@ public class ProductController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
-
 
   //상품 삭제 api
   @DeleteMapping("/{productId}")
