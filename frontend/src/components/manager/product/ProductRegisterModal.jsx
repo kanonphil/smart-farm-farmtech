@@ -18,8 +18,8 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
 
   const [productData, setProductData] = useState({
     productName:   '',
-    productPrice:  0,
-    productStock:  0,
+    productPrice:  '',
+    productStock:  '',
     productDesc:   '',
     productStatus: '',
     categoryId:    1,
@@ -39,6 +39,8 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
   const mainInputRef   = useRef()
   const subInputRef    = useRef()
   const detailInputRef = useRef()
+
+  const [isLoading,setIsLoading] = useState(false);
 
   useEffect(() => {
     getCategory()
@@ -115,6 +117,7 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
   const regProducts = async () => {
     if (!validate()) return
 
+    setIsLoading(true);
     try {
       const mainImgUrl = await uploadImageToS3(mainImg);
       const subImgUrls = await Promise.all(subImgs.map(uploadImageToS3));
@@ -129,7 +132,11 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
     } catch (error) {
       setSubmitError(true)
       setTimeout(() => setSubmitError(false), 3000)
+    } finally {
+      setIsLoading(false)
+      alert('상품등록 완료')
     }
+
   }
 
   /** 대표 이미지 초기화 */
@@ -304,7 +311,11 @@ const ProductRegisterModal = ({ onClose, onSuccess }) => {
               rows={5}
             />
           </div>
-          <Button fullWidth onClick={regProducts}>상품 등록</Button>
+          <Button fullWidth
+           onClick={regProducts}
+           className={isLoading && styles.btnReg}
+           disabled={isLoading}
+          >{isLoading ? '등록 중...' : '상품 등록'}</Button>
         </div>
       </div>
     </div>
