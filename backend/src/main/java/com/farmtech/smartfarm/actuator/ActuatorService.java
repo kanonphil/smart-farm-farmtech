@@ -69,6 +69,15 @@ public class ActuatorService {
         return post("/buzzer/off", null);
     }
 
+    // ── 팬 제어 ────────────────────────────────────
+    public Object fanOn(double speed) {
+      return post("/fan/on", Map.of("speed", speed));
+    }
+
+    public Object fanOff() {
+      return post("/fan/off", null);
+    }
+
     // ── 전체 상태 조회 ─────────────────────────────
     public Object getStatus() {
         return get("/status");

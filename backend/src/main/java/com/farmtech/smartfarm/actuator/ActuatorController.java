@@ -46,6 +46,17 @@ public class ActuatorController {
         return ResponseEntity.ok(actuatorService.buzzerOff());
     }
 
+    // ── 팬 제어 ────────────────────────────────────
+    @PostMapping("/fan/on")
+    public ResponseEntity<?> fanOn(@RequestParam(defaultValue = "1.0") double speed) {
+      return ResponseEntity.ok(actuatorService.fanOn(speed));
+    }
+
+    @PostMapping("/fan/off")
+    public ResponseEntity<?> fanOff() {
+      return ResponseEntity.ok(actuatorService.fanOff());
+    }
+
     // ── 전체 상태 조회 ─────────────────────────────
     @GetMapping("/status")
     public ResponseEntity<?> getStatus() {
