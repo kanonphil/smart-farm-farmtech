@@ -1,60 +1,49 @@
-const IOT_API = import.meta.env.VITE_IOT_API_URL
+import { axiosInstance } from './axiosInstance';
 
-// 전체 상태 조회
-export const getStatus = async () => {
-  const response = await fetch(`${IOT_API}/status`, { cache: 'no-store' })
-  return response.json()
-}
-
-// LED
 export const ledOn = async (brightness = 1.0) => {
-  await fetch(`${IOT_API}/led/on`, { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ brightness })
-  })
-}
+  const response = await axiosInstance.post('/api/actuator/led/on', null, {
+    params: { brightness },
+  });
+  return response.data;
+};
+
 export const ledOff = async () => {
-  await fetch(`${IOT_API}/led/off`, { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({})
-  })
-}
+  const response = await axiosInstance.post('/api/actuator/led/off');
+  return response.data;
+};
 
-// 부저
 export const buzzerOn = async (freq = 440) => {
-  await fetch(`${IOT_API}/buzzer/on`, { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ freq })
-  })
-}
+  const response = await axiosInstance.post('/api/actuator/buzzer/on', null, {
+    params: { freq },
+  });
+  return response.data;
+};
+
 export const buzzerOff = async () => {
-  await fetch(`${IOT_API}/buzzer/off`, { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({})
-  })
-}
+  const response = await axiosInstance.post('/api/actuator/buzzer/off');
+  return response.data;
+};
 
-// 팬
 export const fanOn = async (speed = 1.0) => {
-  await fetch(`${IOT_API}/fan/on`, { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ speed })
-  })
-}
-export const fanOff = async () => {
-  await fetch(`${IOT_API}/fan/off`, { method: 'POST' })
-}
+  const response = await axiosInstance.post('/api/actuator/fan/on', null, {
+    params: { speed },
+  });
+  return response.data;
+};
 
-// 모드 변경 (auto / manual)
+export const fanOff = async () => {
+  const response = await axiosInstance.post('/api/actuator/fan/off');
+  return response.data;
+};
+
+export const getStatus = async () => {
+  const response = await axiosInstance.get('/api/actuator/status');
+  return response.data;
+};
+
 export const setMode = async (mode) => {
-  await fetch(`${IOT_API}/mode`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode })
-  })
-}
+  const response = await axiosInstance.post('/api/actuator/mode', null, {
+    params: { mode },
+  });
+  return response.data;
+};
