@@ -48,7 +48,8 @@ public class WebConfig implements WebMvcConfigurer {
                     "GET",      // 조회
                     "POST",     // 생성
                     "PUT",      // 전체 수정
-                    "DELETE"   // 삭제
+                    "DELETE",   // 삭제
+                    "PATCH"     // 부분 수정 (구매 확정, 읽음 처리, 비밀번호 변경 등에서 사용)
             )
 
             // 허용할 헤더 설정
