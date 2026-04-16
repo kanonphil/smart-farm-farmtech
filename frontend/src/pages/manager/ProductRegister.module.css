@@ -232,3 +232,8 @@
 .clearBtnSub:hover {
   background: rgba(0, 0, 0, 0.75);
 }
+
+.btnReg {
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+}
