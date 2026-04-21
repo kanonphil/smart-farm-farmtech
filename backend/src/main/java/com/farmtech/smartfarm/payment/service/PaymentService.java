@@ -4,6 +4,7 @@ import com.farmtech.smartfarm.payment.dto.PaymentConfirmRequestDTO;
 import com.farmtech.smartfarm.payment.dto.PaymentDTO;
 import com.farmtech.smartfarm.payment.dto.TossConfirmResponseDTO;
 import com.farmtech.smartfarm.payment.mapper.PaymentMapper;
+import com.farmtech.smartfarm.product.dto.ProductStockDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -15,215 +16,141 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * 결제 관련 비즈니스 로직 처리 클래스
- *
- * 여기서 실제로
- * - 요청값 검증
- * - 주문 조회
- * - 금액 검증
- * - 토스 승인 API 호출
- * - DB 상태 변경
- * 을 수행한다.
- */
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
   private final PaymentMapper paymentMapper;
 
-  /**
-   * application.properties 에서 주입받는 토스 시크릿 키
-   *
-   * 예:
-   * toss.payments.secret-key=test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
-   */
   @Value("${toss.payments.secret-key}")
   private String secretKey;
 
-  /**
-   * 토스 결제 승인 API 주소
-   *
-   * 예:
-   * toss.payments.confirm-url=https://api.tosspayments.com/v1/payments/confirm
-   */
   @Value("${toss.payments.confirm-url}")
   private String confirmUrl;
-
-  /**
-   * 결제 승인 전체 로직
-   *
-   * @Transactional:
-   * 중간에 예외가 발생하면 DB 변경 내용을 롤백하기 위해 사용
-   */
-  @Transactional
-  public TossConfirmResponseDTO confirmPayment(PaymentConfirmRequestDTO requestDTO) {
-    // ---------------------------
-    // 1. 요청값 기본 검증
-    // ---------------------------
-    validateRequest(requestDTO);
-
-    // ---------------------------
-    // 2. DB에서 주문 조회
-    // ---------------------------
-    // orderId는 토스용 주문번호 (예: ORDER_15) 라고 가정
-    PaymentDTO dto = paymentMapper.selectOrderByTossOrderId(requestDTO.getOrderId());
-
-    if (dto == null) {
-      throw new IllegalArgumentException("해당 주문을 찾을 수 없습니다.");
-    }
-
-    // ---------------------------
-    // 3. 주문 상태 확인
-    // ---------------------------
-    // 이미 결제 완료된 주문을 또 승인하면 안 되므로 READY 상태만 허용
-    if (!"READY".equals(dto.getOrderStatus())) {
-      throw new IllegalArgumentException("결제 가능한 주문 상태가 아닙니다.");
-    }
-
-    // ---------------------------
-    // 4. 금액 검증
-    // ---------------------------
-    // 프론트에서 전달한 금액과 DB 주문 금액이 같은지 확인
-    // 이 검증이 중요한 이유:
-    // 사용자가 프론트에서 amount를 바꿔치기할 가능성을 막기 위해서
-    if (!dto.getOrderTotalPrice().equals(requestDTO.getAmount())) {
-      throw new IllegalArgumentException("결제 금액이 주문 금액과 일치하지 않습니다.");
-    }
-
-    // ---------------------------
-    // 5. 토스 승인 API 호출
-    // ---------------------------
-    TossConfirmResponseDTO tossResponse = requestTossConfirmApi(requestDTO);
-
-    // ---------------------------
-    // 6. 토스 승인 결과 확인
-    // ---------------------------
-    // 테스트 환경에서도 정상 승인되면 보통 status = DONE
-    if (tossResponse == null) {
-      throw new IllegalArgumentException("토스 결제 승인 응답이 없습니다.");
-    }
-
-    if (!"DONE".equals(tossResponse.getStatus())) {
-      throw new IllegalStateException("토스 결제 승인이 완료되지 않았습니다.");
-    }
-
-    // ---------------------------
-    // 7. DB 주문 상태 변경
-    // ---------------------------
-    // 결제 성공했으므로 READY -> PAID 로 변경
-    // paymentKey도 같이 저장해두면 나중에 조회/취소할 때 편함
-    int updateResult = paymentMapper.updateOrderPaid(
-            requestDTO.getOrderId(),
-            tossResponse.getPaymentKey()
-    );
-
-    if (updateResult != 1) {
-      throw new IllegalStateException("주문 상태 업데이트에 실패했습니다.");
-    }
-
-    // ---------------------------
-    // 8. 재고 차감
-    // ---------------------------
-    paymentMapper.decreaseProductStock(dto.getOrderId());
-
-    // 최종적으로 토스 응답을 그대로 반환
-    return tossResponse;
-  }
-
-  /**
-   * 토스 결제 승인 API 호출 메서드
-   *
-   * 토스 승인 API는 서버에서 호출해야 함.
-   * 프론트에서 직접 호출하면 secretKey가 노출되므로 절대 안 됨.
-   */
-  private TossConfirmResponseDTO requestTossConfirmApi(PaymentConfirmRequestDTO requestDTO) {
-    // ------------------------------------------
-    // 1. Authorization 헤더용 Basic 인증값 생성
-    // ------------------------------------------
-    // 토스는 "secretKey:" 문자열을 Base64 인코딩해서
-    // Authorization: Basic xxx 형태로 보낸다.
-    // System.out.println("secretKey: " + secretKey);
-
-    String encodedAuth = Base64.getEncoder().encodeToString(
-            (secretKey + ":").getBytes(StandardCharsets.UTF_8)
-    );
-
-    // ------------------------------------------
-    // 2. HTTP 헤더 설정
-    // ------------------------------------------
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("Authorization", "Basic " + encodedAuth);
-
-    // ------------------------------------------
-    // 3. 요청 Body 구성
-    // ------------------------------------------
-    // 토스 승인 API에 필요한 값 3개
-    Map<String, Object> body = new HashMap<>();
-    body.put("paymentKey", requestDTO.getPaymentKey());
-    body.put("orderId", requestDTO.getOrderId());
-    body.put("amount", requestDTO.getAmount());
-
-    // 헤더 + 바디를 합쳐서 HttpEntity 생성
-    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
-    // ------------------------------------------
-    // 4. 외부 API 호출
-    // ------------------------------------------
-    // RestTemplate은 간단한 외부 API 호출에 많이 사용됨
-    RestTemplate restTemplate = new RestTemplate();
-
-    ResponseEntity<TossConfirmResponseDTO> response = restTemplate.exchange(
-            confirmUrl,                   // 호출할 URL
-            HttpMethod.POST,              // HTTP 메서드
-            entity,                       // 요청 데이터
-            TossConfirmResponseDTO.class  // 응답을 받을 DTO 타입
-    );
-
-    // 응답 바디 변환
-    return response.getBody();
-  }
-
-  /**
-   * 프론트에서 넘어온 값이 정상인지 기본 검증
-   */
-  private void validateRequest(PaymentConfirmRequestDTO requestDTO) {
-    // paymentKey 검증
-    if (requestDTO.getPaymentKey() == null || requestDTO.getPaymentKey().isBlank()) {
-      throw new IllegalArgumentException("paymentKey가 없습니다.");
-    }
-
-    // orderId 검증
-    if (requestDTO.getOrderId() == null || requestDTO.getOrderId().isBlank()) {
-      throw new IllegalArgumentException("orderId가 없습니다.");
-    }
-
-    // paymentKey 검증
-    if (requestDTO.getAmount() == null || requestDTO.getAmount() <= 0) {
-      throw new IllegalArgumentException("amount 값이 올바르지 않습니다.");
-    }
-  }
 
   @Value("${toss.payments.cancel-base-url}")
   private String cancelBaseUrl;
 
+  /**
+   * 결제 승인 전체 로직
+   *
+   * 처리 순서:
+   *  1. 요청값 검증
+   *  2. 주문 조회 + 상태 / 금액 검증
+   *  3. 재고 잠금 조회 (FOR UPDATE) — Toss 호출 전 재고 부족 차단
+   *  4. Toss 승인 API 호출 (외부, 롤백 불가)
+   *  5. 주문 상태 변경 + 재고 차감
+   *     → 실패 시 Toss 자동 취소 + 트랜잭션 롤백
+   *
+   * 3번에서 FOR UPDATE 로 잠그므로 동시 결제 요청에 의한
+   * 재고 초과를 방지합니다.
+   * 4번 이후 5번이 실패하면 Toss 를 자동 취소해 정합성을 유지합니다.
+   */
   @Transactional
-  public void cancelPayment(int orderId, String cancelReason) {
-    // 1. 주문 조회
-    PaymentDTO dto = paymentMapper.selectOrderByOrderId(orderId);
-    if (dto == null) throw new IllegalArgumentException("해당 주문을 찾을 수 없습니다.");
+  public TossConfirmResponseDTO confirmPayment(PaymentConfirmRequestDTO requestDTO) {
+    // 1. 요청값 기본 검증
+    validateRequest(requestDTO);
 
-    // 2. 상태 확인
-    if (!"PAID".equals(dto.getOrderStatus())) {
-      throw new IllegalArgumentException("환불 가능한 주문 상태가 아닙니다.");
+    // 2. 주문 조회 + 상태 / 금액 검증
+    PaymentDTO dto = paymentMapper.selectOrderByTossOrderId(requestDTO.getOrderId());
+    if (dto == null) {
+      throw new IllegalArgumentException("해당 주문을 찾을 수 없습니다.");
+    }
+    if (!"READY".equals(dto.getOrderStatus())) {
+      throw new IllegalArgumentException("결제 가능한 주문 상태가 아닙니다.");
+    }
+    if (!dto.getOrderTotalPrice().equals(requestDTO.getAmount())) {
+      throw new IllegalArgumentException("결제 금액이 주문 금액과 일치하지 않습니다.");
     }
 
-    // 3. Toss 취소 API 호출
+    // 3. 재고 잠금 조회 (FOR UPDATE) — Toss 호출 전 재고 부족을 미리 차단
+    List<ProductStockDTO> stocks = paymentMapper.selectProductStockForUpdate(dto.getOrderId());
+    boolean hasInsufficientStock = stocks.stream()
+            .anyMatch(s -> s.getProductStock() < s.getRequiredQty());
+    if (hasInsufficientStock) {
+      throw new IllegalStateException("재고가 부족하여 결제를 진행할 수 없습니다.");
+    }
+
+    // 4. Toss 승인 API 호출 (외부 호출, DB 트랜잭션으로 롤백 불가)
+    TossConfirmResponseDTO tossResponse = requestTossConfirmApi(requestDTO);
+    if (tossResponse == null || !"DONE".equals(tossResponse.getStatus())) {
+      throw new IllegalStateException("토스 결제 승인이 완료되지 않았습니다.");
+    }
+
+    // 5. 주문 상태 변경 + 재고 차감
+    // Toss 는 이미 승인됐으므로, DB 작업 실패 시 Toss 를 즉시 취소해 정합성을 유지합니다.
+    try {
+      int updateResult = paymentMapper.updateOrderPaid(
+              requestDTO.getOrderId(), tossResponse.getPaymentKey());
+      if (updateResult != 1) {
+        throw new IllegalStateException("주문 상태 업데이트에 실패했습니다.");
+      }
+
+      int decreased = paymentMapper.decreaseProductStock(dto.getOrderId());
+      if (decreased != stocks.size()) {
+        throw new IllegalStateException("재고 차감에 실패했습니다.");
+      }
+
+    } catch (Exception e) {
+      // DB 작업 실패 → Toss 자동 취소로 고객 환불
+      requestTossCancelApi(tossResponse.getPaymentKey(), "시스템 오류로 인한 자동 환불");
+      throw new IllegalStateException("결제 처리 중 오류가 발생하여 자동 환불되었습니다.", e);
+    }
+
+    return tossResponse;
+  }
+
+  /**
+   * 결제 취소 (환불)
+   */
+  @Transactional
+  public void cancelPayment(int orderId, String cancelReason) {
+    PaymentDTO dto = paymentMapper.selectOrderByOrderId(orderId);
+    if (dto == null) throw new IllegalArgumentException("해당 주문을 찾을 수 없습니다.");
+    if (!"PAID".equals(dto.getOrderStatus())) throw new IllegalArgumentException("환불 가능한 주문 상태가 아닙니다.");
+
+    requestTossCancelApi(dto.getPaymentKey(), cancelReason);
+
+    int result = paymentMapper.updateOrderRefunded(orderId, cancelReason);
+    if (result != 1) throw new IllegalArgumentException("주문 상태 업데이트에 실패했습니다.");
+
+    paymentMapper.restoreProductStock(orderId);
+  }
+
+  /**
+   * Toss 승인 API 호출
+   */
+  private TossConfirmResponseDTO requestTossConfirmApi(PaymentConfirmRequestDTO requestDTO) {
     String encodedAuth = Base64.getEncoder().encodeToString(
-            (secretKey + ":").getBytes(StandardCharsets.UTF_8)
-    );
+            (secretKey + ":").getBytes(StandardCharsets.UTF_8));
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set("Authorization", "Basic " + encodedAuth);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("paymentKey", requestDTO.getPaymentKey());
+    body.put("orderId",    requestDTO.getOrderId());
+    body.put("amount",     requestDTO.getAmount());
+
+    ResponseEntity<TossConfirmResponseDTO> response = new RestTemplate().exchange(
+            confirmUrl, HttpMethod.POST,
+            new HttpEntity<>(body, headers),
+            TossConfirmResponseDTO.class);
+
+    return response.getBody();
+  }
+
+  /**
+   * Toss 취소 API 호출 (DB 변경 없음)
+   *
+   * confirmPayment 실패 시 자동 환불, cancelPayment 에서 재사용합니다.
+   */
+  private void requestTossCancelApi(String paymentKey, String cancelReason) {
+    String encodedAuth = Base64.getEncoder().encodeToString(
+            (secretKey + ":").getBytes(StandardCharsets.UTF_8));
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -232,29 +159,28 @@ public class PaymentService {
     Map<String, Object> body = new HashMap<>();
     body.put("cancelReason", cancelReason);
 
-    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-    RestTemplate restTemplate = new RestTemplate();
-
     try {
-      restTemplate.exchange(
-              cancelBaseUrl + dto.getPaymentKey() + "/cancel",
+      new RestTemplate().exchange(
+              cancelBaseUrl + paymentKey + "/cancel",
               HttpMethod.POST,
-              entity,
-              Map.class
-      );
+              new HttpEntity<>(body, headers),
+              Map.class);
     } catch (HttpClientErrorException e) {
       if (!e.getResponseBodyAsString().contains("ALREADY_CANCELED_PAYMENT")) {
         throw e;
       }
     }
-
-    // 4. 상태 변경
-    int result = paymentMapper.updateOrderRefunded(orderId, cancelReason);
-    if (result != 1) throw new IllegalArgumentException("주문 상태 업데이트에 실패했습니다.");
-
-    // 5. 재고 복구
-    paymentMapper.restoreProductStock(orderId);
-
   }
 
+  private void validateRequest(PaymentConfirmRequestDTO requestDTO) {
+    if (requestDTO.getPaymentKey() == null || requestDTO.getPaymentKey().isBlank()) {
+      throw new IllegalArgumentException("paymentKey가 없습니다.");
+    }
+    if (requestDTO.getOrderId() == null || requestDTO.getOrderId().isBlank()) {
+      throw new IllegalArgumentException("orderId가 없습니다.");
+    }
+    if (requestDTO.getAmount() == null || requestDTO.getAmount() <= 0) {
+      throw new IllegalArgumentException("amount 값이 올바르지 않습니다.");
+    }
+  }
 }

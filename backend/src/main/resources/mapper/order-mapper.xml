@@ -137,4 +137,34 @@
           AND ORDER_STATUS = 'SHIPPED'
     </update>
 
+    <!--
+        주문 생성 전 재고 잠금 조회 (FOR UPDATE)
+        같은 상품을 동시에 주문하는 경우 하나의 트랜잭션만 통과하도록 락을 겁니다.
+    -->
+    <select id="selectProductStocksForUpdate"
+            resultType="com.farmtech.smartfarm.product.dto.ProductStockDTO">
+        SELECT PRODUCT_ID    AS productId,
+        PRODUCT_STOCK AS productStock
+        FROM PRODUCT
+        WHERE PRODUCT_ID IN
+        <foreach collection="productIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        FOR UPDATE
+    </select>
+
+    <!--
+        주문 완료 후 장바구니 정리
+        주문한 상품과 동일한 PRODUCT_ID 를 가진 장바구니 항목을 삭제합니다.
+    -->
+    <delete id="deleteCartItemsByMemberAndProducts">
+        DELETE CI FROM CART_ITEM CI
+        JOIN CART C ON CI.CART_ID = C.CART_ID
+        WHERE C.MEMBER_ID = #{memberId}
+        AND CI.PRODUCT_ID IN
+        <foreach collection="productIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>
