@@ -30,4 +30,8 @@ public class OrderDTO {
   /** 구매 확정 시각 */
   private LocalDateTime confirmedAt;
   private List<OrderItemDTO> orderItemDTOList;
+  /** 배송 주소 */
+  private String deliveryAddr;
+  /** 배송 상세 주소 */
+  private String deliveryAddrDetail;
 }
