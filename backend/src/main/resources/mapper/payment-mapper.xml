@@ -56,12 +56,17 @@
           AND ORDER_STATUS = 'PAID'
     </update>
 
-    <!-- 결제 확정 시 주문 상품 재고 차감 -->
+    <!--
+       결제 확정 시 재고 차감
+       AND 조건으로 재고가 충분한 상품만 차감합니다.
+       FOR UPDATE 선행 조회로 이미 검증했지만, 최후 방어선으로 음수 재고를 막습니다.
+   -->
     <update id="decreaseProductStock" parameterType="int">
         UPDATE PRODUCT P
             JOIN ORDER_ITEM OI ON P.PRODUCT_ID = OI.PRODUCT_ID
             SET P.PRODUCT_STOCK = P.PRODUCT_STOCK - OI.ORDER_ITEM_QTY
         WHERE OI.ORDER_ID = #{orderId}
+          AND P.PRODUCT_STOCK >= OI.ORDER_ITEM_QTY
     </update>
 
     <!-- 주문 취소 시 상품 재고 복구 -->
@@ -71,5 +76,20 @@
             SET P.PRODUCT_STOCK = P.PRODUCT_STOCK + OI.ORDER_ITEM_QTY
         WHERE OI.ORDER_ID = #{orderId}
     </update>
+
+    <!--
+        결제 확정 전 재고 잠금 조회 (FOR UPDATE)
+        requiredQty 에 ORDER_ITEM_QTY 가 매핑됩니다.
+    -->
+    <select id="selectProductStockForUpdate"
+            resultType="com.farmtech.smartfarm.product.dto.ProductStockDTO">
+        SELECT P.PRODUCT_ID      AS productId,
+               P.PRODUCT_STOCK   AS productStock,
+               OI.ORDER_ITEM_QTY AS requiredQty
+        FROM PRODUCT P
+                 JOIN ORDER_ITEM OI ON P.PRODUCT_ID = OI.PRODUCT_ID
+        WHERE OI.ORDER_ID = #{orderId}
+            FOR UPDATE
+    </select>
 
 </mapper>
