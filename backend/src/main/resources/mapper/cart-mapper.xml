@@ -57,7 +57,7 @@
         SELECT
             C.CART_ITEM_ID
             , C.CART_ITEM_QTY
-            , p.PRODUCT_ID
+            , P.PRODUCT_ID
             , P.PRODUCT_NAME
             , P.PRODUCT_PRICE
             , P.PRODUCT_STOCK
