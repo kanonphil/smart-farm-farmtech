@@ -2,6 +2,7 @@ package com.farmtech.smartfarm.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -91,5 +92,23 @@ public class JwtUtil {
                 .signWith(secretKey)  // 시크릿 키로 서명
                 .compact(); // 문자열로 변환해서 반환
     }
+
+  /**
+   * 디바이스 전용 JWT 생성 (라즈베리파이 인증용)
+   *
+   * @param deviceId 디바이스 식별자 (예: "raspberry-pi-001")
+   * @param expirationTime 만료 시간 (밀리초)
+   * @return 서명된 디바이스 JWT
+   */
+  public String createDeviceToken(String deviceId, long expirationTime) {
+    return Jwts.builder()
+            .signWith(secretKey, Jwts.SIG.HS512)
+            .header().add("typ", "JWT").add("alg", "HS512").and()
+            .subject(deviceId)
+            .claim("role", "DEVICE")
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + expirationTime))
+            .compact();
+  }
 
 }
