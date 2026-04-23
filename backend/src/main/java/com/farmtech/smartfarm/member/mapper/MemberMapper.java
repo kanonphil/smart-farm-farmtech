@@ -54,4 +54,9 @@ public interface MemberMapper {
     // 이메일로 회원 이름 조회
     String getMemberNameByEmail(String email);
 
+    // fcm토큰 저장
+    void updateFcmToken(@Param("memberId") int memberId,@Param("fcmToken")String fcmToken);
+    // fcm토큰 조회
+    String selectFcmToken(@Param("memberId")String memberId);
+
 }
