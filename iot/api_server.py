@@ -5,7 +5,9 @@
 import time
 import threading
 
-from fastapi import FastAPI, HTTPException
+import jwt as pyjwt
+from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -19,6 +21,47 @@ from actuators.led import LEDController
 from actuators.buzzer import BuzzerController
 from actuators.fan import FanController
 from db.connection import get_connection
+from config import JWT_SECRET, JWT_ALGORITHM, ALLOWED_ORIGINS
+
+# ── 디바이스 JWT 검증 ─────────────────────────────────────────
+
+security = HTTPBearer()
+
+def verify_device_token(
+  credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> dict:
+  """
+  백엔드에서 보낸 디바이스 JWT를 검증하는 FastAPI 의존성 함수.
+
+  Authorization: Bearer <token> 헤더가 없거나 유효하지 않으면 401/403 반환.
+  모든 액추에이터 API 엔드포인트에 Depends()로 적용합니다.
+  """
+  token = credentials.credentials
+  try:
+    payload = pyjwt.decode(
+      token,
+      JWT_SECRET,
+      algorithms=[JWT_ALGORITHM]
+    )
+    # role 클레임이 DEVICE인지 확인
+    if payload.get("role") != "DEVICE":
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="디바이스 권한이 없습니다"
+      )
+    return payload
+  except pyjwt.ExpiredSignatureError:
+    raise HTTPException(
+      status_code=status.HTTP_401_UNAUTHORIZED,
+      detail="토큰이 만료되었습니다"
+    )
+  except pyjwt.InvalidTokenError:
+    raise HTTPException(
+      status_code=status.HTTP_401_UNAUTHORIZED,
+      detail="유효하지 않은 토큰입니다"
+    )
+
+# ── FastAPI 앱 초기화 ─────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,9 +77,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="SmartFarm Actuator API", lifespan=lifespan)
 
+# CORS: 전체 허용(*) → 백엔드 서버만 허용
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=["*"],  # 테스트용 전체 허용
+  allow_origins=ALLOWED_ORIGINS,
   allow_methods=["*"],
   allow_headers=["*"],
 )
@@ -324,12 +368,12 @@ class ThresholdReloadResponse(BaseModel):
 
 # ── 모드 API ────────────────────────────────────────────────
 @app.get("/mode", response_model=ModeResponse)
-def get_mode():
+def get_mode(_: dict = Depends(verify_device_token)):
   with lock:
     return {"mode": state["mode"]}
 
 @app.post("/mode", response_model=ModeResponse)
-def set_mode(req: ModeRequest):
+def set_mode(req: ModeRequest, _: dict = Depends(verify_device_token)):
   if req.mode == "auto":
     _led.off()
     _buzzer.buzz_off()
@@ -346,7 +390,7 @@ def set_mode(req: ModeRequest):
 
 # ── LED API (manual 전용) ────────────────────────────────────
 @app.post("/led/on", response_model=LedControlResponse)
-def led_on(req: LedRequest):
+def led_on(req: LedRequest, _: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -359,7 +403,7 @@ def led_on(req: LedRequest):
   return {"result": "ok", "brightness": req.brightness}
 
 @app.post("/led/off", response_model=OkResponse)
-def led_off():
+def led_off(_: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -373,7 +417,7 @@ def led_off():
 
 # ── 부저 API (manual 전용) ───────────────────────────────────
 @app.post("/buzzer/on", response_model=BuzzerControlResponse)
-def buzzer_on(req: BuzzerRequest):
+def buzzer_on(req: BuzzerRequest, _: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -386,7 +430,7 @@ def buzzer_on(req: BuzzerRequest):
   return {"result": "ok", "freq": req.freq}
 
 @app.post("/buzzer/off", response_model=OkResponse)
-def buzzer_off():
+def buzzer_off(_: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -400,7 +444,7 @@ def buzzer_off():
 
 # ── 팬 API (manual 전용) ─────────────────────────────────────
 @app.post("/fan/on", response_model=FanControlResponse)
-def fan_on(req: FanRequest):
+def fan_on(req: FanRequest, _: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -413,7 +457,7 @@ def fan_on(req: FanRequest):
   return {"result": "ok", "speed": req.speed}
 
 @app.post("/fan/off", response_model=OkResponse)
-def fan_off():
+def fan_off(_: dict = Depends(verify_device_token)):
   with lock:
     if state["mode"] != "manual":
       raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
@@ -426,13 +470,13 @@ def fan_off():
 
 # ── 전체 상태 조회 ────────────────────────────────────────────
 @app.get("/status", response_model=StatusResponse)
-def get_status():
+def get_status(_: dict = Depends(verify_device_token)):
   with lock:
     return dict(state)
 
 # ── 임계값 즉시 반영 ──────────────────────────────────────────
 @app.post("/threshold/reload", response_model=ThresholdReloadResponse)
-def reload_threshold():
+def reload_threshold(_: dict = Depends(verify_device_token)):
   conn   = get_connection()
   cursor = conn.cursor()
   try:
