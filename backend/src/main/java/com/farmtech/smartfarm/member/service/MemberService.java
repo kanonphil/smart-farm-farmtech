@@ -5,6 +5,8 @@ import com.farmtech.smartfarm.cart.mapper.CartMapper;
 import com.farmtech.smartfarm.jwt.JwtUtil;
 import com.farmtech.smartfarm.member.dto.MemberDTO;
 import com.farmtech.smartfarm.member.mapper.MemberMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -87,7 +89,7 @@ public class MemberService {
     }
 
     //refresh토큰 조회 기능
-    public String refreshAccessToken(String refreshToken){
+    public String refreshAccessToken(String refreshToken, HttpServletResponse response){
         //1. DB에서 Refresh Token으로 회원 조회
         MemberDTO member = memberMapper.findByRefreshToken(refreshToken);
 
@@ -97,6 +99,24 @@ public class MemberService {
         //3. 만료 시간 체크
         if (member.getRefreshTokenExpiry().isBefore(LocalDateTime.now())) return null;
 
+        //나믕ㄴ 만료일이 2일 이상이면 → 자동로그인 유저 (30일 연장)
+        boolean isAutoLogin = member.getRefreshTokenExpiry().isAfter(LocalDateTime.now().plusDays(2));
+        if (isAutoLogin){
+            String newRefreshToken = jwtUtil.createRefreshToken(member.getMemberEmail(), 1000L*60*60*24*30);
+            MemberDTO dto = new MemberDTO();
+            dto.setMemberEmail(member.getMemberEmail());
+            dto.setRefreshToken(newRefreshToken);
+            dto.setRefreshTokenExpiry(LocalDateTime.now().plusDays(30));
+            memberMapper.saveRefreshToken(dto);
+
+            Cookie refreshCookie = new Cookie("refreshToken", newRefreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(30*24*60*60);
+            response.addCookie(refreshCookie);
+            response.setHeader("Refresh-Token", newRefreshToken);
+            response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
+        }
         //4. 새 Access Token 발급해서 반환
         return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), member.getMemberId(), member.getMemberName(), 1000 * 60 * 60);
     }

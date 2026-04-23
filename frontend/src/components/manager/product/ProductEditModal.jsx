@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { getProduct, getCategory, putProduct } from '../../../api/product/product'
+import { uploadImageToS3 } from '../../../api/product/upload'
 import Input from '../../common/Input'
 import Button from '../../common/Button'
 import Select from '../../common/Select'
@@ -158,21 +159,26 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
   const handleSave = async () => {
     if (!validate()) return
 
-    const data = new FormData()
-    data.append('categoryId',    form.categoryId)
-    data.append('productName',   form.productName)
-    data.append('productPrice',  form.productPrice)
-    data.append('productStock',  form.productStock)
-    data.append('productStatus', form.productStatus)
-    data.append('productDesc', form.productDesc)
-
-    /** 새로 선택한 파일만 전송 → 없으면 백엔드에서 기존 이미지 유지 */
-    if (mainImgFile)  data.append('mainImg', mainImgFile)
-    if (detailImgFile) data.append('detailImg', detailImgFile)
-    if (newSubImgFiles.length > 0) newSubImgFiles.forEach(f => data.append('subImgs', f))
-
     try {
-      await putProduct(product.productId, data)
+      // 새로 선택한 파일만 S3 업로드 후 URL 획득
+      const mainImgUrl    = mainImgFile    ? await uploadImageToS3(mainImgFile)                              : null
+      const detailImgUrl  = detailImgFile  ? await uploadImageToS3(detailImgFile)                            : null
+      const newSubImgUrls = newSubImgFiles.length > 0 ? await Promise.all(newSubImgFiles.map(uploadImageToS3)) : null
+
+      const payload = {
+        categoryId:    form.categoryId,
+        productName:   form.productName,
+        productPrice:  form.productPrice,
+        productStock:  form.productStock,
+        productStatus: form.productStatus,
+        productDesc:   form.productDesc,
+        mainImgUrl,
+        detailImgUrl,
+        subImgUrls: newSubImgUrls,
+        deleteImgUrl: deletedSubImageIds.length > 0 ? deletedSubImageIds : null,
+      }
+
+      await putProduct(product.productId, payload)
       onSuccess()
       onClose()
     } catch (e) {
