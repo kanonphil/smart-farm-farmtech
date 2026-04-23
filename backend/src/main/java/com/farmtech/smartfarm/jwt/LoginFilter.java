@@ -118,6 +118,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
         response.addCookie(refreshCookie);
 
+        // ── 추가: 앱을 위해 Refresh-Token 헤더로도 노출 ───────
+        response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
+
         //생성한 토큰을 응답 헤더에 담아 React에 전달
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
         response.setHeader("Authorization", "Bearer " + token);

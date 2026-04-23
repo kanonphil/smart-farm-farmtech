@@ -113,9 +113,17 @@ public class MemberController {
         }
     }
 
-    //refresh token 발급 api
+    /**
+     * Refresh Token으로 새 Access Token 발급
+     * - 웹: HTTP-only 쿠키로 전달
+     * - 앱: Refresh-Token 헤더로 전달 (React Native는 쿠키 자동 처리 불가)
+     */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false)String refreshToken){
+    public ResponseEntity<?> refresh(
+            @CookieValue(value = "refreshToken", required = false)String cookieToken,
+            @RequestHeader(value = "Refresh-Token", required = false)String headerToken){
+        // 앱(헤더) 우선, 없으면 웹(쿠키) 사용
+        String refreshToken = headerToken != null ? headerToken : cookieToken;
         String newAccessToken = memberService.refreshAccessToken(refreshToken);
 
         if (newAccessToken == null) return ResponseEntity.status(401).build();

@@ -1,4 +1,4 @@
-package com.farmtech.smartfarm.actuator;
+package com.farmtech.smartfarm.actuator.service;
 
 import com.farmtech.smartfarm.jwt.JwtUtil;
 import jakarta.annotation.PostConstruct;
