@@ -134,7 +134,7 @@ const Reviews = () => {
   const handleUpdate = async (reviewId) => {
     if (editForm.rating === 0) { showAlert('별점을 선택해주세요'); return }
     if (!editForm.content.trim()) { showAlert('내용을 입력해주세요'); return }
-    await updateReview(reviewId, { rating: editForm.rating, content: editForm.content })
+    await updateReview(reviewId, { rating: editForm.rating, content: editForm.content, imgFile: editImage })
     showAlert('수정되었습니다.')
     setEditId(null)
     fetchData()
