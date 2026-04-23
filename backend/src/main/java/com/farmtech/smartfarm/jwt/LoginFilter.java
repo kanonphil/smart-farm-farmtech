@@ -90,7 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String memberName = memberService.getMemberNameByEmail(userEmail);
 
         //JWT 토큰 생성
-        String token = jwtUtil.createJwt(userEmail, role, memberId, memberName, 1000 * 60); //1000 = 1초
+        String token = jwtUtil.createJwt(userEmail, role, memberId, memberName, 1000 * 60 * 60); //1000 = 1초
 
         // 자동로그인 여부와 관계없이 항상 Refresh Token 발급
         // 자동로그인 OFF → 짧은 유효기간 + 세션 쿠키 (브라우저 닫으면 삭제)
