@@ -115,9 +115,11 @@ public class MemberController {
 
     //refresh token 발급 api
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false)String refreshToken){
+    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false)String cookieToken,
+                                     @RequestHeader(value = "Refresh-Token", required = false)String headerToken){
+        // 웹은 쿠키, 앱은 헤더로 Refresh Token 전달 → 둘 중 있는 걸 사용
+        String refreshToken = cookieToken != null ? cookieToken : headerToken;
         String newAccessToken = memberService.refreshAccessToken(refreshToken);
-
         if (newAccessToken == null) return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok()
