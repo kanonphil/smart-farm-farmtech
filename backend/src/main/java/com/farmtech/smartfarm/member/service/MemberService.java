@@ -114,6 +114,8 @@ public class MemberService {
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(30*24*60*60);
             response.addCookie(refreshCookie);
+            response.setHeader("Refresh-Token", newRefreshToken);
+            response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
         }
         //4. 새 Access Token 발급해서 반환
         return jwtUtil.createJwt(member.getMemberEmail(), member.getMemberRole(), member.getMemberId(), member.getMemberName(), 1000 * 60 * 60);
