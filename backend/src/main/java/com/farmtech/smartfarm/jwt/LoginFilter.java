@@ -122,8 +122,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 앱(React Native)은 쿠키를 자동으로 처리하지 못하므로
         // Authorization, Refresh-Token 헤더를 클라이언트에서 읽을 수 있도록 노출
         response.setHeader("Access-Control-Expose-Headers", "Authorization, Refresh-Token");
-
-        // Access Token을 Authorization 헤더로 전달 (웹/앱 공통)
         response.setHeader("Authorization", "Bearer " + token);
 
         // Refresh Token을 헤더로도 전달 (앱에서 SecureStore에 저장하여 자동 로그인에 사용)
