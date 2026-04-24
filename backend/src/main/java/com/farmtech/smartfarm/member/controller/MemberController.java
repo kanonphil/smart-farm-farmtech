@@ -208,4 +208,15 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    // POST /members/fcm-token
+    @PostMapping("/fcm-token")
+    public ResponseEntity<?> saveFcmToken(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, String> body
+    ){
+        int memberId = userDetails.getMemberDTO().getMemberId();
+        memberService.updateFcmToken(memberId, body.get("fcmToken"));
+        return ResponseEntity.ok().build();
+
+    }
 }

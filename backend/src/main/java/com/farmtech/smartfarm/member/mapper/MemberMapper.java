@@ -56,7 +56,10 @@ public interface MemberMapper {
 
     // fcm토큰 저장
     void updateFcmToken(@Param("memberId") int memberId,@Param("fcmToken")String fcmToken);
-    // fcm토큰 조회
-    String selectFcmToken(@Param("memberId")String memberId);
 
+    // fcm토큰 조회
+    String selectFcmToken(@Param("memberId")int memberId);
+
+    //매니저 회원 ID
+    int selectManagerIds();
 }

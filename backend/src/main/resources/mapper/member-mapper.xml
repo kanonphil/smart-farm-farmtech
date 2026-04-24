@@ -177,6 +177,11 @@
         WHERE MEMBER_ID = #{memberId}
     </select>
 
+    <!-- 임계값 초과 시 푸시알림 To. 매니저   -->
+    <select id="selectManagerIds" resultType="int">
+        SELECT MEMBER_ID FROM MEMBER WHERE MEMBER_ROLE = 'ROLE_MANAGER'
+    </select>
+
 
 
 </mapper>

@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/members/withdraw").authenticated()
                         .requestMatchers(HttpMethod.GET,  "/members/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/members/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/members/fcm-token").authenticated()
 
                         // ── 공개 (비로그인 허용) ─────────────────────
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()          // 회원가입

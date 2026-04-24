@@ -1,5 +1,6 @@
 package com.farmtech.smartfarm.notification.service;
 
+import com.farmtech.smartfarm.member.mapper.MemberMapper;
 import com.farmtech.smartfarm.notification.dto.NotificationDTO;
 import com.farmtech.smartfarm.notification.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import java.util.List;
 public class NotificationService {
   private final NotificationMapper notificationMapper;
   private final SseEmitterService sseEmitterService;
+  private final FcmService fcmService;
+  private final MemberMapper memberMapper;
 
   /**
    * 알림 생성 및 실시간 전송
@@ -37,6 +40,10 @@ public class NotificationService {
 
     // SSE 연결 중이면 실시간 전송
     sseEmitterService.sendToMember(memberId, dto);
+
+    // FCM 발송 (추가)
+    String fcmToken = memberMapper.selectFcmToken(memberId);
+    fcmService.sendToDevice(fcmToken, "한우마루", message);
   }
 
   /**
