@@ -190,4 +190,9 @@ public class MemberService {
         memberMapper.withdrawMember(memberId);
     }
 
+    // FCM 토큰 저장
+    public void updateFcmToken(int memberId, String fcmToken){
+        memberMapper.updateFcmToken(memberId, fcmToken);
+    }
+
 }

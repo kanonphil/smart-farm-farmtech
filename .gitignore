@@ -26,6 +26,7 @@ bin/
 !**/src/test/**/bin/
 # secret key
 application-secret.properties
+firebase-service-account.json
 
 ### IntelliJ IDEA ###
 .idea/

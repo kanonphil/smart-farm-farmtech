@@ -25,4 +25,5 @@ public class MemberDTO {
   private String refreshToken;
   private LocalDateTime refreshTokenExpiry;
   private boolean autoLogin;
+  private String fcmToken;
 }

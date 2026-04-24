@@ -17,6 +17,7 @@
         <result column="MEMBER_CREATED_AT"      property="memberCreatedAt"/>
         <result column="REFRESH_TOKEN"          property="refreshToken"/>
         <result column="REFRESH_TOKEN_EXPIRY"   property="refreshTokenExpiry"/>
+        <result column="FCM_TOKEN"              property="fcmToken" />
     </resultMap>
 
     <insert id="insertMember">
@@ -161,6 +162,26 @@
             REFRESH_TOKEN_EXPIRY=NULL
         WHERE MEMBER_ID = #{memberId}
     </update>
+
+    <!-- fcm 토큰 저장 -->
+    <update id="updateFcmToken">
+        UPDATE MEMBER
+        SET FCM_TOKEN = #{fcmToken}
+        WHERE MEMBER_ID = #{memberId}
+    </update>
+
+    <!-- fcm 토큰 조회 -->
+    <select id="selectFcmToken" resultType="String">
+        SELECT FCM_TOKEN
+        FROM MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+    <!-- 임계값 초과 시 푸시알림 To. 매니저   -->
+    <select id="selectManagerIds" resultType="int">
+        SELECT MEMBER_ID FROM MEMBER WHERE MEMBER_ROLE = 'ROLE_MANAGER'
+    </select>
+
 
 
 </mapper>

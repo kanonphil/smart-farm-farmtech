@@ -55,4 +55,14 @@ public class NotificationController {
     notificationService.markAsRead(notificationId);
     return ResponseEntity.ok().build();
   }
+
+  /**
+   * FCM 테스트용 (개발 환경에서만 사용)
+   */
+  @PostMapping("/test")
+  public ResponseEntity<?> test(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    int memberId = userDetails.getMemberDTO().getMemberId();
+    notificationService.createNotification(memberId, "FCM 테스트 알림입니다!", "/home");
+    return ResponseEntity.ok().build();
+  }
 }
