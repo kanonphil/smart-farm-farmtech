@@ -50,7 +50,11 @@ export const getUnreviewedItems = async (startDate, endDate) => {
  * @param {*} data 
  * @returns 
  */
-export const updateReview = async (reviewId, formData) => {
+export const updateReview = async (reviewId, data) => {
+  const formData = new FormData()
+  formData.append('rating', data.rating)
+  formData.append('content', data.content)
+  if (data.imgFile) formData.append('imgFile', data.imgFile)
   const response = await axiosInstance.put(`/reviews/${reviewId}`, formData)
   return response
 }

@@ -196,6 +196,7 @@
         SUM(CASE WHEN RATING = 5 THEN 1 ELSE 0 END)            AS five
         FROM REVIEW
         WHERE PRODUCT_ID = #{productId}
+        AND STATUS = 'VISIBLE'
     </select>
 
     <!-- 매니저 전체 리뷰 목록 조회 - hasReply 포함 -->
