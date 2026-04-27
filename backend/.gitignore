@@ -38,6 +38,7 @@ out/
 
 ### Secret & Local Config ###
 **/application-secret.properties
+**/firebase-service-account.json
 
 ### Upload folder ###
 !uploads/.gitkeep
