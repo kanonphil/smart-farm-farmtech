@@ -76,6 +76,9 @@ dependencies {
 
 	// 빠이어베이스 admin SK (FCM 푸시 알림 발송용)
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+	// WebSocket STOMP (실시간 채팅)
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 // 테스트 실행 설정

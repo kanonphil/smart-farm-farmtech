@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.farmtech.smartfarm.chat.mapper.ChatMapper">
+
+    <resultMap id="chatRoomMap" type="com.farmtech.smartfarm.chat.dto.ChatRoomDTO">
+        <id     column="ROOM_ID"     property="roomId" />
+        <result column="MEMBER_ID"   property="memberId" />
+        <result column="MEMBER_NAME" property="memberName" />
+        <result column="STATUS"      property="status" />
+        <result column="CREATED_AT"  property="createdAt" />
+        <result column="UPDATED_AT"  property="updatedAt" />
+        <result column="LAST_MESSAGE" property="lastMessage" />
+    </resultMap>
+
+    <resultMap id="chatMessageMap" type="com.farmtech.smartfarm.chat.dto.ChatMessageDTO">
+        <id     column="MESSAGE_ID"   property="messageId" />
+        <result column="ROOM_ID"      property="roomId" />
+        <result column="SENDER_ROLE"  property="senderRole" />
+        <result column="CONTENT"      property="content" />
+        <result column="CREATED_AT"   property="createdAt" />
+    </resultMap>
+
+    <!-- 채팅방 생성 -->
+    <insert id="insertChatRoom" useGeneratedKeys="true" keyProperty="roomId">
+        INSERT INTO CHAT_ROOM (MEMBER_ID, STATUS)
+        VALUES (#{memberId}, 'OPEN')
+    </insert>
+
+    <!-- 회원 ID로 채팅방 조회 -->
+    <select id="selectRoomByMemberId" resultMap="chatRoomMap">
+        SELECT r.ROOM_ID, r.MEMBER_ID, m.MEMBER_NAME, r.STATUS, r.CREATED_AT, r.UPDATED_AT
+        FROM CHAT_ROOM r
+        JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+        WHERE r.MEMBER_ID = #{memberId}
+        ORDER BY r.CREATED_AT DESC
+        LIMIT 1
+    </select>
+
+    <!-- roomId로 채팅방 조회 -->
+    <select id="selectRoomById" resultMap="chatRoomMap">
+        SELECT r.ROOM_ID, r.MEMBER_ID, m.MEMBER_NAME, r.STATUS, r.CREATED_AT, r.UPDATED_AT
+        FROM CHAT_ROOM r
+        JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+        WHERE r.ROOM_ID = #{roomId}
+    </select>
+
+    <!-- 전체 채팅방 목록 (매니저용) -->
+    <select id="selectAllRooms" resultMap="chatRoomMap">
+        SELECT r.ROOM_ID, r.MEMBER_ID, m.MEMBER_NAME, r.STATUS, r.CREATED_AT, r.UPDATED_AT,
+        (SELECT CONTENT FROM CHAT_MESSAGE
+        WHERE ROOM_ID = r.ROOM_ID
+        ORDER BY CREATED_AT DESC LIMIT 1) AS LAST_MESSAGE
+        FROM CHAT_ROOM r
+        JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+        ORDER BY r.UPDATED_AT DESC
+    </select>
+
+    <!-- 채팅방 상태 변경 -->
+    <update id="updateRoomStatus">
+        UPDATE CHAT_ROOM
+        SET STATUS = #{status}, UPDATED_AT = NOW()
+        WHERE ROOM_ID = #{roomId}
+    </update>
+
+    <!-- 메시지 저장 -->
+    <insert id="insertMessage" useGeneratedKeys="true" keyProperty="messageId">
+        INSERT INTO CHAT_MESSAGE (ROOM_ID, SENDER_ROLE, CONTENT)
+        VALUES (#{roomId}, #{senderRole}, #{content})
+    </insert>
+
+    <!-- 채팅방 메시지 조회 -->
+    <select id="selectMessagesByRoomId" resultMap="chatMessageMap">
+        SELECT MESSAGE_ID, ROOM_ID, SENDER_ROLE, CONTENT, CREATED_AT
+        FROM CHAT_MESSAGE
+        WHERE ROOM_ID = #{roomId}
+        ORDER BY CREATED_AT ASC
+    </select>
+
+</mapper>

@@ -5,8 +5,8 @@ import { useState } from 'react'
 import {
   MdDashboard, MdAddBox, MdInventory, MdListAlt,
   MdMemory, MdHome, MdExpandLess, MdExpandMore,
-  MdShowChart,
-  MdRateReview
+  MdShowChart, MdRateReview,
+  MdHeadsetMic
 } from 'react-icons/md'
 
 const ManagerMenu = () => {
@@ -97,6 +97,14 @@ const ManagerMenu = () => {
             className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
           >
             <span className={styles.icon}><MdRateReview size={18} /></span> 리뷰 관리
+          </NavLink>
+
+          {/* ← 아래 추가 */}
+          <NavLink
+            to='chat'
+            className={({ isActive }) => `${styles.menu_item} ${isActive ? styles.active : ''}`}
+          >
+            <span className={styles.icon}><MdHeadsetMic size={18} /></span> 1:1 문의
           </NavLink>
         </div>
 
