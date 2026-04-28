@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/reviews/manager/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.POST,   "/reviews/*/reply", "/reviews/*/reply/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/reviews/*/reply/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/chat/rooms").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PATCH, "/chat/rooms/*/close").hasRole("MANAGER")
 
                         // ── 로그인 필요 (일반 회원) ──────────────────
                         .requestMatchers("/carts/**").authenticated()
@@ -72,6 +74,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/members/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/members/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/members/fcm-token").authenticated()
+                        .requestMatchers("/chat/rooms/*/messages").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/chat/rooms").authenticated()
 
                         // ── 공개 (비로그인 허용) ─────────────────────
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()          // 회원가입
@@ -90,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,   "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,    "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
+                        .requestMatchers("/ws/chat/**").permitAll()
 
                         // ── 나머지 전부 차단 ─────────────────────────
                         .anyRequest().denyAll()

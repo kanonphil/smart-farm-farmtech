@@ -36,6 +36,7 @@ import { connectNotificationStream, getUnreadNotifications } from "./api/notific
 import RequireAuth from './components/common/RequireAuth'
 import { getCartItems } from "./api/product/product"
 import ReviewManage from "./pages/manager/ReviewManage"
+import ChatManage from "./pages/manager/ChatManage"
 
 
 function App() {
@@ -125,6 +126,7 @@ function App() {
           <Route path='orders' element={<OrderManage />} />
           <Route path='sensor-chart' element={<SensorChart />} />
           <Route path='reviews' element={<ReviewManage />} />
+          <Route path='chat' element={<ChatManage />} />
         </Route>
 
         {/* 일반 회원 마이페이지 */}
