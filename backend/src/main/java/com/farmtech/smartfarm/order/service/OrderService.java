@@ -77,6 +77,12 @@ public class OrderService {
     return orderMapper.getOrderList(memberId, startDate, endDate);
   }
 
+  /** 결제 전 주문 취소 (READY → CANCELLED) */
+  @Transactional
+  public void cancelOrder(String tossOrderId) {
+    orderMapper.cancelOrder(tossOrderId, "고객 취소");
+  }
+
   /**
    * 구매 확정 처리 (SHIPPED → DONE)
    * 본인 주문만 가능합니다.

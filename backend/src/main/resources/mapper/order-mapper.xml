@@ -126,7 +126,7 @@
 
     <update id="cancelOrder" parameterType="map">
         UPDATE ORDERS
-        SET ORDER_STATUS = 'REFUNDED',
+        SET ORDER_STATUS = 'CANCELLED',
             CANCEL_REASON = #{cancelReason}
         WHERE TOSS_ORDER_ID = #{tossOrderId}
     </update>

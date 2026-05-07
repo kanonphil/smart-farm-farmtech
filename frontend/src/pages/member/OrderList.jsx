@@ -111,11 +111,12 @@ const OrderList = () => {
   //상태 변환 함수
   const changeStatus = (status) => {
     const map = {
-      PAID: '결제완료',
-      SHIPPING: '배송중',
-      SHIPPED: '배송완료',
-      DONE: '구매확정',
-      REFUNDED: '환불',
+      PAID:      '결제완료',
+      SHIPPING:  '배송중',
+      SHIPPED:   '배송완료',
+      DONE:      '구매확정',
+      REFUNDED:  '환불',
+      CANCELLED: '주문취소',
     }
     return map[status] || status
   }
@@ -123,11 +124,12 @@ const OrderList = () => {
   /** 상태별 뱃지 CSS 클래스 반환 */
   const getStatusBadgeClass = (status) => {
     const map = {
-      PAID:     styles.badgePaid,
-      SHIPPING: styles.badgeShipping,
-      SHIPPED:  styles.badgeShipped,
-      DONE:     styles.badgeDone,
-      REFUNDED: styles.badgeRefunded,
+      PAID:      styles.badgePaid,
+      SHIPPING:  styles.badgeShipping,
+      SHIPPED:   styles.badgeShipped,
+      DONE:      styles.badgeDone,
+      REFUNDED:  styles.badgeRefunded,
+      CANCELLED: styles.badgeRefunded,
     }
     return `${styles.badge} ${map[status] ?? ''}`
   }
