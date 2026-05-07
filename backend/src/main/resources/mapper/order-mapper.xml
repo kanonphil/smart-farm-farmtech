@@ -121,6 +121,7 @@
                  LEFT JOIN REVIEW R ON I.ORDER_ITEM_ID = R.ORDER_ITEM_ID
         WHERE O.MEMBER_ID = #{memberId}
           AND O.ORDER_CREATED_AT BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+          AND O.ORDER_STATUS NOT IN ('READY', 'CANCELLED')
         ORDER BY O.ORDER_CREATED_AT DESC
     </select>
 
