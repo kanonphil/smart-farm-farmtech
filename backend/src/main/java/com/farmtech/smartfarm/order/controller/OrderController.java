@@ -40,6 +40,18 @@ public class OrderController {
     }
   }
 
+  // 결제 전 주문 취소 api (READY → CANCELLED)
+  @PatchMapping("/cancel")
+  public ResponseEntity<?> cancelOrder(@RequestParam String tossOrderId) {
+    try {
+      orderService.cancelOrder(tossOrderId);
+      return ResponseEntity.ok().build();
+    } catch (Exception e) {
+      log.error("주문 취소 오류", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   //주문 정보 조회 api
   @GetMapping("")
   public ResponseEntity<?> getOrder(@AuthenticationPrincipal CustomUserDetails userDetails){
