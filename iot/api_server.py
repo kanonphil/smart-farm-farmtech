@@ -43,7 +43,6 @@ def verify_device_token(
       JWT_SECRET,
       algorithms=[JWT_ALGORITHM]
     )
-    # role 클레임이 DEVICE인지 확인
     if payload.get("role") != "DEVICE":
       raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
@@ -65,19 +64,14 @@ def verify_device_token(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-  # startup
   thread = threading.Thread(target=sensor_loop, daemon=True)
   thread.start()
-  print("FaseAPI 서버 시작 / 센서 루프 실행 중")
-
+  print("FastAPI 서버 시작 / 센서 루프 실행 중")
   yield
-
-  # shutdown (선택)
-  print("FaseAPI 서버 종료")
+  print("FastAPI 서버 종료")
 
 app = FastAPI(title="SmartFarm Actuator API", lifespan=lifespan)
 
-# CORS: 전체 허용(*) → 백엔드 서버만 허용
 app.add_middleware(
   CORSMiddleware,
   allow_origins=ALLOWED_ORIGINS,
@@ -85,7 +79,6 @@ app.add_middleware(
   allow_headers=["*"],
 )
 
-# GPIO 핀 (기존 actuators 파일과 동일한 핀 번호 사용)
 _led = LEDController()
 _buzzer = BuzzerController()
 _fan = FanController()
@@ -96,7 +89,6 @@ pir_sensor = PIRSensor()
 
 # ── 임계값 로드 ───────────────────────────────────────────────
 
-# DB 기본값 (프리셋 로드 실패 시 풀백용)
 DEFAULT_THRESHOLD = {
   "temp_low": 20.0,
   "temp_high": 30.0,
@@ -109,7 +101,7 @@ DEFAULT_THRESHOLD = {
 }
 
 def load_threshold(cursor):
-  """DB에서 현재 활성화 된 프리셋을 읽어 반환. 실패 시 기본값 반환"""
+  """DB에서 현재 활성화된 프리셋을 읽어 반환. 실패 시 기본값 반환"""
   try:
     cursor.execute(
       "SELECT TEMP_LOW, TEMP_HIGH, HUM_LOW, HUM_HIGH, AIR_PPM_LOW, AIR_PPM_BAD, LUX_LOW, LUX_HIGH "
@@ -127,16 +119,16 @@ def load_threshold(cursor):
         "lux_low":     row[6],
         "lux_high":    row[7],
       }
-    print("[경고] 활성화된 프리셋 없음 -> 기본값 사용")
+    print("[경고] 활성화된 프리셋 없음 → 기본값 사용")
     return DEFAULT_THRESHOLD
   except Exception as e:
-    print(f"[오류] 임계값 로드 실패: {e} -> 기본값 사용")
+    print(f"[오류] 임계값 로드 실패: {e} → 기본값 사용")
     return DEFAULT_THRESHOLD
 
 # ── 공유 상태 ─────────────────────────────────────────────────
 
 state = {
-  "mode": "auto",    # "auto" | "manual"
+  "mode": "auto",
   "threshold": DEFAULT_THRESHOLD,
   "led": {"is_on": False, "brightness": 0.0},
   "buzzer": {"is_on": False, "freq": 440},
@@ -146,7 +138,16 @@ state = {
     "lux": None, "air_raw": None, "air_ppm": None, "motion": False
   }
 }
+
+# state dict 업데이트 전용 — GPIO 제어에는 사용하지 않음
 lock = threading.Lock()
+
+# ── 모드 플래그 ───────────────────────────────────────────────
+# Event.is_set()은 atomic → lock 없이 안전하게 읽기 가능
+# set()   → auto 모드 활성화
+# clear() → manual 모드 (auto 비활성화)
+auto_mode = threading.Event()
+auto_mode.set()  # 초기값: auto
 
 # ── 알림 저장 ─────────────────────────────────────────────────
 
@@ -161,9 +162,17 @@ def save_alert(cursor, sensor_type, value, threshold):
     print(f"[오류] 알림 저장 실패: {e}")
 
 # ── AUTO 모드 LED 제어 ────────────────────────────────────────
+
 def _auto_led(lux, lux_high, lux_low):
+  """
+  GPIO 호출 직전 auto_mode를 재확인해 race condition을 방지합니다.
+  lock 없이 Event.is_set()으로 모드를 확인합니다.
+  """
+  if not auto_mode.is_set():  # 실행 직전 모드 재확인
+    return
   if lux is None:
     return
+
   if lux >= lux_high:
     _led.off()
     brightness, is_on = 0.0, False
@@ -175,20 +184,27 @@ def _auto_led(lux, lux_high, lux_low):
     brightness = round(max(0.0, min(1.0, 1 - ratio)), 2)
     _led.set_brightness(brightness)
     is_on = True
+
   with lock:
     state["led"] = {"is_on": is_on, "brightness": brightness}
 
+# ── 모션 감지 콜백 ────────────────────────────────────────────
+
 def _motion_callback():
+  """auto 모드일 때만 부저를 울립니다. lock 없이 Event로 모드 확인."""
+  if not auto_mode.is_set():
+    return
+  _buzzer.buzz_on(440)
   with lock:
-    if state["mode"] == "auto":
-      _buzzer.buzz_on(440)
-      state["buzzer"] = {"is_on": True, "freq": 440}
+    state["buzzer"] = {"is_on": True, "freq": 440}
 
 def _no_motion_callback():
+  """auto 모드일 때만 부저를 끕니다."""
+  if not auto_mode.is_set():
+    return
+  _buzzer.buzz_off()
   with lock:
-    if state["mode"] == "auto":
-      _buzzer.buzz_off()
-      state["buzzer"] = {"is_on": False, "freq": 440}
+    state["buzzer"] = {"is_on": False, "freq": 440}
 
 pir_sensor.on_motion(_motion_callback)
 pir_sensor.on_no_motion(_no_motion_callback)
@@ -200,19 +216,18 @@ def sensor_loop():
   cursor = conn.cursor()
 
   with lock:
-    state["threshold"] = load_threshold(cursor)  # 최초 로드
+    state["threshold"] = load_threshold(cursor)
 
-  reload_counter = 0            # 임계값 갱신 주기 카운터
-  
+  reload_counter = 0
+
   while True:
     try:
-      # 30회(약 60초)마다 DB에서 임계값 재로드
       if reload_counter >= 30:
         with lock:
           state["threshold"] = load_threshold(cursor)
         reload_counter = 0
       reload_counter += 1
-      
+
       temp, hum = dht22.read()
       lux = light.read()
       raw, ppm = air.read()
@@ -225,29 +240,30 @@ def sensor_loop():
           "air_ppm": ppm, "motion": motion
         })
         threshold = state["threshold"]
-        current_mode = state['mode']
 
-      # 자동제어 먼저
+      # ── 자동 제어 ──────────────────────────────────────────
       fan_triggers = set()
+      fan_speed = 0.0
 
-      if current_mode == "auto":
-        # LED 자동 제어
+      if auto_mode.is_set():
+        # LED 자동 제어 (_auto_led 내부에서 모드 재확인)
         _auto_led(lux, threshold["lux_high"], threshold["lux_low"])
-        
-        # 팬 자동 제어 (초과된 센서 종류 반환)
-        fan_result = _fan.control_fan(
-          temp, hum, ppm,
-          threshold["temp_low"],
-          threshold["temp_high"],
-          threshold["hum_low"],
-          threshold["hum_high"],
-          threshold["air_ppm_low"],
-          threshold["air_ppm_bad"]
-        )
-        fan_triggers = fan_result["reasons"]
-        fan_speed = fan_result["speed"]
-        with lock:
-          state['fan'] = {'is_on': bool(fan_triggers), 'speed': fan_speed}
+
+        # 팬 자동 제어 직전 모드 재확인
+        if auto_mode.is_set():
+          fan_result = _fan.control_fan(
+            temp, hum, ppm,
+            threshold["temp_low"],
+            threshold["temp_high"],
+            threshold["hum_low"],
+            threshold["hum_high"],
+            threshold["air_ppm_low"],
+            threshold["air_ppm_bad"]
+          )
+          fan_triggers = fan_result["reasons"]
+          fan_speed = fan_result["speed"]
+          with lock:
+            state["fan"] = {"is_on": bool(fan_triggers), "speed": fan_speed}
 
         # 임계값 초과 시 알림 저장
         if temp is not None and temp >= threshold["temp_high"]:
@@ -258,15 +274,19 @@ def sensor_loop():
           save_alert(cursor, "air", ppm, threshold["air_ppm_bad"])
 
       with lock:
-        led_on = state['led']['is_on']
-        buzzer_on = state['buzzer']['is_on']
-        fan_on = state['fan']['is_on']
+        led_on    = state["led"]["is_on"]
+        buzzer_on = state["buzzer"]["is_on"]
+        fan_on    = state["fan"]["is_on"]
 
-      # DB 센서 데이터 저장
+      is_manual = not auto_mode.is_set()
+
+      # ── DB 저장 ────────────────────────────────────────────
       if temp is not None and hum is not None:
         cursor.execute(
           "INSERT INTO SENSOR_DHT22 (TEMPERATURE, HUMIDITY, FAN_ON) VALUES (%s, %s, %s)",
-          (temp, hum, 1 if ('temperature' in fan_triggers or 'humidity' in fan_triggers) or (current_mode == "manual" and fan_on) else 0)
+          (temp, hum,
+           1 if ("temperature" in fan_triggers or "humidity" in fan_triggers)
+               or (is_manual and fan_on) else 0)
         )
       if lux is not None:
         cursor.execute(
@@ -276,7 +296,7 @@ def sensor_loop():
       if raw is not None and raw > 0:
         cursor.execute(
           "INSERT INTO SENSOR_AIR (RAW_VALUE, FAN_ON) VALUES (%s, %s)",
-          (raw, 1 if 'air' in fan_triggers or (current_mode == "manual" and fan_on) else 0)
+          (raw, 1 if "air" in fan_triggers or (is_manual and fan_on) else 0)
         )
       if motion:
         cursor.execute(
@@ -290,12 +310,10 @@ def sensor_loop():
     time.sleep(2.0)
 
 # ── 요청 모델 ───────────────────────────────────────────────
+
 class ModeRequest(BaseModel):
   mode: Literal["auto", "manual"]
 
-# ge: greator than or equal (이상)
-# le: less than or equal (이하)
-# gt: greater than (초과)
 class LedRequest(BaseModel):
   brightness: float = Field(default=1.0, ge=0.0, le=1.0)
 
@@ -306,6 +324,7 @@ class FanRequest(BaseModel):
   speed: float = Field(default=1.0, ge=0.0, le=1.0)
 
 # ── 응답 모델 ───────────────────────────────────────────────
+
 class ThresholdResponse(BaseModel):
   temp_low: float
   temp_high: float
@@ -367,114 +386,137 @@ class ThresholdReloadResponse(BaseModel):
   threshold: ThresholdResponse
 
 # ── 모드 API ────────────────────────────────────────────────
+
 @app.get("/mode", response_model=ModeResponse)
 def get_mode(_: dict = Depends(verify_device_token)):
-  with lock:
-    return {"mode": state["mode"]}
+  # Event에서 직접 읽음 — lock 불필요
+  return {"mode": "auto" if auto_mode.is_set() else "manual"}
 
 @app.post("/mode", response_model=ModeResponse)
 def set_mode(req: ModeRequest, _: dict = Depends(verify_device_token)):
-  if req.mode == "auto":
+  if req.mode == "manual":
+    auto_mode.clear()   # 센서 루프가 즉시 자동 제어 중단
     _led.off()
     _buzzer.buzz_off()
     _fan.fan_off()
-
-  with lock:
-    state["mode"] = req.mode
-    if req.mode == "auto":
-      state["led"] = {"is_on": False, "brightness": 0.0}
+    with lock:
+      state["mode"]   = "manual"
+      state["led"]    = {"is_on": False, "brightness": 0.0}
       state["buzzer"] = {"is_on": False, "freq": 440}
-      state["fan"] = {"is_on": False, "speed": 0.0}
+      state["fan"]    = {"is_on": False, "speed": 0.0}
+  else:  # auto
+    _led.off()
+    _buzzer.buzz_off()
+    _fan.fan_off()
+    with lock:
+      state["mode"]   = "auto"
+      state["led"]    = {"is_on": False, "brightness": 0.0}
+      state["buzzer"] = {"is_on": False, "freq": 440}
+      state["fan"]    = {"is_on": False, "speed": 0.0}
+    auto_mode.set()     # state 정리 후 auto 활성화
 
   return {"mode": req.mode}
 
 # ── LED API (manual 전용) ────────────────────────────────────
+
 @app.post("/led/on", response_model=LedControlResponse)
 def led_on(req: LedRequest, _: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-
+  print(f"[LED] /led/on 호출됨: brightness={req.brightness}")
+  if auto_mode.is_set():  # lock 불필요
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
   _led.set_brightness(req.brightness)
-
   with lock:
     state["led"] = {"is_on": True, "brightness": req.brightness}
-
   return {"result": "ok", "brightness": req.brightness}
 
 @app.post("/led/off", response_model=OkResponse)
 def led_off(_: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-    
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
   _led.off()
-
   with lock:
     state["led"] = {"is_on": False, "brightness": 0.0}
-
   return {"result": "ok"}
 
 # ── 부저 API (manual 전용) ───────────────────────────────────
+
 @app.post("/buzzer/on", response_model=BuzzerControlResponse)
 def buzzer_on(req: BuzzerRequest, _: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-    
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
   _buzzer.buzz_on(req.freq)
-
   with lock:
     state["buzzer"] = {"is_on": True, "freq": req.freq}
-
   return {"result": "ok", "freq": req.freq}
 
 @app.post("/buzzer/off", response_model=OkResponse)
 def buzzer_off(_: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-    
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
   _buzzer.buzz_off()
-
   with lock:
     state["buzzer"] = {"is_on": False, "freq": 440}
-
   return {"result": "ok"}
 
 # ── 팬 API (manual 전용) ─────────────────────────────────────
+
 @app.post("/fan/on", response_model=FanControlResponse)
 def fan_on(req: FanRequest, _: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-    
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
   _fan.fan_on(req.speed)
+  with lock:
+    state["fan"] = {"is_on": True, "speed": req.speed}
+  return {"result": "ok", "speed": req.speed}
+
+@app.post("/fan/off", response_model=OkResponse)
+def fan_off(_: dict = Depends(verify_device_token)):
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+  _fan.fan_off()
+  with lock:
+    state["fan"] = {"is_on": False, "speed": 0.0}
+  return {"result": "ok"}
+
+# ── 켜진 상태에서 속도/밝기 조절 ─────────────────────────────
+
+@app.post("/fan/speed", response_model=FanControlResponse)
+def set_fan_speed(req: FanRequest, _: dict = Depends(verify_device_token)):
+  """팬이 켜진 상태에서 속도만 변경합니다."""
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+
+  _fan.set_speed(req.speed)  # fan_on()은 켜진 상태에서도 duty 업데이트
 
   with lock:
     state["fan"] = {"is_on": True, "speed": req.speed}
 
   return {"result": "ok", "speed": req.speed}
 
-@app.post("/fan/off", response_model=OkResponse)
-def fan_off(_: dict = Depends(verify_device_token)):
-  with lock:
-    if state["mode"] != "manual":
-      raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
-    
-  _fan.fan_off()
+
+@app.post("/led/brightness", response_model=LedControlResponse)
+def set_led_brightness(req: LedRequest, _: dict = Depends(verify_device_token)):
+  print(f"[LED] /led/brightness 호출됨: brightness={req.brightness}")
+  """LED가 켜진 상태에서 밝기만 변경합니다."""
+  if auto_mode.is_set():
+    raise HTTPException(status_code=400, detail="manual 모드에서만 제어 가능")
+
+  _led.set_brightness_realtime(req.brightness)
 
   with lock:
-    state["fan"] = {"is_on": False, "speed": 0.0}
-  return {"result": "ok"}
+    state["led"] = {"is_on": req.brightness > 0, "brightness": req.brightness}
+
+  return {"result": "ok", "brightness": req.brightness}
 
 # ── 전체 상태 조회 ────────────────────────────────────────────
+
 @app.get("/status", response_model=StatusResponse)
 def get_status(_: dict = Depends(verify_device_token)):
   with lock:
     return dict(state)
 
 # ── 임계값 즉시 반영 ──────────────────────────────────────────
+
 @app.post("/threshold/reload", response_model=ThresholdReloadResponse)
 def reload_threshold(_: dict = Depends(verify_device_token)):
   conn   = get_connection()

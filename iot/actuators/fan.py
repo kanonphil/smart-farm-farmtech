@@ -11,22 +11,23 @@ class FanController:
     self._fan_ib = OutputDevice(GPIOConfig.FAN_IB_PIN, initial_value=False)
 
   def fan_on(self, speed=1.0):
-    """팬 켜기 (speed: 0.0 ~ 1.0)"""
     speed = max(0.0, min(1.0, speed))
-
-    # speed 0~1을 MIN_DUTY~MAX_DUTY 범위로 리매핑
-    # 예: speed=0.0 → duty=0.40, speed=0.5 → duty=0.695, speed=1.0 → duty=0.99
     duty = self.MIN_DUTY + (self.MAX_DUTY - self.MIN_DUTY) * speed
 
-    # 정지 상태에서 시작할 때 순간 최대 출력으로 기동
     if self._fan_ia.value == 0:
+      # 정지 → 기동: 긴 kick
       self._fan_ib.off()
-      self._fan_ia.value = self.MAX_DUTY  # 0.99로 킥
-      time.sleep(0.3)                      # 0.3초 유지
+      self._fan_ia.value = self.MAX_DUTY
+      time.sleep(0.3)
+    elif abs(self._fan_ia.value - duty) > 0.01:
+      # 켜진 상태 → 속도 변경: 짧은 kick
+      self._fan_ib.off()
+      self._fan_ia.value = self.MAX_DUTY
+      time.sleep(0.15)
 
     self._fan_ib.off()
     self._fan_ia.value = duty
-    print(f"팬 ON -> 속도 {round(speed * 100)}% (duty: {round(duty * 100)}%)")
+    print(f"팬 ON → 속도 {round(speed * 100)}% (duty: {round(duty * 100)}%)")
 
   def fan_off(self):
     """팬 끄기"""
@@ -80,6 +81,17 @@ class FanController:
       "reasons": set(reasons),
       "speed": round(final_speed, 2)
     }
+  
+  def set_speed(self, speed):
+    """켜진 상태에서 속도를 실시간으로 변경합니다. (kick 포함)"""
+    speed = max(0.0, min(1.0, speed))
+    duty = self.MIN_DUTY + (self.MAX_DUTY - self.MIN_DUTY) * speed
+
+    self._fan_ib.off()
+    self._fan_ia.value = self.MAX_DUTY  # 잠깐 킥으로 모터 재인식
+    time.sleep(0.15)
+    self._fan_ia.value = duty
+    print(f"팬 속도 변경 → {round(speed * 100)}% (duty: {round(duty * 100)}%)")
 
   def cleanup(self):
     self._fan_ia.close()

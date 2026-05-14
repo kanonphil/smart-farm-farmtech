@@ -1,0 +1,246 @@
+Create a Korean developer portfolio presentation for a new mobile/fullstack developer.
+This is for a school or bootcamp final project presentation and job interview submission.
+
+[Design Rules]
+- Apple-inspired minimal design
+- Dark navy (#0D1B2A) background, white text (#FFFFFF), accent blue (#4A9EFF)
+- Clean sans-serif font (Inter or SF Pro style)
+- Maximum 5 lines of text per slide — no text walls
+- Use code blocks, flow diagrams, and icon-based layouts actively
+- Total slide count: 20–24 slides
+
+---
+
+[Project Info]
+Project Name: SmartFarm (farm-tech)
+Tagline: IoT 센서부터 모바일 앱까지 — 농장 관리와 쇼핑을 하나로
+Team: 4인 팀 프로젝트
+Duration: 약 2개월 (2025년 4월 ~ 5월)
+My Role: 모바일 앱 개발 (React Native) + 백엔드 일부 (Spring Boot)
+
+---
+
+[SLIDE STRUCTURE — follow this exact order]
+
+== SLIDE 1: Cover ==
+Title: SmartFarm
+Subtitle: IoT 기반 스마트팜 통합 관리 모바일 앱
+Tags: React Native · Spring Boot · IoT · AI
+Visual: dark background, subtle green circuit grid
+
+== SLIDE 2: 목차 ==
+Display as a numbered visual index — one row per item:
+1. 프로젝트 개요
+2. 팀 구성 및 역할
+3. 프로젝트 수행 절차
+4. 주요 기능 소개
+5. 트러블슈팅
+6. 회고 & 마무리
+
+== SECTION 1: 프로젝트 개요 ==
+
+SLIDE 3 — 배경 & 문제 정의
+Use 3 icon bullets:
+🌱 농장 환경 이상 감지가 느림 → IoT 실시간 모니터링 필요
+🛒 농산물 판매 채널이 없음 → 직거래 쇼핑몰 필요
+🤖 식재료 활용 방법 부재 → AI 레시피 추천 필요
+
+SLIDE 4 — 서비스 구성 (3-block layout)
+Block 1: 📱 모바일 쇼핑몰
+상품 조회 · 장바구니 · 결제 · 주문 추적 · 리뷰
+
+Block 2: 🌡 IoT 대시보드
+온습도/조도/대기질 센서 실시간 모니터링
+LED·팬·부저 수동/자동 제어
+
+Block 3: 💬 부가 기능
+1:1 채팅 · 푸시 알림(FCM) · AI 레시피 추천
+
+SLIDE 5 — 기술 스택 (layered visual grid)
+Mobile:   React Native 0.81 · Expo 54 · Expo Router · NativeWind (Tailwind)
+State:    Zustand · Axios + Interceptor · Expo Secure Store
+Backend:  Java 17 · Spring Boot 3.5 · MyBatis · Spring Security · WebSocket (STOMP)
+Infra:    AWS RDS (MySQL) · AWS S3 · Firebase FCM
+External: Toss Payments · Google Gemini AI · Daum Postcode API
+
+SLIDE 6 — 시스템 아키텍처 다이어그램
+Draw a layered diagram:
+
+[Mobile App - React Native/Expo]
+         ↕ HTTP REST / WebSocket (STOMP) / SSE
+[Spring Boot Backend - REST API · JWT · WebSocket · SSE]
+         ↕
+[AWS RDS (MySQL)] [AWS S3 (Images)] [Firebase FCM]
+         ↕
+[Python FastAPI (Raspberry Pi) - Sensor Loop · GPIO Control]
+         ↕
+[External: Toss Payments · Google Gemini AI]
+
+Style: dark background, neon blue arrows, rounded boxes
+
+== SECTION 2: 팀 구성 및 역할 ==
+
+SLIDE 7 — 팀 구성 (table layout)
+4인 팀. Show as a clean table:
+| 이름 | 역할 | 담당 영역 |
+| 최유정 (나) | 모바일 앱 리드 + 백엔드 | React Native 앱 전체, 결제/주문/IoT 제어, 백엔드 API 일부 |
+| 팀원 B | 백엔드 | [실제 담당 영역] |
+| 팀원 C | 백엔드 + 채팅 | WebSocket 채팅 기능 |
+| 팀원 D | 프론트엔드 | React 웹 관리자 화면 |
+(Note to presenter: fill in actual teammate names and roles)
+
+SLIDE 8 — 내가 구현한 기능 목록
+Use icon + label grid (2 columns):
+📱 React Native 모바일 앱 전체 구조 설계
+🛒 장바구니 → 결제 → 주문 완료 플로우 구현
+🔔 Firebase FCM 푸시 알림 연동
+🌡 IoT 기기 제어 화면 (LED·팬·부저)
+📊 센서 데이터 시각화 (LineChart)
+🔐 JWT 자동 갱신 인터셉터 구현
+🚫 결제 전 주문 취소(CANCELLED) 상태 구현
+👤 역할 기반 탭 UI 분기 (USER vs MANAGER)
+
+== SECTION 3: 프로젝트 수행 절차 ==
+
+SLIDE 9 — 개발 타임라인 (horizontal timeline or Gantt-style)
+Week 1–2 (4월 초): 기획 · 요구사항 정의 · 와이어프레임 · DB 설계
+Week 3–4 (4월 중순): 인증(JWT) · 상품 목록/상세 · 장바구니 · 검색
+Week 5–6 (4월 후반): 결제(Toss) · 주문 플로우 · 마이페이지 · 리뷰
+Week 7 (4월 말): FCM 푸시 알림 · 채팅(STOMP) · 역할 기반 탭
+Week 8 (5월 초): IoT 대시보드 · 기기 제어 · 센서 차트
+Week 9–10 (5월 중순): UX 개선 · 버그 수정 · 최종 발표 준비
+
+SLIDE 10 — 개발 방법론
+- Git Flow 브랜치 전략 (feature/xxx → dev → main)
+- PR 기반 코드 리뷰 (GitHub)
+- API 명세 사전 정의 후 병렬 개발
+- Postman으로 백엔드 API 테스트
+Show a small branch diagram: main ← dev ← feature/search, feature/payment, feature/mypage...
+
+== SECTION 4: 주요 기능 소개 ==
+
+SLIDE 11 — 기능 ① 사용자 인증 & 자동 로그인
+Flow: 로그인 → Access Token + Refresh Token 발급
+→ SecureStore에 보안 저장
+→ 앱 재시작 시 자동 복원
+→ 만료 시 401 감지 → 자동 재발급 → 요청 재시도
+Code snippet:
+// Axios Interceptor — 토큰 자동 갱신
+if (error.response?.status === 401) {
+  const newToken = await silentRefresh();
+  originalRequest.headers.Authorization = `Bearer ${newToken}`;
+  return axiosInstance(originalRequest);
+}
+
+SLIDE 12 — 기능 ② 상품 · 장바구니 · 결제
+Show a horizontal flow with icons:
+[홈 - 상품 목록] → [상품 상세] → [장바구니] → [주문서 작성]
+→ [Toss 결제 WebView] → [백엔드 결제 검증] → [주문 완료]
+
+Key points (bullet):
+- 정렬: 판매량순 / 가격순
+- 수량 변경 시 낙관적 업데이트 (UI 먼저 반영)
+- Toss Payments Widget SDK 연동
+
+SLIDE 13 — 기능 ③ 주문 상태 관리
+Show a state machine diagram:
+READY → (결제 완료) → PAID → (배송 시작) → SHIPPING
+→ (배송 완료) → SHIPPED → (구매 확정) → DONE
+READY → (취소) → CANCELLED
+PAID → (환불) → REFUNDED
+
+Note: CANCELLED 상태는 결제 전(READY) 단계에서만 가능 — 직접 구현
+
+SLIDE 14 — 기능 ④ IoT 모니터링 & 기기 제어
+Two-column layout:
+Left — 모니터링:
+- 온도 / 습도 / 조도 / 대기질 실시간 카드
+- 정상/주의/경고 상태 뱃지
+- 연결 상태 배너 (LIVE / DB_FALLBACK)
+
+Right — 기기 제어:
+- 자동(Auto) / 수동(Manual) 모드 전환
+- LED 밝기 0~100% 조절
+- 환풍기 속도 0~100% 조절
+- 부저 주파수 Hz 조절
+- 스텝퍼(±) 버튼 UI
+
+SLIDE 15 — 기능 ⑤ 센서 데이터 시각화
+- 기간 선택: 오늘 / 주간 / 월간 / 연간 / 커스텀
+- 센서 탭: 온도 / 습도 / 조도 / 대기질
+- 집계 로직: 시간별 → 일별 → 주별 → 월별 자동 전환
+- LineChart로 최고/최저/평균값 시각화
+Show a mockup of the chart screen with LineChart
+
+SLIDE 16 — 기능 ⑥ 실시간 채팅 & 알림
+Two-column:
+Left — WebSocket 채팅:
+STOMP 프로토콜 기반 1:1 실시간 채팅
+/pub/chat → @MessageMapping → /sub/room/{id}
+
+Right — 실시간 알림:
+SSE(Server-Sent Events)로 알림 스트리밍
+Firebase FCM으로 모바일 푸시 알림
+미읽은 알림 뱃지 표시
+
+SLIDE 17 — 기능 ⑦ 역할 기반 UI 분기 (USER vs MANAGER)
+Show a split diagram:
+JWT decode → role 확인
+→ USER: 홈 / 장바구니 / 마이페이지 탭
+→ MANAGER: 대시보드 / 기기제어 / 데이터 탭
+
+Code snippet:
+// JWT에서 role 추출 후 탭 분기
+const role = decodeJWT(token).role;
+if (role === 'MANAGER') router.replace('/(tabs)/dashboard');
+else router.replace('/(tabs)/home');
+
+== SECTION 5: 트러블슈팅 ==
+
+SLIDE 18 — 트러블슈팅 ① JWT 자동 갱신
+Problem: API 요청 중 Access Token 만료 시 강제 로그아웃 발생
+Cause: 401 응답 처리 로직 미구현
+Solution:
+1. Axios Interceptor에서 401 감지
+2. Refresh Token으로 새 Access Token 발급 (silentRefresh)
+3. 실패한 원래 요청 자동 재시도
+Result: 사용자 재로그인 없이 자연스러운 세션 유지
+
+SLIDE 19 — 트러블슈팅 ② IoT 기기 제어 화면 성능
+Problem: 기기제어 탭 재진입 시마다 API 중복 호출 발생
+Cause: useEffect 의존성 설정 미흡으로 상태 재요청 반복
+Solution: useRef로 마지막 조회 timestamp 추적
+→ 일정 시간 이내 재진입 시 API 재호출 생략
+Result: 불필요한 서버 요청 제거, 화면 로딩 속도 개선
+
+SLIDE 20 — 트러블슈팅 ③ Expo SSE 알림 연결
+Problem: React Native 환경에서 기본 EventSource API 미지원
+Cause: 브라우저 전용 API라 모바일에서 동작 불가
+Solution: @microsoft/fetch-event-source 라이브러리 적용
+AbortController로 컴포넌트 언마운트 시 연결 정리
+Result: 모바일에서 실시간 알림 정상 수신
+
+== SECTION 6: 회고 & 마무리 ==
+
+SLIDE 21 — 회고 (3-section layout)
+잘한 점 ✅:
+- 앱 전체 아키텍처(인증·상태·API)를 직접 설계
+- IoT ~ 모바일 ~ 백엔드 E2E 개발 경험
+- 결제·알림·채팅 등 실서비스 수준 기능 구현
+
+아쉬운 점 ⚠️:
+- 테스트 코드 미작성 (단위/통합 테스트 부재)
+- 화면 로딩 상태 처리 일부 미흡
+- 다크모드 / 접근성 미대응
+
+배운 점 📚:
+- 토큰 갱신, SSE, FCM 등 실무 수준 인증·알림 구현 능력
+- MyBatis로 직접 SQL 작성 → ORM의 추상화 가치 체감
+- 팀 협업에서 API 명세 사전 합의의 중요성
+
+SLIDE 22 — 마무리 슬라이드
+Title: 감사합니다
+GitHub: github.com/kanonphil
+Email: gkrrydhsfkdls@gmail.com
+Quote (bottom center, smaller text):
+"IoT부터 모바일까지 — 농업과 기술을 연결하는 개발자가 되겠습니다"
