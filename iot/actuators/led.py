@@ -1,5 +1,6 @@
 from gpiozero import PWMLED
 from gpio_config import GPIOConfig
+import time
 
 class LEDController:
   # 조도 임계값
@@ -33,6 +34,12 @@ class LEDController:
     self._led.off()
 
   def set_brightness(self, value):
+    self._led.value = value
+
+  def set_brightness_realtime(self, value):
+    """켜진 상태에서 밝기를 실시간으로 변경합니다."""
+    self._led.off()
+    time.sleep(0.05)   # 팬보다 짧게 — LED는 관성 없음
     self._led.value = value
 
   def cleanup(self):
